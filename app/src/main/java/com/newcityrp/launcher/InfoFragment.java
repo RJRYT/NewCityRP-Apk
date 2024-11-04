@@ -8,8 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import main.java.com.newcityrp.launcher.HttpClient;
-import main.java.com.newcityrp.launcher.InfoRepository;
 
 import org.json.JSONObject;
 
