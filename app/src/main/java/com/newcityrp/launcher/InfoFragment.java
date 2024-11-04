@@ -17,7 +17,7 @@ import org.json.JSONObject;
 public class InfoFragment extends Fragment {
 
     private InfoRepository infoRepository;
-    private TextView serverNameTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, linksTextView, appBuildVersionTextView;
+    private TextView serverTitleTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, linksTextView, appBuildVersionTextView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class InfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_info, container, false);
 
         // Initialize TextViews
-        serverNameTextView = view.findViewById(R.id.infoServerTitle);
+        serverTitleTextView = view.findViewById(R.id.infoServerTitle);
         descriptionTextView = view.findViewById(R.id.infoDescription);
         createdAtTextView = view.findViewById(R.id.infoCreatedAt);
         ownersTextView = view.findViewById(R.id.infoOwners);
