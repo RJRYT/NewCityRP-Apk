@@ -1,6 +1,5 @@
 package com.newcityrp.launcher;
 
-import android.util.Log;
 import java.util.Scanner;
 import java.net.HttpURLConnection;
 import android.content.Context;
@@ -9,9 +8,9 @@ import org.json.JSONException;
 import java.net.URL;
 
 public class HttpClient {
-    private static final String TAG = "HttpClient";
     private static final String BASE_URL = "https://rjryt.github.io/samp/";
     private Context context;
+    private LogManager logManager;
 
     public interface DataCallback {
         void onSuccess(JSONObject data);
@@ -25,6 +24,7 @@ public class HttpClient {
     public void fetchData(String endpoint, DataCallback callback) {
         new Thread(() -> {
             HttpURLConnection connection = null;
+            logManager = new LogManager(this.context);
 
             try {
                 URL url = new URL(BASE_URL + endpoint);
@@ -50,14 +50,14 @@ public class HttpClient {
                         JSONObject resultObject = new JSONObject(inline.toString());
                         callback.onSuccess(resultObject);
                     } catch (JSONException e) {
-                        Log.d("Error: ",e.toString());
+                        logManager.logError("Error: ",e.toString());
                         callback.onFailure(e.getMessage());
                     }
                 } else {
                     callback.onFailure("Server returned: " + responseCode);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error fetching data: " + e.getMessage());
+                logManager.logError("Error fetching data: " + e.getMessage());
                 callback.onFailure(e.getMessage());
             } finally {
                 if (connection != null) {
