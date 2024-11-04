@@ -11,7 +11,7 @@ import android.widget.ImageView;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
+ 
 public class AlertManager {
     private final Activity activity;
     private final Queue<Alert> alertQueue = new LinkedList<>();
