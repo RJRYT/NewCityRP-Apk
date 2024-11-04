@@ -16,6 +16,10 @@ public class HttpClient {
         void onFailure(String error);
     }
 
+    public HttpClient(Context context) {
+        this.context = context;
+    }
+
     public void fetchData(String endpoint, DataCallback callback) {
         new Thread(() -> {
             HttpURLConnection connection = null;
