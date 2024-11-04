@@ -11,6 +11,7 @@ public class InfoRepository {
     private CacheManager cacheManager;
     private HttpClient httpClient;
     private LogManager logManager;
+    private Context context;
 
     public InfoRepository(Context context) {
         this.cacheManager = new CacheManager(context);
@@ -23,7 +24,7 @@ public class InfoRepository {
     }
 
     public void fetchServerInfo(DataCallback callback) {
-        logManager = new LogManager(Context context);
+        logManager = new LogManager(context);
         String cachedData = cacheManager.getCache(cacheManager.SERVER_INFO_KEY, CACHE_EXPIRY_TIME);
         if (cachedData != null) {
             try {
