@@ -13,6 +13,11 @@
         android:textSize="18sp"
         android:padding="8dp" />
 
-    <!-- Add other views here -->
+    <TextView
+        android:id="@+id/infoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Loading..."
+        android:textSize="16sp" />
 
 </LinearLayout>
