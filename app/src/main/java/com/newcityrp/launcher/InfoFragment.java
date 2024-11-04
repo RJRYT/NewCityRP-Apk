@@ -17,7 +17,7 @@ import org.json.JSONObject;
 public class InfoFragment extends Fragment {
 
     private InfoRepository infoRepository;
-    private TextView serverNameTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, linksTextView;
+    private TextView serverNameTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, linksTextView, appBuildVersionTextView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
