@@ -1,13 +1,11 @@
 package com.newcityrp.launcher;
 
 import android.util.Log;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.util.Scanner;
 import java.net.HttpURLConnection;
 import android.content.Context;
 import org.json.JSONObject;
-import org.json.JSONException;
+import org.json.simple.parser.JSONParser;
 import java.net.URL;
 
 public class HttpClient {
@@ -27,7 +25,6 @@ public class HttpClient {
     public void fetchData(String endpoint, DataCallback callback) {
         new Thread(() -> {
             HttpURLConnection connection = null;
-            BufferedReader reader = null;
 
             try {
                 URL url = new URL(BASE_URL + endpoint);
@@ -38,19 +35,22 @@ public class HttpClient {
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
+                    String inline = "";
+                    Scanner scanner = new Scanner(url.openStream());
+
+                    //Write all the JSON data into a string using a scanner
+                    while (scanner.hasNext()) {
+                        inline += scanner.nextLine();
                     }
-                    try {
-                        JSONObject resultObject = new JSONObject(result.toString());
-                        callback.onSuccess(resultObject);
-                    } catch (JSONException e) {
-                        Log.d("Error: ",e.toString());
-                        callback.onFailure(e.getMessage());
-                    }
+
+                    //Close the scanner
+                    scanner.close();
+
+                    //Using the JSON simple library parse the string into a json object
+                    JSONParser parse = new JSONParser();
+                    JSONObject resultObject = (JSONObject) parse.parse(inline);
+
+                    callback.onSuccess(resultObject);
                 } else {
                     callback.onFailure("Server returned: " + responseCode);
                 }

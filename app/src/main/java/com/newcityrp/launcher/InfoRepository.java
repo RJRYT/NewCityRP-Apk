@@ -3,7 +3,7 @@ package com.newcityrp.launcher;
 import android.content.Context;
 import android.util.Log;
 import org.json.JSONObject;
-import org.json.JSONException;
+import org.json.simple.parser.JSONParser;
 
 public class InfoRepository {
     private static final long CACHE_EXPIRY_TIME = 3600 * 1000; // 1 hour in milliseconds
@@ -24,13 +24,9 @@ public class InfoRepository {
     public void fetchServerInfo(DataCallback callback) {
         String cachedData = cacheManager.getCache(cacheManager.SERVER_INFO_KEY, CACHE_EXPIRY_TIME);
         if (cachedData != null) {
-            try {
-                JSONObject cacheObject = new JSONObject(cachedData);
-                callback.onSuccess(cacheObject);
-            } catch (JSONException e) {
-                Log.d("Error: ",e.toString());
-                callback.onFailure(e.getMessage());
-            }
+            JSONParser parse = new JSONParser();
+            JSONObject cacheObject = (JSONObject) parse.parse(cachedData);
+            callback.onSuccess(cacheObject);
         } else {
             httpClient.fetchData("serverinfo.json", new HttpClient.DataCallback() {
                 @Override

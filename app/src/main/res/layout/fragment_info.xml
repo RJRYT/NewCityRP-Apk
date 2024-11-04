@@ -9,25 +9,32 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- App Logo -->
-        <ImageView
-            android:id="@+id/infoAppLogo"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/logoround"
-            android:contentDescription="App Logo"
-            android:layout_gravity="start"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Title with server name and version -->
-        <TextView
-            android:id="@+id/infoServerTitle"
-            android:layout_width="wrap_content"
+    <!-- Logo and Title Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:text="Server Title"
-            android:layout_marginBottom="16dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- App Logo -->
+            <ImageView
+                android:id="@+id/infoAppLogo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/logoround"
+                android:contentDescription="App Logo"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Title with server name and version -->
+            <TextView
+                android:id="@+id/infoServerTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:textColor="@android:color/black"
+                android:text="Server Title" />
+        </LinearLayout>
 
         <!-- Server Description -->
         <TextView
@@ -35,6 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
+            android:textSize="16sp"
             android:text="Description" />
 
         <!-- Server Creation Date -->
@@ -43,6 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
+            android:textSize="16sp"
             android:text="Created At" />
 
         <!-- Owners Information -->
@@ -51,6 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
+            android:textSize="16sp"
             android:text="Owners" />
 
         <!-- Server Version (Optional, if needed separately) -->
@@ -59,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
+            android:textSize="16sp"
             android:text="Server Version" />
 
         <!-- Links -->
@@ -67,6 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
+            android:textSize="16sp"
             android:text="Links" />
 
         <!-- App Build Version at Bottom -->
@@ -75,6 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:textSize="16sp"
             android:text="App Build Version" />
 
     </LinearLayout>
