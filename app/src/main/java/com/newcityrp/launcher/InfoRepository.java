@@ -3,7 +3,7 @@ package com.newcityrp.launcher;
 import android.content.Context;
 import android.util.Log;
 import org.json.JSONObject;
-import java.io.IOException;
+import org.json.JSONException;
 
 public class InfoRepository {
     private static final long CACHE_EXPIRY_TIME = 3600 * 1000; // 1 hour in milliseconds

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import android.content.Context;
 import org.json.JSONObject;
+import org.json.JSONException;
 import java.net.URL;
 
 public class HttpClient {
@@ -44,7 +45,7 @@ public class HttpClient {
                         result.append(line);
                     }
                     try {
-                        JSONObject resultObject = new JSONObject(result);
+                        JSONObject resultObject = new JSONObject(result.toString());
                         callback.onSuccess(resultObject);
                     } catch (JSONException e) {
                         Log.d("Error: ",e.toString());
