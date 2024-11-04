@@ -131,7 +131,8 @@ public class MainActivity extends AppCompatActivity {
         if (!isMicrophonePermissionGranted || !isNotificationPermissionGranted) {
             showPermissionsDialog();
         }else {
-            //test
+            logManager = new LogManager(this);
+            logManager.checkPermissionsAndCreateLogFile();
         }
     }
 
