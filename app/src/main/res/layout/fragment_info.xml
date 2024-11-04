@@ -9,48 +9,73 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- App Logo -->
+        <ImageView
+            android:id="@+id/infoAppLogo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/logoround"
+            android:contentDescription="App Logo"
+            android:layout_gravity="start"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Title with server name and version -->
         <TextView
-            android:id="@+id/serverName"
+            android:id="@+id/infoServerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:textSize="20sp"
-            android:text="Server Name" />
+            android:textSize="18sp"
+            android:text="Server Title"
+            android:layout_marginBottom="16dp" />
 
+        <!-- Server Description -->
         <TextView
-            android:id="@+id/description"
+            android:id="@+id/infoDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:text="Description" />
 
+        <!-- Server Creation Date -->
         <TextView
-            android:id="@+id/createdAt"
+            android:id="@+id/infoCreatedAt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:text="Created At" />
 
+        <!-- Owners Information -->
         <TextView
-            android:id="@+id/owners"
+            android:id="@+id/infoOwners"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:text="Owners" />
 
+        <!-- Server Version (Optional, if needed separately) -->
         <TextView
-            android:id="@+id/serverVersion"
+            android:id="@+id/infoServerVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:text="Server Version" />
 
+        <!-- Links -->
         <TextView
-            android:id="@+id/links"
+            android:id="@+id/infoLinks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:text="Links" />
+
+        <!-- App Build Version at Bottom -->
+        <TextView
+            android:id="@+id/infoAppBuildVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="App Build Version" />
 
     </LinearLayout>
 </ScrollView>

@@ -8,6 +8,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,15 +31,19 @@ public class InfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_info, container, false);
 
         // Initialize TextViews
-        serverNameTextView = view.findViewById(R.id.serverName);
-        descriptionTextView = view.findViewById(R.id.description);
-        createdAtTextView = view.findViewById(R.id.createdAt);
-        ownersTextView = view.findViewById(R.id.owners);
-        serverVersionTextView = view.findViewById(R.id.serverVersion);
-        linksTextView = view.findViewById(R.id.links);
+        serverNameTextView = view.findViewById(R.id.infoServerTitle);
+        descriptionTextView = view.findViewById(R.id.infoDescription);
+        createdAtTextView = view.findViewById(R.id.infoCreatedAt);
+        ownersTextView = view.findViewById(R.id.infoOwners);
+        serverVersionTextView = view.findViewById(R.id.infoServerVersion);
+        linksTextView = view.findViewById(R.id.infoLinks);
+        appBuildVersionTextView = view.findViewById(R.id.infoAppBuildVersion);
 
         // Load server info
         loadServerInfo();
+
+        // Set app build version
+        setAppBuildVersion();
 
         return view;
     }
@@ -57,12 +63,12 @@ public class InfoFragment extends Fragment {
         });
     }
 
-    private void parseAndDisplayData(String jsonData) {
+    private void parseAndDisplayData(JSONObject jsonObject) {
         try {
-            JSONObject jsonObject = new JSONObject(jsonData);
-
-            // Set server name
-            serverNameTextView.setText(jsonObject.getString("name"));
+             // Set server title as "Server Name [Server Version]"
+            String serverName = jsonObject.getString("name");
+            String serverVersion = jsonObject.getString("serverVersion");
+            serverTitleTextView.setText(serverName + " [" + serverVersion + "]");
 
             // Set description
             descriptionTextView.setText(jsonObject.getString("description"));
@@ -97,6 +103,17 @@ public class InfoFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
             getActivity().runOnUiThread(() -> descriptionTextView.setText("Error parsing server info"));
+        }
+    }
+
+    private void setAppBuildVersion() {
+        try {
+            PackageManager pm = requireContext().getPackageManager();
+            PackageInfo packageInfo = pm.getPackageInfo(requireContext().getPackageName(), 0);
+            String versionName = packageInfo.versionName;
+            appBuildVersionTextView.setText("App Version: " + versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            appBuildVersionTextView.setText("App Version: Unknown");
         }
     }
 }
