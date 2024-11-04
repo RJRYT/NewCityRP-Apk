@@ -24,11 +24,12 @@ public class InfoRepository {
     public void fetchServerInfo(DataCallback callback) {
         String cachedData = cacheManager.getCache(cacheManager.SERVER_INFO_KEY, CACHE_EXPIRY_TIME);
         if (cachedData != null) {
-            callback.onSuccess(cachedData);
+            JSONObject cacheObject = new JSONObject(cachedData);
+            callback.onSuccess(cacheObject);
         } else {
             httpClient.fetchData("serverinfo.json", new HttpClient.DataCallback() {
                 @Override
-                public void onSuccess(String data) {
+                public void onSuccess(JSONObject data) {
                     cacheManager.saveCache(cacheManager.SERVER_INFO_KEY, data);
                     callback.onSuccess(data);
                 }

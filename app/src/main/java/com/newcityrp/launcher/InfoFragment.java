@@ -35,13 +35,13 @@ public class InfoFragment extends Fragment {
         infoRepository.fetchServerInfo(new InfoRepository.DataCallback() {
 
             @Override
-            public void onSuccess(String data) {
+            public void onSuccess(JSONObject data) {
                 getActivity().runOnUiThread(() -> infoTextView.setText(data.toString()));
             }
 
             @Override
             public void onFailure(String error) {
-                getActivity().runOnUiThread(() -> infoTextView.setText("Failed to load server info"));
+                getActivity().runOnUiThread(() -> infoTextView.setText(error));
             }
         });
     }

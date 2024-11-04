@@ -43,7 +43,7 @@ public class HttpClient {
                     while ((line = reader.readLine()) != null) {
                         result.append(line);
                     }
-                    callback.onSuccess(result.toString());
+                    callback.onSuccess(result);
                 } else {
                     callback.onFailure("Server returned: " + responseCode);
                 }
