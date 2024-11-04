@@ -1,6 +1,7 @@
 package com.newcityrp.launcher;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Process;
 import android.util.Log;
 import android.widget.Toast;
@@ -21,8 +22,8 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
         this.context = context;
         this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         this.sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-    }
-
+    } 
+ 
     @Override
     public void uncaughtException(Thread thread, Throwable throwable) {
         try {
