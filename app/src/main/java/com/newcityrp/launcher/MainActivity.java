@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         
         logManager = new LogManager(this);
         
-        logManager.logInfo("Application started");
+        logManager.logInfo("========Application started========");
 
         viewPager = findViewById(R.id.viewPager);
         bottomNavigationView = findViewById(R.id.bottom_navigation);

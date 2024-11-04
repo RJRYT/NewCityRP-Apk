@@ -10,6 +10,7 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     private final Context context;
     private final Thread.UncaughtExceptionHandler defaultHandler;
+    private LogManager logManager;
 
     public GlobalExceptionHandler(Context context) {
         this.context = context;
@@ -21,12 +22,17 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
         // Log the exception with Firebase Crashlytics
         FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
         crashlytics.recordException(throwable);  // This logs the exception to Firebase
+        logManager = new LogManager(this.context);
 
         // Optional: Add custom keys or user information
         crashlytics.setCustomKey("UnhandledExceptionThread", thread.getName());
 
         // Optional: Show a Toast message
-        Toast.makeText(context, "An unexpected error occurred. Restarting the app...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this.context, "An unexpected error occurred. Restarting the app...", Toast.LENGTH_SHORT).show();
+
+        // logging locally
+        logManager.logError("========uncaughtException========");
+        logManager.logError(throwable.toString());
 
         // Restart the app (or navigate to a specific activity)
         Intent intent = new Intent(context, MainActivity.class);
