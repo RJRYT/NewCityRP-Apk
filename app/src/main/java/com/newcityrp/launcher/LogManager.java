@@ -85,7 +85,7 @@ public class LogManager {
     }
 
     // Write log message to file
-    public void writeLog(String message) {
+    private void writeLog(String message) {
         if (logFile != null) {
             String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             String logMessage = timeStamp + " - " + message + "\n";
@@ -98,13 +98,133 @@ public class LogManager {
         }
     }
 
-    // Log error message
+    // Log error message with a single String
     public void logError(String error) {
         writeLog("ERROR: " + error);
     }
 
-    // Log general message
+    // Log error message with multiple Strings
+    public void logError(String... errors) {
+        StringBuilder message = new StringBuilder("ERROR: ");
+        for (String error : errors) {
+            message.append(error).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    // Log error message with multiple parameters (Objects)
+    public void logError(Object... errors) {
+        StringBuilder message = new StringBuilder("ERROR: ");
+        for (Object error : errors) {
+            message.append(error).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    // Log general message with a single String
     public void logInfo(String info) {
         writeLog("INFO: " + info);
+    }
+
+    // Log general message with multiple Strings
+    public void logInfo(String... infos) {
+        StringBuilder message = new StringBuilder("INFO: ");
+        for (String info : infos) {
+            message.append(info).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    // Log general message with multiple parameters (Objects)
+    public void logInfo(Object... infos) {
+        StringBuilder message = new StringBuilder("INFO: ");
+        for (Object info : infos) {
+            message.append(info).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    // Log assert message
+    public void logAssert(String message) {
+        writeLog("ASSERT: " + message);
+    }
+
+    public void logAssert(String... messages) {
+        StringBuilder message = new StringBuilder("ASSERT: ");
+        for (String msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    public void logAssert(Object... messages) {
+        StringBuilder message = new StringBuilder("ASSERT: ");
+        for (Object msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    // Log warn message
+    public void logWarn(String message) {
+        writeLog("WARN: "+ message);
+    }
+
+    public void logWarn(String... messages) {
+        StringBuilder message = new StringBuilder("WARN: ");
+        for (String msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    public void logWarn(Object... messages) {
+        StringBuilder message = new StringBuilder("WARN: ");
+        for (Object msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    // Log verbose message
+    public void logVerbose(String message) {
+        writeLog("VERBOSE: "+ message);
+    }
+
+    public void logVerbose(String... messages) {
+        StringBuilder message = new StringBuilder("VERBOSE: ");
+        for (String msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    public void logVerbose(Object... messages) {
+        StringBuilder message = new StringBuilder("VERBOSE: ");
+        for (Object msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    // Log debug message
+    public void logDebug(String message) {
+        writeLog("DEBUG: "+ message);
+    }
+
+    public void logDebug(String... messages) {
+        StringBuilder message = new StringBuilder("DEBUG: ");
+        for (String msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
+    }
+
+    public void logDebug(Object... messages) {
+        StringBuilder message = new StringBuilder("DEBUG: ");
+        for (Object msg : messages) {
+            message.append(msg).append(" ");
+        }
+        writeLog(message.toString().trim());
     }
 }
