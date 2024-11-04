@@ -5,11 +5,13 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import android.content.Context;
 import java.net.URL;
 
 public class HttpClient {
     private static final String TAG = "HttpClient";
     private static final String BASE_URL = "https://rjryt.github.io/samp/";
+    private Context context;
 
     public interface DataCallback {
         void onSuccess(String data);
