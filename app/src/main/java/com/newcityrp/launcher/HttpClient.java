@@ -43,7 +43,13 @@ public class HttpClient {
                     while ((line = reader.readLine()) != null) {
                         result.append(line);
                     }
-                    callback.onSuccess(result);
+                    try {
+                        JSONObject resultObject = new JSONObject(result);
+                        callback.onSuccess(resultObject);
+                    } catch (JSONException e) {
+                        Log.d("Error: ",e.toString());
+                        callback.onFailure(e.getMessage());
+                    }
                 } else {
                     callback.onFailure("Server returned: " + responseCode);
                 }
