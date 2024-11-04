@@ -13,9 +13,6 @@ public class FavoriteFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        String myString = null;
-        int length = myString.length(); // This will throw a NullPointerException
-
         return inflater.inflate(R.layout.fragment_favorite, container, false);
     }
 }
