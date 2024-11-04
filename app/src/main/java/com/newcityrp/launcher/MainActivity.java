@@ -20,10 +20,6 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.Map;
-import android.os.Environment;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,8 +50,7 @@ public class MainActivity extends AppCompatActivity {
         logManager = new LogManager(this);
         
         logManager.logInfo("Application started");
-        writeLogFile();
-        
+
         viewPager = findViewById(R.id.viewPager);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -115,18 +110,6 @@ public class MainActivity extends AppCompatActivity {
         });
         
     }
-
-    private void writeLogFile() {
-    try {
-        File logFile = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "my_log_file.txt");
-        FileWriter writer = new FileWriter(logFile);
-        writer.append("This is a log entry");
-        writer.flush();
-        writer.close();
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-}
     
     @Override
     protected void onResume() {
@@ -158,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
                 .setTitle("Permissions Required")
-                .setMessage("This app needs access to your microphone and notifications to work properly.")
+                .setMessage("This app needs access to your microphone, notifications and files to work properly.")
                 .setPositiveButton("Grant", (dialog, which) -> {
                     requestPermissions();
                 })
@@ -171,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestPermissions() {
+        logManager = new LogManager(this);
+        logManager.checkPermissionsAndCreateLogFile();
         permissionLauncher.launch(new String[]{
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.POST_NOTIFICATIONS

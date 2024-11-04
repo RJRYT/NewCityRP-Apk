@@ -30,10 +30,9 @@ public class LogManager {
 
     public LogManager(Context context) {
         this.context = context;
-        checkPermissionsAndCreateLogFile();
     }
 
-    private void checkPermissionsAndCreateLogFile() {
+    public void checkPermissionsAndCreateLogFile() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
                 createLogFile(); // Permission granted
