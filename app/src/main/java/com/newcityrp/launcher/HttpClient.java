@@ -5,7 +5,6 @@ import java.util.Scanner;
 import java.net.HttpURLConnection;
 import android.content.Context;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
 import java.net.URL;
 
 public class HttpClient {
@@ -35,22 +34,24 @@ public class HttpClient {
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    String inline = "";
+                    StringBuilder inline = new StringBuilder();
                     Scanner scanner = new Scanner(url.openStream());
 
-                    //Write all the JSON data into a string using a scanner
+                    // Read JSON data into a StringBuilder using Scanner
                     while (scanner.hasNext()) {
-                        inline += scanner.nextLine();
+                        inline.append(scanner.nextLine());
                     }
 
-                    //Close the scanner
                     scanner.close();
 
-                    //Using the JSON simple library parse the string into a json object
-                    JSONParser parse = new JSONParser();
-                    JSONObject resultObject = (JSONObject) parse.parse(inline);
-
-                    callback.onSuccess(resultObject);
+                    try {
+                        // Parse the string into a JSONObject
+                        JSONObject resultObject = new JSONObject(inline.toString());
+                        callback.onSuccess(resultObject);
+                    } catch (JSONException e) {
+                        Log.d("Error: ",e.toString());
+                        callback.onFailure(e.getMessage());
+                    }
                 } else {
                     callback.onFailure("Server returned: " + responseCode);
                 }
@@ -58,13 +59,6 @@ public class HttpClient {
                 Log.e(TAG, "Error fetching data: " + e.getMessage());
                 callback.onFailure(e.getMessage());
             } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error closing reader: " + e.getMessage());
-                    }
-                }
                 if (connection != null) {
                     connection.disconnect();
                 }
