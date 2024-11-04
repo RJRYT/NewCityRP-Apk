@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NewCityRp</string>
+    <string name="app_name_long">New City Roleplay</string>
+    <string name="discord_icon_desc">Discord</string>
+    <string name="whatsapp_icon_desc">WhatsApp</string>
+    <string name="youtube_icon_desc">YouTube</string>
+</resources>

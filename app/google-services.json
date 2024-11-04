@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1037969627228",
+    "project_id": "new-city-roleplay-beta",
+    "storage_bucket": "new-city-roleplay-beta.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1037969627228:android:7f6739d54b9ea1db7c6e99",
+        "android_client_info": {
+          "package_name": "com.newcityrp.launcher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUjuSIBPD8yQgWr1VS5qd2xZPQFIitPsM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
