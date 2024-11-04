@@ -34,19 +34,13 @@ public class LogManager {
     }
 
     private void checkPermissionsAndCreateLogFile() {
-        Toast.makeText(this.context, "checkPermissionsAndCreateLogFile",Toast.LENGTH_LONG).show();
-        Toast.makeText(this.context, Build.VERSION.SDK_INT + " " + Build.VERSION_CODES.R,Toast.LENGTH_LONG).show();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Toast.makeText(this.context, "inside first if",Toast.LENGTH_LONG).show();
             if (Environment.isExternalStorageManager()) {
-                Toast.makeText(this.context, "createLogFile",Toast.LENGTH_LONG).show();
                 createLogFile(); // Permission granted
             } else {
-                Toast.makeText(this.context, "requestAllFilesAccessPermission",Toast.LENGTH_LONG).show();
                 requestAllFilesAccessPermission((Activity) context);
             }
         } else {
-            Toast.makeText(this.context, "requestLegacyPermission",Toast.LENGTH_LONG).show();
             requestLegacyPermission((Activity) context);
         }
     }
@@ -74,7 +68,6 @@ public class LogManager {
     // Check if external storage is writable
     private boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        Toast.makeText(this.context, "isExternalStorageWritable: state:"+state,Toast.LENGTH_LONG).show();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
