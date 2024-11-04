@@ -1,33 +1,60 @@
 package com.newcityrp.launcher;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class HttpClient {
-    private static final String BASE_URL = "http://rjryt.github.io/samp/";
+    private static final String TAG = "HttpClient";
+    private static final String BASE_URL = "https://rjryt.github.io/samp/";
 
-    private static HttpClient instance;
-    private OkHttpClient client;
-
-    private HttpClient() {
-        client = new OkHttpClient();
+    public interface DataCallback {
+        void onSuccess(String data);
+        void onFailure(String error);
     }
 
-    public static HttpClient getInstance() {
-        if (instance == null) {
-            instance = new HttpClient();
-        }
-        return instance;
-    }
+    public void fetchData(String endpoint, DataCallback callback) {
+        new Thread(() -> {
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
 
-    public void fetchData(String endpoint, Callback callback) {
-        Request request = new Request.Builder()
-                .url(BASE_URL + endpoint)
-                .build();
+            try {
+                URL url = new URL(BASE_URL + endpoint);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
 
-        Call call = client.newCall(request);
-        call.enqueue(callback);
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    callback.onSuccess(result.toString());
+                } else {
+                    callback.onFailure("Server returned: " + responseCode);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error fetching data: " + e.getMessage());
+                callback.onFailure(e.getMessage());
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error closing reader: " + e.getMessage());
+                    }
+                }
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        }).start();
     }
 }
