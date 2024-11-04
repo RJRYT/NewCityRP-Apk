@@ -21,7 +21,7 @@ public class InfoRepository {
         void onFailure(String error);
     }
 
-    public void fetchServerInfo(HttpClient.DataCallback callback) {
+    public void fetchServerInfo(DataCallback callback) {
         String cachedData = cacheManager.getCache(cacheManager.SERVER_INFO_KEY, CACHE_EXPIRY_TIME);
         if (cachedData != null) {
             callback.onSuccess(cachedData);
