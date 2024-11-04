@@ -16,6 +16,11 @@ public class InfoRepository {
         this.httpClient = new HttpClient(context);
     }
 
+    public interface DataCallback {
+        void onSuccess(JSONObject data);
+        void onFailure(String error);
+    }
+
     public void fetchServerInfo(HttpClient.DataCallback callback) {
         String cachedData = cacheManager.getCache(cacheManager.SERVER_INFO_KEY, CACHE_EXPIRY_TIME);
         if (cachedData != null) {

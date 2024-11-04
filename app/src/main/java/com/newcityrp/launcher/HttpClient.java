@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import android.content.Context;
+import org.json.JSONObject;
 import java.net.URL;
 
 public class HttpClient {
@@ -14,7 +15,7 @@ public class HttpClient {
     private Context context;
 
     public interface DataCallback {
-        void onSuccess(String data);
+        void onSuccess(JSONObject data);
         void onFailure(String error);
     }
 

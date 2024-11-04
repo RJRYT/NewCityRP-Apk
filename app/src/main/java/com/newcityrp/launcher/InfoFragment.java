@@ -32,7 +32,7 @@ public class InfoFragment extends Fragment {
     }
 
     private void loadServerInfo() {
-        infoRepository.fetchServerInfo(new HttpClient.DataCallback() {
+        infoRepository.fetchServerInfo(InfoRepository.DataCallback() {
             @Override
             public void onSuccess(JSONObject data) {
                 getActivity().runOnUiThread(() -> infoTextView.setText(data.toString()));
