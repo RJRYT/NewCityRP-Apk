@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.net.HttpURLConnection;
 import android.content.Context;
 import org.json.JSONObject;
+import org.json.JSONException;
 import java.net.URL;
 
 public class HttpClient {
