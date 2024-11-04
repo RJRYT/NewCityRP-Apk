@@ -13,7 +13,7 @@ public class InfoRepository {
 
     public InfoRepository(Context context) {
         this.cacheManager = new CacheManager(context);
-        this.httpClient = HttpClient.getInstance();
+        this.httpClient = new HttpClient(context);
     }
 
     public void fetchServerInfo(HttpClient.DataCallback callback) {
@@ -24,7 +24,7 @@ public class InfoRepository {
             httpClient.fetchData("serverinfo.json", new HttpClient.DataCallback() {
                 @Override
                 public void onSuccess(String data) {
-                    cacheManager.saveCache(SERVER_INFO_KEY, data);
+                    cacheManager.saveCache(cacheManager.SERVER_INFO_KEY, data);
                     callback.onSuccess(data);
                 }
 

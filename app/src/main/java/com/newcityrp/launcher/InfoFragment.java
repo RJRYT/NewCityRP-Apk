@@ -8,6 +8,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import main.java.com.newcityrp.launcher.HttpClient;
+import main.java.com.newcityrp.launcher.InfoRepository;
+
 import org.json.JSONObject;
 
 public class InfoFragment extends Fragment {
@@ -31,7 +34,7 @@ public class InfoFragment extends Fragment {
     }
 
     private void loadServerInfo() {
-        infoRepository.fetchServerInfo(new DataCallback() {
+        infoRepository.fetchServerInfo(new HttpClient.DataCallback() {
             @Override
             public void onSuccess(JSONObject data) {
                 getActivity().runOnUiThread(() -> infoTextView.setText(data.toString()));
