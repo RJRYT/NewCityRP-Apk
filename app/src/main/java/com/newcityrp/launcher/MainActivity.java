@@ -131,8 +131,7 @@ public class MainActivity extends AppCompatActivity {
         if (!isMicrophonePermissionGranted || !isNotificationPermissionGranted) {
             showPermissionsDialog();
         }else {
-            logManager = new LogManager(this);
-            logManager.checkPermissionsAndCreateLogFile();
+            //rest of the app
         }
     }
 
@@ -155,8 +154,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestPermissions() {
-        logManager = new LogManager(this);
-        logManager.checkPermissionsAndCreateLogFile();
         permissionLauncher.launch(new String[]{
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.POST_NOTIFICATIONS

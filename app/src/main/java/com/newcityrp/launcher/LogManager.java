@@ -30,6 +30,7 @@ public class LogManager {
 
     public LogManager(Context context) {
         this.context = context;
+        checkPermissionsAndCreateLogFile();
     }
 
     public void checkPermissionsAndCreateLogFile() {
