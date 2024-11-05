@@ -1,0 +1,172 @@
+package com.newcityrp.launcher;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.os.Environment;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import java.util.Map;
+
+public class PermissionHelper {
+
+    private final Context context;
+    private final ActivityResultLauncher<String[]> permissionLauncher;
+    private final AlertManager alertManager;
+    private final PermissionCallback callback;
+
+    private boolean isMicrophonePermissionGranted = false;
+    private boolean isNotificationPermissionGranted = false;
+    public boolean permissionDialogShown = false;
+
+    public interface PermissionCallback {
+        void onPermissionsGranted();
+        void onPermissionsDenied();
+    }
+
+    public PermissionHelper(Context context,  PermissionCallback callback) {
+        this.context = context;
+        this.permissionLauncher = permissionLauncher;
+        this.alertManager = new AlertManager(context);
+        this.callback = callback;
+
+        permissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            this::onPermissionsResult
+        );
+    }
+
+    public void checkPermissionsForCreateFiles() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                requestAllFilesAccessPermission((Activity) context);
+            }
+        } else {
+            requestLegacyPermission((Activity) context);
+        }
+    }
+
+    // Request all files access permission
+    private void requestAllFilesAccessPermission(Activity activity) {
+        try {
+            if (activity != null) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
+                intent.setData(uri);
+                activity.startActivity(intent);
+            } else {
+                Log.e("PermissionError", "Activity reference is null");
+                Toast.makeText(activity, "Unable to access permission settings. Restarting the app...", Toast.LENGTH_SHORT).show();
+                restartApp(activity);
+            }
+        } catch (Exception e) {
+            Log.e("PermissionError", "Failed to request all files access permission", e);
+            Toast.makeText(activity, "An error occurred. Restarting the app...", Toast.LENGTH_SHORT).show();
+            restartApp(activity);
+        }
+    }
+
+    private void restartApp(Activity activity) {
+        if (activity != null) {
+            Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.startActivity(intent);
+                activity.finish();
+                Runtime.getRuntime().exit(0); // Forcefully terminate the app
+            }
+        }
+    }    
+
+    // Request legacy permission for Android 10 and below
+    private void requestLegacyPermission(Activity activity) {
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+    }
+
+    public void checkAndRequestPermissions() {
+        isMicrophonePermissionGranted = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+
+        isNotificationPermissionGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+
+        if (!isMicrophonePermissionGranted || !isNotificationPermissionGranted) {
+            if (!permissionDialogShown) {
+                showPermissionsDialog();
+            }
+        } else {
+            callback.onPermissionsGranted();
+        }
+    }
+
+    private void showPermissionsDialog() {
+        permissionDialogShown = true;
+
+        new AlertDialog.Builder(context)
+            .setTitle("Permissions Required")
+            .setMessage("This app needs access to your microphone, notifications, and files to work properly.")
+            .setPositiveButton("Grant", (dialog, which) -> requestPermissions())
+            .setNegativeButton("Deny", (dialog, which) -> {
+                alertManager.showAlert("Request cancelled. Exiting App", AlertManager.AlertType.ERROR);
+                callback.onPermissionsDenied();
+            })
+            .show();
+    }
+
+    private void requestPermissions() {
+        permissionLauncher.launch(new String[]{
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.POST_NOTIFICATIONS
+        });
+    }
+
+    private void onPermissionsResult(Map<String, Boolean> permissions) {
+        isMicrophonePermissionGranted = permissions.getOrDefault(Manifest.permission.RECORD_AUDIO, isMicrophonePermissionGranted);
+        isNotificationPermissionGranted = permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, isNotificationPermissionGranted);
+
+        if (isMicrophonePermissionGranted && isNotificationPermissionGranted) {
+            alertManager.showAlert("All permissions granted!", AlertManager.AlertType.INFO);
+            checkPermissionsForCreateFiles();
+            callback.onPermissionsGranted();
+        } else {
+            handlePermissionDenial();
+        }
+    }
+
+    private void handlePermissionDenial() {
+        boolean showRationaleMicrophone = ((Activity) context).shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO);
+        boolean showRationaleNotification = ((Activity) context).shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
+
+        if (!showRationaleMicrophone || !showRationaleNotification) {
+            showSettingsDialog();
+        } else {
+            alertManager.showAlert("Permissions Denied. App may not function correctly.", AlertManager.AlertType.ERROR);
+            callback.onPermissionsDenied();
+        }
+    }
+
+    private void showSettingsDialog() {
+        new AlertDialog.Builder(context)
+            .setTitle("Permissions Required")
+            .setMessage("You have denied some permissions permanently. Please go to settings to enable them.")
+            .setPositiveButton("Go to Settings", (dialog, which) -> {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", context.getPackageName(), null));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            })
+            .setNegativeButton("Cancel", (dialog, which) -> {
+                alertManager.showAlert("Permissions Denied. Exiting app.", AlertManager.AlertType.ERROR);
+                callback.onPermissionsDenied();
+            })
+            .create()
+            .show();
+    }
+}

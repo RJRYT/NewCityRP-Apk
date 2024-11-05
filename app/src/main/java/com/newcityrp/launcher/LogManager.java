@@ -1,9 +1,7 @@
 package com.newcityrp.launcher;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -11,7 +9,6 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
@@ -30,19 +27,7 @@ public class LogManager {
 
     public LogManager(Context context) {
         this.context = context;
-        checkPermissionsAndCreateLogFile();
-    }
-
-    public void checkPermissionsAndCreateLogFile() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager()) {
-                createLogFile(); // Permission granted
-            } else {
-                requestAllFilesAccessPermission((Activity) context);
-            }
-        } else {
-            requestLegacyPermission((Activity) context);
-        }
+        createLogFile();
     }
 
     // Create log file
@@ -69,44 +54,6 @@ public class LogManager {
     private boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    // Request all files access permission
-    private void requestAllFilesAccessPermission(Activity activity) {
-        try {
-            if (activity != null) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
-                intent.setData(uri);
-                activity.startActivity(intent);
-            } else {
-                Log.e("PermissionError", "Activity reference is null");
-                Toast.makeText(activity, "Unable to access permission settings. Restarting the app...", Toast.LENGTH_SHORT).show();
-                restartApp(activity);
-            }
-        } catch (Exception e) {
-            Log.e("PermissionError", "Failed to request all files access permission", e);
-            Toast.makeText(activity, "An error occurred. Restarting the app...", Toast.LENGTH_SHORT).show();
-            restartApp(activity);
-        }
-    }
-    
-    private void restartApp(Activity activity) {
-        if (activity != null) {
-            Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
-            if (intent != null) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.startActivity(intent);
-                activity.finish();
-                Runtime.getRuntime().exit(0); // Forcefully terminate the app
-            }
-        }
-    }    
-
-    // Request legacy permission for Android 10 and below
-    private void requestLegacyPermission(Activity activity) {
-        ActivityCompat.requestPermissions(activity,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
     }
 
     // Write log message to file
