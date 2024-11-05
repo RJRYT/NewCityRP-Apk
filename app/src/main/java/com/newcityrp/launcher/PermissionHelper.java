@@ -9,11 +9,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.os.Environment;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
 import java.util.Map;
+import android.util.Log;
 
 public class PermissionHelper {
 
@@ -31,16 +33,11 @@ public class PermissionHelper {
         void onPermissionsDenied();
     }
 
-    public PermissionHelper(Context context,  PermissionCallback callback) {
+    public PermissionHelper(Context context, ActivityResultLauncher<String[]> permissionLauncher, PermissionCallback callback) {
         this.context = context;
         this.permissionLauncher = permissionLauncher;
-        this.alertManager = new AlertManager(context);
+        this.alertManager = new AlertManager((Activity) context);
         this.callback = callback;
-
-        permissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestMultiplePermissions(),
-            this::onPermissionsResult
-        );
     }
 
     public void checkPermissionsForCreateFiles() {
@@ -127,9 +124,9 @@ public class PermissionHelper {
         });
     }
 
-    private void onPermissionsResult(Map<String, Boolean> permissions) {
-        isMicrophonePermissionGranted = permissions.getOrDefault(Manifest.permission.RECORD_AUDIO, isMicrophonePermissionGranted);
-        isNotificationPermissionGranted = permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, isNotificationPermissionGranted);
+    public void handlePermissionsResult(Map<String, Boolean> permissions) {
+        isMicrophonePermissionGranted = permissions.getOrDefault(Manifest.permission.RECORD_AUDIO, false);
+        isNotificationPermissionGranted = permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, false);
 
         if (isMicrophonePermissionGranted && isNotificationPermissionGranted) {
             alertManager.showAlert("All permissions granted!", AlertManager.AlertType.INFO);

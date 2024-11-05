@@ -35,8 +35,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        permissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                this::onPermissionsResult
+        );
 
-        permissionHelper = new PermissionHelper(this, new PermissionHelper.PermissionCallback() {
+        permissionHelper = new PermissionHelper(this, permissionLauncher, new PermissionHelper.PermissionCallback() {
             @Override
             public void onPermissionsGranted() {
                 sendGreetingNotification();
@@ -110,6 +115,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    
+    private void onPermissionsResult(Map<String, Boolean> permissions) {
+        permissionHelper.handlePermissionsResult(permissions);
     }
     
     @Override
