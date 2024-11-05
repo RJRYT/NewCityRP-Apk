@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (isMicrophonePermissionGranted && isNotificationPermissionGranted) {
             alertManager.showAlert("All permissions granted!", AlertManager.AlertType.INFO);
-            startNotificationService();
+            sendGreetingNotification();
         } else {
             handlePermissionDenial();
         }
@@ -215,8 +215,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startNotificationService() {
-        Intent intent = new Intent(this, NotificationService.class);
-        startService(intent);
+    private void sendGreetingNotification() {
+        NotificationHelper notificationHelper = new NotificationHelper(this);
+        notificationHelper.notify("Welcome to NewCityRP!", "Proceed to check for app updates and game file verification.");
     }
 }
