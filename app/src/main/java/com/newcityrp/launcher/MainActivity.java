@@ -44,13 +44,14 @@ public class MainActivity extends AppCompatActivity {
             this::onPermissionsResult
         );
 
-        checkAndRequestPermissions();
-        Toast.makeText(this, getString(R.string.app_name_long) + " v" + getAppVersion(), Toast.LENGTH_LONG).show();
+        if (arePermissionsGranted()) {
+            Toast.makeText(this, getString(R.string.app_name_long) + " v" + getAppVersion(), Toast.LENGTH_LONG).show();
+            logManager = new LogManager(this);
+            logManager.logInfo("========Application started========");
+        } else {
+            showPermissionsDialog();
+        }
         
-        logManager = new LogManager(this);
-        
-        logManager.logInfo("========Application started========");
-
         viewPager = findViewById(R.id.viewPager);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -107,31 +108,15 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
-        });
-        
+        }); 
     }
     
     @Override
     protected void onResume() {
         super.onResume();
         // Check permissions only if the dialog was not previously shown
-        if (!permissionDialogShown) {
-            checkAndRequestPermissions();
-        }
-    }
-
-    private void checkAndRequestPermissions() {
-        isMicrophonePermissionGranted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
-
-        isNotificationPermissionGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
-
-        // Only show dialog if permissions are not already granted
-        if (!isMicrophonePermissionGranted || !isNotificationPermissionGranted) {
+        if (!permissionDialogShown && !arePermissionsGranted()) {
             showPermissionsDialog();
-        }else {
-            //rest of the app
         }
     }
 
@@ -166,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
         isNotificationPermissionGranted = permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, isNotificationPermissionGranted);
 
         if (isMicrophonePermissionGranted && isNotificationPermissionGranted) {
+            logManager = new LogManager(this);
             alertManager.showAlert("All permissions granted!", AlertManager.AlertType.INFO);
+            logManager.logVerbose("All permissions granted!");
             startNotificationService();
         } else {
             handlePermissionDenial();
@@ -205,7 +192,24 @@ public class MainActivity extends AppCompatActivity {
                 .create()
                 .show();
     }
-    
+
+    private boolean arePermissionsGranted() {
+        isMicrophonePermissionGranted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+
+        isNotificationPermissionGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+
+        return isMicrophonePermissionGranted && isNotificationPermissionGranted;
+    }
+
+    private void restartApp() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish(); // Ensures the current activity is finished and removed from memory
+    }
+
     private String getAppVersion() {
         try {
             PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
