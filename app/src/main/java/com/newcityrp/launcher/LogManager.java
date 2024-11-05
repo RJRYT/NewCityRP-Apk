@@ -73,11 +73,35 @@ public class LogManager {
 
     // Request all files access permission
     private void requestAllFilesAccessPermission(Activity activity) {
-        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-        Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
-        intent.setData(uri);
-        activity.startActivity(intent);
+        try {
+            if (activity != null) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
+                intent.setData(uri);
+                activity.startActivity(intent);
+            } else {
+                Log.e("PermissionError", "Activity reference is null");
+                Toast.makeText(activity, "Unable to access permission settings. Restarting the app...", Toast.LENGTH_SHORT).show();
+                restartApp(activity);
+            }
+        } catch (Exception e) {
+            Log.e("PermissionError", "Failed to request all files access permission", e);
+            Toast.makeText(activity, "An error occurred. Restarting the app...", Toast.LENGTH_SHORT).show();
+            restartApp(activity);
+        }
     }
+    
+    private void restartApp(Activity activity) {
+        if (activity != null) {
+            Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.startActivity(intent);
+                activity.finish();
+                Runtime.getRuntime().exit(0); // Forcefully terminate the app
+            }
+        }
+    }    
 
     // Request legacy permission for Android 10 and below
     private void requestLegacyPermission(Activity activity) {
