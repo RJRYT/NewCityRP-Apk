@@ -8,8 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:background">@color/backgroundColor</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
-        <item name="android:fontFamily">sans-serif-regular</item>
-        <item name="fontFamily">sans-serif-regular</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
     </style>
     
     <!-- Splash Theme -->
@@ -19,8 +19,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:statusBarColor">@color/gradientEndColor</item>
-        <item name="android:fontFamily">sans-serif-regular</item>
-        <item name="fontFamily">sans-serif-regular</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
     </style>
 
 </resources>
