@@ -11,6 +11,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import android.content.SharedPreferences;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -30,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     private AlertManager alertManager;
     private LogManager logManager;
     private PermissionHelper permissionHelper;
+
+    private static final String PREFS_NAME = "AppPrefs";
+    private static final String KEY_NOTIFICATION_SHOWN = "notification_shown";
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +145,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendGreetingNotification() {
-        NotificationHelper notificationHelper = new NotificationHelper(this);
-        notificationHelper.notify("Welcome to NewCityRP!", "Proceed to check for app updates and game file verification.");
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean notificationShown = prefs.getBoolean(KEY_NOTIFICATION_SHOWN, false);
+
+        if (!notificationShown) {
+            NotificationHelper notificationHelper = new NotificationHelper(this);
+            notificationHelper.notify("Welcome to NewCityRP!", "Proceed to check for app updates and game file verification.");
+
+            // Update shared preferences
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean(KEY_NOTIFICATION_SHOWN, true);
+            editor.apply();
+        }
     }
 }
