@@ -109,6 +109,10 @@ public class PermissionHelper {
         new AlertDialog.Builder(context)
             .setTitle("Permissions Required")
             .setMessage("This app needs access to your microphone, notifications, and files to work properly.")
+            .setCancelable(false)
+            .setOnDismissListener(dialog -> {
+                permissionDialogShown = false;
+            })
             .setPositiveButton("Grant", (dialog, which) -> requestPermissions())
             .setNegativeButton("Deny", (dialog, which) -> {
                 alertManager.showAlert("Request cancelled. Exiting App", AlertManager.AlertType.ERROR);
@@ -153,6 +157,7 @@ public class PermissionHelper {
         new AlertDialog.Builder(context)
             .setTitle("Permissions Required")
             .setMessage("You have denied some permissions permanently. Please go to settings to enable them.")
+            .setCancelable(false)
             .setPositiveButton("Go to Settings", (dialog, which) -> {
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.fromParts("package", context.getPackageName(), null));
