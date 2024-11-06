@@ -8,8 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:background">@color/backgroundColor</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/museo_sans_cyrl_700</item>
+        <item name="fontFamily">@font/museo_sans_cyrl_700</item>
     </style>
     
     <!-- Splash Theme -->
@@ -19,8 +19,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:statusBarColor">@color/gradientEndColor</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/museo_sans_cyrl_700</item>
+        <item name="fontFamily">@font/museo_sans_cyrl_700</item>
     </style>
 
 </resources>
