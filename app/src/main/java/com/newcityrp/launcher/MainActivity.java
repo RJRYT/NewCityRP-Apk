@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Build;
 import android.provider.Settings;
 import android.widget.Toast;
+import android.content.Context;
 import androidx.annotation.NonNull;
 import android.content.SharedPreferences;
 import androidx.activity.result.ActivityResultLauncher;
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendGreetingNotification() {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         boolean notificationShown = prefs.getBoolean(KEY_NOTIFICATION_SHOWN, false);
 
         if (!notificationShown) {
