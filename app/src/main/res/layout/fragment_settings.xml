@@ -1,198 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:padding="16dp"
+     android:orientation="vertical">
 
-    <!-- Title -->
     <TextView
-        android:id="@+id/textSettingsTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        android:textSize="24sp"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:paddingBottom="16dp" />
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:gravity="center"
+         android:textSize="25sp"
+         android:paddingBottom="20dp"
+         android:textAllCaps="true"
+         android:paddingTop="20dp"
+         android:id="@+id/textSettingsTitle"
+         android:text="Settings"
+         android:textStyle="bold" />
 
-    <!-- Autoaim Toggle -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="30dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Autoaim"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:text="Autoaim" />
 
         <Switch
-            android:id="@+id/toggleAutoaim"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/toggleAutoaim" />
+
     </LinearLayout>
 
-    <!-- Timestamp Toggle -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="30dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Timestamp"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:text="Timestamp" />
 
         <Switch
-            android:id="@+id/toggleTimestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/toggleTimestamp" />
+
     </LinearLayout>
 
-    <!-- Display FPS Toggle -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="30dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Display FPS"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:text="Display FPS" />
 
         <Switch
-            android:id="@+id/toggleDisplayFPS"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/toggleDisplayFPS" />
+
     </LinearLayout>
 
-    <!-- Voice chat Toggle -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="30dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Voice Chat"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:text="Voice Chat" />
 
         <Switch
-            android:id="@+id/toggleVoiceChat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/toggleVoiceChat" />
+
     </LinearLayout>
 
-    <!-- Fast connect Toggle -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="30dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Fastconnect"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:text="Fastconnect" />
 
         <Switch
-            android:id="@+id/toggleFastConnect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:id="@+id/toggleFastConnect" />
+
     </LinearLayout>
 
-    <!-- FPS Limit SeekBar -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="30dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="FPS Limit"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:text="FPS Limit" />
 
         <SeekBar
-            android:id="@+id/seekBarFpsLimit"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:max="2" />
+             android:layout_height="wrap_content"
+             android:layout_width="150dp"
+             android:max="2"
+             android:id="@+id/seekBarFpsLimit" />
 
         <TextView
-            android:id="@+id/seekBarFpsLimitValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="20sp"
+             android:id="@+id/seekBarFpsLimitValue"
+             android:text="30" />
+
     </LinearLayout>
 
-    <!-- Chat Strings SeekBar -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="30dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Chat Strings"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:text="Chat Strings" />
 
         <SeekBar
-            android:id="@+id/seekBarChatStrings"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:max="2" />
+             android:layout_height="wrap_content"
+             android:layout_width="150dp"
+             android:max="2"
+             android:id="@+id/seekBarChatStrings" />
 
         <TextView
-            android:id="@+id/seekBarChatStringsValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="20sp"
+             android:id="@+id/seekBarChatStringsValue"
+             android:text="5" />
+
     </LinearLayout>
 
-    <!-- Game Type and Delete Button -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:textAlignment="center"
+         android:padding="8dp"
+         android:orientation="horizontal"
+         android:paddingBottom="15dp"
+         android:paddingTop="20dp">
 
         <TextView
-            android:id="@+id/textGameType"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Game type: Full"
-            android:textSize="16sp" />
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:textSize="28sp"
+             android:layout_weight="1"
+             android:id="@+id/textGameType"
+             android:text="Game type: Full" />
 
         <Button
-            android:id="@+id/buttonDeleteFiles"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Delete game" />
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="20sp"
+             android:id="@+id/buttonDeleteFiles"
+             android:text="Delete game" />
+
     </LinearLayout>
 
 </LinearLayout>
