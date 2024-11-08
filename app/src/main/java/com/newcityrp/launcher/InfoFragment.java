@@ -21,7 +21,7 @@ import org.json.JSONObject;
 public class InfoFragment extends Fragment {
 
     private InfoRepository infoRepository;
-    private TextView serverTitleTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, linksTextView, appBuildVersionTextView;
+    private TextView serverTitleTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, appBuildVersionTextView;
     private LinearLayout ownersLayout, serverLinksLayout;
 
     @Override
@@ -41,7 +41,6 @@ public class InfoFragment extends Fragment {
         createdAtTextView = view.findViewById(R.id.infoCreatedAt);
         ownersTextView = view.findViewById(R.id.infoOwnersTitle);
         serverVersionTextView = view.findViewById(R.id.infoServerVersion);
-        linksTextView = view.findViewById(R.id.infoLinksTitle);
         appBuildVersionTextView = view.findViewById(R.id.infoAppBuildVersion);
 
         // Initialize LinearLayout
@@ -87,22 +86,33 @@ public class InfoFragment extends Fragment {
 
             // Parse and set owners information
             JSONArray ownersArray = jsonObject.getJSONArray("owners");
-            ownersTextView.setText("Owners");
+            ownersTextView.setText("Owners: ");
             ownersLayout.removeAllViews(); // Clear any previous data
             for (int i = 0; i < ownersArray.length(); i++) {
                 JSONObject owner = ownersArray.getJSONObject(i);
                 
+                 // Create a horizontal LinearLayout for each owner
+                LinearLayout ownerLayout = new LinearLayout(getContext());
+                ownerLayout.setOrientation(LinearLayout.HORIZONTAL);
+                ownerLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                ownerLayout.setPadding(0, 16, 0, 16); // Add spacing between each owner entry
+                
                 // Create a new TextView for the owner's name and username
                 TextView ownerNameTextView = new TextView(getContext());
                 ownerNameTextView.setText("Name: " + owner.getString("name") + 
-                                        " (Username: " + owner.getString("username") + ")");
+                                        " (" + owner.getString("username") + ")");
                 ownerNameTextView.setTextSize(16);
-                ownersLayout.addView(ownerNameTextView);
+                ownerLayout.addView(ownerNameTextView);
 
                 // Create clickable icons for each social media link
-                createSocialIcon("GitHub", owner.getString("github"), R.drawable.ic_github, ownersLayout);
-                createSocialIcon("Website", owner.getString("website"), R.drawable.ic_website, ownersLayout);
-                createSocialIcon("Instagram", owner.getString("instagram"), R.drawable.ic_instagram, ownersLayout);
+                createSocialIcon("GitHub", owner.getString("github"), R.drawable.ic_github, ownerLayout);
+                createSocialIcon("Website", owner.getString("website"), R.drawable.ic_website, ownerLayout);
+                createSocialIcon("Instagram", owner.getString("instagram"), R.drawable.ic_instagram, ownerLayout);
+
+                // Add the owner layout to the parent ownersLayout
+                ownersLayout.addView(ownerLayout);
             }
 
             // Set server version
@@ -110,8 +120,16 @@ public class InfoFragment extends Fragment {
 
             // Parse and set links
             JSONObject linksObject = jsonObject.getJSONObject("links");
-            linksTextView.setText("Links");
+            TextView infoLinksTitle = new TextView(getContext());
+            infoLinksTitle.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+            infoLinksTitle.setTextSize(18);
+            infoLinksTitle.setPadding(0, 16, 0, 0);  // Top padding to match marginTop
+            infoLinksTitle.setText("Contact Us:");  // Set initial text
+            infoLinksTitle.setTypeface(null, Typeface.BOLD);  // Set text style to bold
             serverLinksLayout.removeAllViews(); // Clear previous links
+            serverLinksLayout.addView(infoLinksTitle);
             createSocialIcon("Discord", linksObject.getString("discord"), R.drawable.ic_discord, serverLinksLayout);
             createSocialIcon("Instagram", linksObject.getString("instagram"), R.drawable.ic_instagram, serverLinksLayout);
             createSocialIcon("WhatsApp", linksObject.getString("whatsapp"), R.drawable.ic_whatsapp, serverLinksLayout);
@@ -126,7 +144,7 @@ public class InfoFragment extends Fragment {
     private void createSocialIcon(String platform, String url, int iconRes, ViewGroup parentLayout) {
         ImageView iconView = new ImageView(getContext());
         iconView.setImageResource(iconRes);
-        iconView.setLayoutParams(new LinearLayout.LayoutParams(80, 80)); // Adjust size as needed
+        iconView.setLayoutParams(new LinearLayout.LayoutParams(70, 70)); // Adjust size as needed
         iconView.setPadding(8, 8, 8, 8);
         iconView.setOnClickListener(v -> {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
