@@ -1,9 +1,13 @@
 package com.newcityrp.launcher;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,8 +45,8 @@ public class InfoFragment extends Fragment {
         appBuildVersionTextView = view.findViewById(R.id.infoAppBuildVersion);
 
         // Initialize LinearLayout
-        ownersLayout = findViewById(R.id.infoOwnersContainer);
-        serverLinksLayout = findViewById(R.id.infoLinksContainer);
+        ownersLayout = view.findViewById(R.id.infoOwnersContainer);
+        serverLinksLayout = view.findViewById(R.id.infoLinksContainer);
 
         // Load server info
         loadServerInfo();
@@ -122,7 +126,7 @@ public class InfoFragment extends Fragment {
     private void createSocialIcon(String platform, String url, int iconRes, ViewGroup parentLayout) {
         ImageView iconView = new ImageView(getContext());
         iconView.setImageResource(iconRes);
-        iconView.setLayoutParams(new LinearLayout.LayoutParams(40, 40)); // Adjust size as needed
+        iconView.setLayoutParams(new LinearLayout.LayoutParams(80, 80)); // Adjust size as needed
         iconView.setPadding(8, 8, 8, 8);
         iconView.setOnClickListener(v -> {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
