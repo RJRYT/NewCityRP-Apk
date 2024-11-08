@@ -97,7 +97,7 @@ public class InfoFragment extends Fragment {
                 ownerLayout.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
-                ownerLayout.setPadding(0, 16, 0, 16); // Add spacing between each owner entry
+                ownerLayout.setPadding(10); // Add spacing between each owner entry
                 
                 // Create a new TextView for the owner's name and username
                 TextView ownerNameTextView = new TextView(getContext());
@@ -125,7 +125,7 @@ public class InfoFragment extends Fragment {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
             infoLinksTitle.setTextSize(18);
-            infoLinksTitle.setPadding(0, 16, 0, 0);  // Top padding to match marginTop
+            infoLinksTitle.setPadding(0, 10, 0, 10);  // Top padding to match marginTop
             infoLinksTitle.setText("Contact Us:");  // Set initial text
             infoLinksTitle.setTypeface(null, Typeface.BOLD);  // Set text style to bold
             serverLinksLayout.removeAllViews(); // Clear previous links
