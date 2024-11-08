@@ -6,13 +6,179 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Title -->
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/textSettingsTitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to the settings Screen!"
-        android:textSize="18sp"
-        android:padding="8dp" />
+        android:text="Settings"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:paddingBottom="16dp" />
 
-    <!-- Add other views here -->
+    <!-- Autoaim Toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Autoaim"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/toggleAutoaim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Timestamp Toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Timestamp"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/toggleTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Display FPS Toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Display FPS"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/toggleDisplayFPS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Voice chat Toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Voice Chat"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/toggleVoiceChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Fast connect Toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Fastconnect"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/toggleFastConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- FPS Limit SeekBar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="FPS Limit"
+            android:textSize="16sp" />
+
+        <SeekBar
+            android:id="@+id/seekBarFpsLimit"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:max="2" />
+    </LinearLayout>
+
+    <!-- Chat Strings SeekBar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Chat Strings"
+            android:textSize="16sp" />
+
+        <SeekBar
+            android:id="@+id/seekBarChatStrings"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:max="2" />
+    </LinearLayout>
+
+    <!-- Game Type and Delete Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/textGameType"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Game type: Full"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/buttonDeleteFiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete game" />
+    </LinearLayout>
 
 </LinearLayout>
