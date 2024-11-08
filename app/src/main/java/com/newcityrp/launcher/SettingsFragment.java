@@ -35,9 +35,9 @@ public class SettingsFragment extends Fragment {
         setupToggle(view, R.id.toggleFastConnect, "fastconnect");
         
         // FPS Limit SeekBar
-        setupSeekBar(view, R.id.seekBarFpsLimit, "fpsLimit", fpsValues);
+        setupSeekBar(view, R.id.seekBarFpsLimit, R.id.seekBarFpsLimitValue, "fpsLimit", fpsValues);
         // Chat Strings SeekBar
-        setupSeekBar(view, R.id.seekBarChatStrings, "chatStrings", chatStringValues);
+        setupSeekBar(view, R.id.seekBarChatStrings, R.id.seekBarChatStringsValue, "chatStrings", chatStringValues);
 
         // Game Type display and delete button
         setupGameTypeDisplay(view);
@@ -61,15 +61,18 @@ public class SettingsFragment extends Fragment {
                 preferences.edit().putBoolean(key, isChecked).apply());
     }
 
-    private void setupSeekBar(View view, int seekBarId, String key, int[] values) {
+    private void setupSeekBar(View view, int seekBarId, int seekBarTextId, String key, int[] values) {
         SeekBar seekBar = view.findViewById(seekBarId);
+        TextView seekBarText = view.findViewById(seekBarTextId);
         int savedValue = preferences.getInt(key, values[0]);
         seekBar.setProgress(Arrays.asList(values).indexOf(savedValue));
+        seekBarText.setText(String.valueOf(savedValue));
         
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 preferences.edit().putInt(key, values[progress]).apply();
+                seekBarText.setText(String.valueOf(values[progress]));
             }
 
             @Override

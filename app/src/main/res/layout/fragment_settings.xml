@@ -135,7 +135,14 @@
             android:id="@+id/seekBarFpsLimit"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:max="2" />
+
+        <TextView
+            android:id="@+id/seekBarFpsLimitValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5" />
     </LinearLayout>
 
     <!-- Chat Strings SeekBar -->
@@ -156,7 +163,14 @@
             android:id="@+id/seekBarChatStrings"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:max="2" />
+
+        <TextView
+            android:id="@+id/seekBarChatStringsValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5" />
     </LinearLayout>
 
     <!-- Game Type and Delete Button -->
