@@ -1,6 +1,10 @@
 package com.newcityrp.launcher;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -12,6 +16,8 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.app.AlertDialog;
+import java.io.File;
+import java.util.Arrays;
 
 public class SettingsFragment extends Fragment {
 
@@ -24,7 +30,7 @@ public class SettingsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.settings_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
         preferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
 
         // Set up toggles
@@ -92,12 +98,7 @@ public class SettingsFragment extends Fragment {
         new AlertDialog.Builder(getContext())
             .setTitle("Delete Game Files")
             .setMessage("Are you sure you want to delete the game files? This action cannot be undone.")
-            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    deleteGameFiles();
-                }
-            })
+            .setPositiveButton("Delete", (dialog, which) -> deleteGameFiles())
             .setNegativeButton("Cancel", null)
             .setCancelable(false)
             .show();
