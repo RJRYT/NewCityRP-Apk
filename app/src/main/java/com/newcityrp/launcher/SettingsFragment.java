@@ -17,7 +17,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.app.AlertDialog;
 import java.io.File;
-import java.util.Arrays;
+import com.google.common.primitives.Ints;
 
 public class SettingsFragment extends Fragment {
 
@@ -71,7 +71,7 @@ public class SettingsFragment extends Fragment {
         SeekBar seekBar = view.findViewById(seekBarId);
         TextView seekBarText = view.findViewById(seekBarTextId);
         int savedValue = preferences.getInt(key, values[0]);
-        seekBar.setProgress(Arrays.asList(values).indexOf(savedValue));
+        seekBar.setProgress(Ints.indexOf(values, savedValue));
         seekBarText.setText(String.valueOf(savedValue));
         
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

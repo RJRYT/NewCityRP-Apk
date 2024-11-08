@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:background">@color/backgroundColor</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
+       <item name="android:statusBarColor">@color/themeColor</item>
         <item name="android:fontFamily">san_serif</item>
     </style>
     
