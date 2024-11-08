@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,13 +99,15 @@ public class InfoFragment extends Fragment {
                 ownerLayout.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
-                ownerLayout.setPadding(10); // Add spacing between each owner entry
+                ownerLayout.setGravity(Gravity.CENTER_VERTICAL);
+                ownerLayout.setPadding(0, 0, 0, 10); // Add spacing between each owner entry
                 
                 // Create a new TextView for the owner's name and username
                 TextView ownerNameTextView = new TextView(getContext());
-                ownerNameTextView.setText("Name: " + owner.getString("name") + 
-                                        " (" + owner.getString("username") + ") :-");
+                ownerNameTextView.setText(i+1 +". " + owner.getString("name") + 
+                                        " (" + owner.getString("username") + ")");
                 ownerNameTextView.setTextSize(16);
+                ownerNameTextView.setTypeface(null, Typeface.BOLD);  // Set text style to bold
                 ownerLayout.addView(ownerNameTextView);
 
                 // Create clickable icons for each social media link
@@ -126,8 +129,8 @@ public class InfoFragment extends Fragment {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
             infoLinksTitle.setTextSize(18);
-            infoLinksTitle.setPadding(0, 10, 0, 10);  // Top padding to match marginTop
-            infoLinksTitle.setText("Contact Us:");  // Set initial text
+            infoLinksTitle.setPadding(8, 8, 8, 8);  // Top padding to match marginTop
+            infoLinksTitle.setText("Contact Us: ");  // Set initial text
             infoLinksTitle.setTypeface(null, Typeface.BOLD);  // Set text style to bold
             serverLinksLayout.removeAllViews(); // Clear previous links
             serverLinksLayout.addView(infoLinksTitle);
@@ -159,9 +162,9 @@ public class InfoFragment extends Fragment {
             PackageManager pm = requireContext().getPackageManager();
             PackageInfo packageInfo = pm.getPackageInfo(requireContext().getPackageName(), 0);
             String versionName = packageInfo.versionName;
-            appBuildVersionTextView.setText(versionName);
+            appBuildVersionTextView.setText("Version: v"+versionName);
         } catch (PackageManager.NameNotFoundException e) {
-            appBuildVersionTextView.setText("");
+            appBuildVersionTextView.setText("Version: unknown");
         }
     }
 }
