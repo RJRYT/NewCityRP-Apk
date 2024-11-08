@@ -18,6 +18,7 @@ public class InfoFragment extends Fragment {
 
     private InfoRepository infoRepository;
     private TextView serverTitleTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, linksTextView, appBuildVersionTextView;
+    private LinearLayout ownersLayout, serverLinksLayout;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,10 +35,14 @@ public class InfoFragment extends Fragment {
         serverTitleTextView = view.findViewById(R.id.infoServerTitle);
         descriptionTextView = view.findViewById(R.id.infoDescription);
         createdAtTextView = view.findViewById(R.id.infoCreatedAt);
-        ownersTextView = view.findViewById(R.id.infoOwners);
+        ownersTextView = view.findViewById(R.id.infoOwnersTitle);
         serverVersionTextView = view.findViewById(R.id.infoServerVersion);
-        linksTextView = view.findViewById(R.id.infoLinks);
+        linksTextView = view.findViewById(R.id.infoLinksTitle);
         appBuildVersionTextView = view.findViewById(R.id.infoAppBuildVersion);
+
+        // Initialize LinearLayout
+        ownersLayout = findViewById(R.id.infoOwnersContainer);
+        serverLinksLayout = findViewById(R.id.infoLinksContainer);
 
         // Load server info
         loadServerInfo();
@@ -58,7 +63,7 @@ public class InfoFragment extends Fragment {
 
             @Override
             public void onFailure(String error) {
-                getActivity().runOnUiThread(() -> descriptionTextView.setText("Failed to load server info: " + error));
+                getActivity().runOnUiThread(() -> descriptionTextView.setText("Failed to load server info."));
             }
         });
     }
@@ -78,27 +83,35 @@ public class InfoFragment extends Fragment {
 
             // Parse and set owners information
             JSONArray ownersArray = jsonObject.getJSONArray("owners");
-            StringBuilder ownersBuilder = new StringBuilder();
+            ownersTextView.setText("Owners");
+            ownersLayout.removeAllViews(); // Clear any previous data
             for (int i = 0; i < ownersArray.length(); i++) {
                 JSONObject owner = ownersArray.getJSONObject(i);
-                ownersBuilder.append("Name: ").append(owner.getString("name"))
-                        .append(" (Username: ").append(owner.getString("username")).append(")\n");
-                ownersBuilder.append("GitHub: ").append(owner.getString("github")).append("\n");
-                ownersBuilder.append("Website: ").append(owner.getString("website")).append("\n");
-                ownersBuilder.append("Instagram: ").append(owner.getString("instagram")).append("\n\n");
+                
+                // Create a new TextView for the owner's name and username
+                TextView ownerNameTextView = new TextView(getContext());
+                ownerNameTextView.setText("Name: " + owner.getString("name") + 
+                                        " (Username: " + owner.getString("username") + ")");
+                ownerNameTextView.setTextSize(16);
+                ownersLayout.addView(ownerNameTextView);
+
+                // Create clickable icons for each social media link
+                createSocialIcon("GitHub", owner.getString("github"), R.drawable.ic_github, ownersLayout);
+                createSocialIcon("Website", owner.getString("website"), R.drawable.ic_website, ownersLayout);
+                createSocialIcon("Instagram", owner.getString("instagram"), R.drawable.ic_instagram, ownersLayout);
             }
-            ownersTextView.setText(ownersBuilder.toString());
 
             // Set server version
             serverVersionTextView.setText("Server Version: " + jsonObject.getString("serverVersion"));
 
             // Parse and set links
             JSONObject linksObject = jsonObject.getJSONObject("links");
-            String linksText = "Discord: " + linksObject.getString("discord") + "\n" +
-                    "Instagram: " + linksObject.getString("instagram") + "\n" +
-                    "WhatsApp: " + linksObject.getString("whatsapp") + "\n" +
-                    "YouTube: " + linksObject.getString("youtube") + "\n";
-            linksTextView.setText(linksText);
+            linksTextView.setText("Links");
+            serverLinksLayout.removeAllViews(); // Clear previous links
+            createSocialIcon("Discord", linksObject.getString("discord"), R.drawable.ic_discord, serverLinksLayout);
+            createSocialIcon("Instagram", linksObject.getString("instagram"), R.drawable.ic_instagram, serverLinksLayout);
+            createSocialIcon("WhatsApp", linksObject.getString("whatsapp"), R.drawable.ic_whatsapp, serverLinksLayout);
+            createSocialIcon("YouTube", linksObject.getString("youtube"), R.drawable.ic_youtube, serverLinksLayout);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -106,14 +119,26 @@ public class InfoFragment extends Fragment {
         }
     }
 
+    private void createSocialIcon(String platform, String url, int iconRes, ViewGroup parentLayout) {
+        ImageView iconView = new ImageView(getContext());
+        iconView.setImageResource(iconRes);
+        iconView.setLayoutParams(new LinearLayout.LayoutParams(40, 40)); // Adjust size as needed
+        iconView.setPadding(8, 8, 8, 8);
+        iconView.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(browserIntent);
+        });
+        parentLayout.addView(iconView);
+    }
+
     private void setAppBuildVersion() {
         try {
             PackageManager pm = requireContext().getPackageManager();
             PackageInfo packageInfo = pm.getPackageInfo(requireContext().getPackageName(), 0);
             String versionName = packageInfo.versionName;
-            appBuildVersionTextView.setText("App Version: " + versionName);
+            appBuildVersionTextView.setText(versionName);
         } catch (PackageManager.NameNotFoundException e) {
-            appBuildVersionTextView.setText("App Version: Unknown");
+            appBuildVersionTextView.setText("");
         }
     }
 }
