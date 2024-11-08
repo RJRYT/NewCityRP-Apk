@@ -102,14 +102,14 @@ public class InfoFragment extends Fragment {
                 // Create a new TextView for the owner's name and username
                 TextView ownerNameTextView = new TextView(getContext());
                 ownerNameTextView.setText("Name: " + owner.getString("name") + 
-                                        " (" + owner.getString("username") + ")");
+                                        " (" + owner.getString("username") + ") :-");
                 ownerNameTextView.setTextSize(16);
                 ownerLayout.addView(ownerNameTextView);
 
                 // Create clickable icons for each social media link
-                createSocialIcon("GitHub", owner.getString("github"), R.drawable.ic_github, ownerLayout);
-                createSocialIcon("Website", owner.getString("website"), R.drawable.ic_website, ownerLayout);
-                createSocialIcon("Instagram", owner.getString("instagram"), R.drawable.ic_instagram, ownerLayout);
+                createSocialIcon("GitHub", owner.getString("github"), R.drawable.ic_github_white, ownerLayout);
+                createSocialIcon("Website", owner.getString("website"), R.drawable.ic_website_white, ownerLayout);
+                createSocialIcon("Instagram", owner.getString("instagram"), R.drawable.ic_instagram_white, ownerLayout);
 
                 // Add the owner layout to the parent ownersLayout
                 ownersLayout.addView(ownerLayout);
@@ -130,10 +130,10 @@ public class InfoFragment extends Fragment {
             infoLinksTitle.setTypeface(null, Typeface.BOLD);  // Set text style to bold
             serverLinksLayout.removeAllViews(); // Clear previous links
             serverLinksLayout.addView(infoLinksTitle);
-            createSocialIcon("Discord", linksObject.getString("discord"), R.drawable.ic_discord, serverLinksLayout);
-            createSocialIcon("Instagram", linksObject.getString("instagram"), R.drawable.ic_instagram, serverLinksLayout);
-            createSocialIcon("WhatsApp", linksObject.getString("whatsapp"), R.drawable.ic_whatsapp, serverLinksLayout);
-            createSocialIcon("YouTube", linksObject.getString("youtube"), R.drawable.ic_youtube, serverLinksLayout);
+            createSocialIcon("Discord", linksObject.getString("discord"), R.drawable.ic_discord_white, serverLinksLayout);
+            createSocialIcon("Instagram", linksObject.getString("instagram"), R.drawable.ic_instagram_white, serverLinksLayout);
+            createSocialIcon("WhatsApp", linksObject.getString("whatsapp"), R.drawable.ic_whatsapp_white, serverLinksLayout);
+            createSocialIcon("YouTube", linksObject.getString("youtube"), R.drawable.ic_youtube_white, serverLinksLayout);
 
         } catch (JSONException e) {
             e.printStackTrace();
