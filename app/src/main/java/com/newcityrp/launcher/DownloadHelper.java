@@ -31,8 +31,6 @@ class DownloadHelper {
 
     public boolean checkFilesFromServerWithLocalFiles(String dataUrl) {
         try {
-            loger.logDebug("checkFilesFromServerWithLocalFiles: ",dataUrl);
-            loger.logVerbose(getDeviceGpu());
             // Fetch the list of files from the server (full or lite list)
             URL url = new URL(dataUrl);  // Use the appropriate URL based on user selection (full or lite)
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

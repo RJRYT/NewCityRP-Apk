@@ -34,16 +34,13 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         httpClient = new HttpClient(this);
         logManager = new LogManager(this); 
         fetchGameFileURLs();
-        logManager.logDebug("GameFileUpdateActivity");
         if (!areGameFilesAvailable()) {
             setupGameTypeSelection();
-            logManager.logDebug("GameFileUpdateActivity: setupGameTypeSelection");
             Intent finishIntent = new Intent("FINISH_MAIN_ACTIVITY");
             sendBroadcast(finishIntent);
         } else if(!checkFilesIsNeedUpdate()) {
             SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
             chosenGameType = apppref.getString("gameType", "full");
-            logManager.logDebug("GameFileUpdateActivity: checkFilesIsNeedUpdate. chosenGameType:",chosenGameType);
             startDownloadProcess();
         } else {
             finish();
@@ -90,12 +87,10 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
     private boolean areGameFilesAvailable() {
         File gameFilesDir = new File(getExternalFilesDir(null), "");
-        logManager.logDebug(gameFilesDir);
         return gameFilesDir.exists() && gameFilesDir.isDirectory() && gameFilesDir.listFiles().length > 0;
     }
 
     private void startDownloadProcess() {
-        logManager.logDebug("GameFileUpdateActivity: startDownloadProcess");
         setContentView(R.layout.activity_game_file_update);
         setupDownloadUI();
         fetchGameData(chosenGameType);
@@ -107,12 +102,10 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         new HttpClient.DataCallback() {
           @Override
           public void onSuccess(JSONObject data) {
-            logManager.logDebug("GameFileUpdateActivity: fetchGameFileURLs");
             try {
               String fullUrl = data.getString("data_full_url");
               String liteUrl = data.getString("data_lite_url");
               String sampUrl = data.getString("data_samp_url");
-              logManager.logDebug(fullUrl, liteUrl, sampUrl);
 
               SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
               SharedPreferences.Editor editor = prefs.edit();
@@ -121,28 +114,24 @@ public class GameFileUpdateActivity extends AppCompatActivity {
               editor.putString("data_samp_url", sampUrl);
               editor.apply();
             } catch (JSONException err) {
-              logManager.logDebug(err);
+              logManager.logError(err);
             }
           }
 
           @Override
           public void onFailure(String error) {
             //  Toast.makeText(this, "error on fetchGameFileURLs", 1).show();
-            logManager.logDebug("GameFileUpdateActivity: error on fetchGameFileURLs", error);
+            logManager.logError("GameFileUpdateActivity: error on fetchGameFileURLs", error);
             finish();
           }
         });
     }
 
     private void fetchGameData(String gameType) {
-        logManager.logDebug("GameFileUpdateActivity: fetchGameData:");
 
         SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
         String dataUrl = gameType.equals("lite") ? prefs.getString("data_lite_url", "") : prefs.getString("data_full_url", "");
         String sampUrl = prefs.getString("data_samp_url", "");
-
-        logManager.logDebug("GameFileUpdateActivity: fetchGameData:dataUrl ",dataUrl);
-        logManager.logDebug("GameFileUpdateActivity: fetchGameData:sampUrl ",sampUrl);
 
         if (!dataUrl.isEmpty() && !sampUrl.isEmpty()) {
             downloadGameFiles(dataUrl);
@@ -156,7 +145,6 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         httpClient.fetchDataAlt(url, new HttpClient.DataCallback() {
             @Override
             public void onSuccess(JSONObject data) {
-                logManager.logDebug("GameFileUpdateActivity: downloadGameFiles");
                 
                     try {
                     	JSONArray filesArray = data.getJSONArray("files");
@@ -167,14 +155,14 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                     updateDownloadProgress(i, filesArray.length(), fileObject);
                 }
                     } catch(JSONException err) {
-                    	logManager.logDebug(err);
+                    	logManager.logError(err);
                     }
             }
 
             @Override
             public void onFailure(String error) {
                // Toast.makeText(this, "error on downloadGameFiles", 1).show();
-                logManager.logDebug("GameFileUpdateActivity: error on downloadGameFiles", error);
+                logManager.logError("GameFileUpdateActivity: error on downloadGameFiles", error);
                 finish();
             }
         });
@@ -203,7 +191,8 @@ public class GameFileUpdateActivity extends AppCompatActivity {
             return false;
         }
         } catch(Exception err) {
-        	logManager.logError(err);
+        	logManager.logError("checkFilesIsNeedUpdate: ", err);
+            logManager.logError(err.printStackTrace());
             return false;
         }
         
