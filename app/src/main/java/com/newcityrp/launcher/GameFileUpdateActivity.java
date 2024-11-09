@@ -50,6 +50,11 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // Do nothing, effectively disabling the back button
+    }
+
     private void setupGameTypeSelection() {
         setContentView(R.layout.activity_game_type_selection);
         SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
