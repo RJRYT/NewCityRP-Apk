@@ -21,6 +21,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     private ProgressBar downloadProgressBar;
     private String chosenGameType; // "lite" or "full"
     private Handler handler;
+    private LogManager logManager;
     private DownloadHelper downloadHelper;
     private HttpClient httpClient;
 
@@ -29,13 +30,16 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         downloadHelper = new DownloadHelper(this);
         httpClient = new HttpClient(this);
+        logManager = new LogManager(this); 
         fetchGameFileURLs();
-
+        logManager.logDebug("GameFileUpdateActivity");
         if (!areGameFilesAvailable()) {
             setupGameTypeSelection();
+            logManager.logDebug("GameFileUpdateActivity: setupGameTypeSelection");
         } else if(!checkFilesIsNeedUpdate()) {
             SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
             chosenGameType = apppref.getString("gameType", "full");
+            logManager.logDebug("GameFileUpdateActivity: checkFilesIsNeedUpdate. chosenGameType:",chosenGameType);
             startDownloadProcess();
         } else {
             finish();
@@ -44,16 +48,23 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
     private void setupGameTypeSelection() {
         setContentView(R.layout.activity_game_type_selection);
+        SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         Button liteButton = findViewById(R.id.liteButton);
         Button fullButton = findViewById(R.id.fullButton);
 
         liteButton.setOnClickListener(v -> {
             chosenGameType = "lite";
+            SharedPreferences.Editor editor = apppref.edit();
+            editor.putString("gameType", chosenGameType);
+            editor.apply();
             startDownloadProcess();
         });
 
         fullButton.setOnClickListener(v -> {
             chosenGameType = "full";
+            SharedPreferences.Editor editor = apppref.edit();
+            editor.putString("gameType", chosenGameType);
+            editor.apply();
             startDownloadProcess();
         });
     }
@@ -74,6 +85,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     }
 
     private void startDownloadProcess() {
+        logManager.logDebug("GameFileUpdateActivity: startDownloadProcess");
         setContentView(R.layout.activity_game_file_update);
         setupDownloadUI();
         fetchGameData(chosenGameType)
@@ -83,9 +95,11 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         httpClient.fetchData("mobile/update.json", new HttpClient.DataCallback() {
             @Override
             public void onSuccess(JSONObject data) {
+                logManager.logDebug("GameFileUpdateActivity: fetchGameFileURLs");
                 String fullUrl = data.getString("data_full_url");
                 String liteUrl = data.getString("data_lite_url");
                 String sampUrl = data.getString("data_samp_url");
+                logManager.logDebug(fullUrl, liteUrl, sampUrl);
 
                 SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
@@ -97,16 +111,22 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(this, "error on update", 1).show();
+                Toast.makeText(this, "error on fetchGameFileURLs", 1).show();
+                logManager.logDebug("GameFileUpdateActivity: error on fetchGameFileURLs", error);
                 finish();
             }
         });
     }
 
     private void fetchGameData(String gameType) {
+        logManager.logDebug("GameFileUpdateActivity: fetchGameData:");
+
         SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
         String dataUrl = gameType.equals("lite") ? prefs.getString("data_lite_url", "") : prefs.getString("data_full_url", "");
         String sampUrl = prefs.getString("data_samp_url", "");
+
+        logManager.logDebug("GameFileUpdateActivity: fetchGameData:dataUrl ",dataUrl);
+        logManager.logDebug("GameFileUpdateActivity: fetchGameData:sampUrl ",sampUrl);
 
         if (!dataUrl.isEmpty() && !sampUrl.isEmpty()) {
             downloadGameFiles(dataUrl);
@@ -117,21 +137,26 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     }
 
     private void downloadGameFiles(String url) {
-        new Thread(() -> {
-            try {
-                JSONObject response = makeHttpRequest(url); // Replace with actual HTTP request function
-                JSONArray filesArray = response.getJSONArray("files");
+        httpClient.fetchDataAlt(url, new HttpClient.DataCallback() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                logManager.logDebug("GameFileUpdateActivity: downloadGameFiles");
+                JSONArray filesArray = data.getJSONArray("files");
 
                 for (int i = 0; i < filesArray.length(); i++) {
                     JSONObject fileObject = filesArray.getJSONObject(i);
                     // Extract file details and initiate download
                     updateDownloadProgress(i, filesArray.length(), fileObject);
                 }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-        }).start();
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(this, "error on downloadGameFiles", 1).show();
+                logManager.logDebug("GameFileUpdateActivity: error on downloadGameFiles", error);
+                finish();
+            }
+        });
     }
 
     private void updateDownloadProgress(int fileIndex, int totalFiles, JSONObject fileObject) {
