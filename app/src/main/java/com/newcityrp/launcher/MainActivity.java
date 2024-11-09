@@ -2,6 +2,8 @@ package com.newcityrp.launcher;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
@@ -65,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         permissionHelper.checkAndRequestPermissions();
+
+        // Register the broadcast receiver
+        IntentFilter filter = new IntentFilter("FINISH_MAIN_ACTIVITY");
+        registerReceiver(finishReceiver, filter);
 
         Toast.makeText(this, getString(R.string.app_name_long) + " v" + getAppVersion(), Toast.LENGTH_LONG).show();
         logManager = new LogManager(this);        
@@ -145,6 +151,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
+
+    private final BroadcastReceiver finishReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();  // Finish MainActivity
+        }
+    };
     
     private void onPermissionsResult(Map<String, Boolean> permissions) {
         permissionHelper.handlePermissionsResult(permissions);
@@ -157,6 +170,12 @@ public class MainActivity extends AppCompatActivity {
         if (!permissionHelper.permissionDialogShown) {
             permissionHelper.checkAndRequestPermissions();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(finishReceiver);  // Unregister the receiver
     }
 
     private String getAppVersion() {

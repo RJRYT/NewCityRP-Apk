@@ -111,6 +111,12 @@ class DownloadHelper {
     }
     public String getDeviceGpu() {
         SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return preferences.getString(KEY_GPU_INFO, "unknown");
+        String gpu = preferences.getString(KEY_GPU_INFO, "unknown");
+        
+        return (gpu != null) 
+        ? (gpu.toLowerCase().contains("adreno") ? "dex"  // For Adreno GPUs
+            : (gpu.toLowerCase().contains("powervr") ? "pvr"  // For PowerVR GPUs
+            : "etc"))  // For other GPUs
+        : "unknown";  // If GPU info is null or unavailable
     }
 }

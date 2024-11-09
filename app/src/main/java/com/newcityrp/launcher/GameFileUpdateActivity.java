@@ -38,6 +38,8 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         if (!areGameFilesAvailable()) {
             setupGameTypeSelection();
             logManager.logDebug("GameFileUpdateActivity: setupGameTypeSelection");
+            Intent finishIntent = new Intent("FINISH_MAIN_ACTIVITY");
+            sendBroadcast(finishIntent);
         } else if(!checkFilesIsNeedUpdate()) {
             SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
             chosenGameType = apppref.getString("gameType", "full");
