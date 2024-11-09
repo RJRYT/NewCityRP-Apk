@@ -15,6 +15,8 @@ import android.widget.Toast;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import android.content.SharedPreferences;
+import javax.microedition.khronos.opengles.GL10;
+import android.opengl.GLSurfaceView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -124,10 +126,40 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        String gpuInfo = getGpuInfoFromPreferences();
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String gpuInfo = preferences.getString(KEY_GPU_INFO, null);
         if (gpuInfo == null) {
-            // If not, fetch and store it
-            fetchAndStoreGpuInfo();
+            // If not, fetch it and store in SharedPreferences
+            GLSurfaceView glSurfaceView = new GLSurfaceView(this);
+            glSurfaceView.setEGLContextClientVersion(2); // Set OpenGL ES version
+            glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
+                @Override
+                public void onSurfaceCreated(GL10 gl, javax.microedition.khronos.egl.EGLConfig config) {
+                    // Get the GPU renderer string
+                    String gpuInfo = gl.glGetString(GL10.GL_RENDERER);
+
+                    // Store the GPU info in SharedPreferences
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString(KEY_GPU_INFO, gpuInfo);
+                    editor.apply();
+
+                    // Optionally show GPU info in a Toast
+                    Toast.makeText(MainActivity.this, "GPU Info: " + gpuInfo, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onDrawFrame(GL10 gl) {
+                    // Leave empty, no need to render frames
+                }
+
+                @Override
+                public void onSurfaceChanged(GL10 gl, int width, int height) {
+                    // Handle surface changes if needed
+                }
+            });
+        } else {
+            // GPU info already available in SharedPreferences
+            Toast.makeText(this, "GPU Info (from SharedPreferences): " + gpuInfo, Toast.LENGTH_SHORT).show();
         }
 
         new Thread(new Runnable() {
@@ -180,31 +212,5 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean(KEY_NOTIFICATION_SHOWN, true);
             editor.apply();
         }
-    }
-
-    // Fetch GPU info from SharedPreferences
-    private String getGpuInfoFromPreferences() {
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        return preferences.getString(KEY_GPU_INFO, null);
-    }
-
-    // Fetch GPU info and store it in SharedPreferences
-    private void fetchAndStoreGpuInfo() {
-        DownloadHelper downloadHelper = new DownloadHelper(this);
-        downloadHelper.getDeviceGpu(new DownloadHelper.GpuInfoCallback() {
-            @Override
-            public void onGpuInfoRetrieved(String gpuInfo) {
-                // Store the GPU info in SharedPreferences
-                saveGpuInfoToPreferences(gpuInfo);
-            }
-        });
-    }
-
-    // Save GPU info to SharedPreferences
-    private void saveGpuInfoToPreferences(String gpuInfo) {
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(KEY_GPU_INFO, gpuInfo);
-        editor.apply();
     }
 }

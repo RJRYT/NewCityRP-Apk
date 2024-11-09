@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import javax.microedition.khronos.opengles.GL10;
-import android.opengl.GLSurfaceView;
 import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -108,49 +106,11 @@ class DownloadHelper {
     // Helper function to check if GPU is supported
     public boolean isGpuSupported(String gpu) {
         // Assuming that we have a method to get the device's GPU type.
-        String deviceGpu = getDeviceGpuText();  // You should implement this to check the GPU type on the device
+        String deviceGpu = getDeviceGpu();  // You should implement this to check the GPU type on the device
         return gpu.equals(deviceGpu);
     }
-    public String getDeviceGpuText() {
+    public String getDeviceGpu() {
         SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return preferences.getString(KEY_GPU_INFO, "unknown");
     }
-
-    // Interface for GPU info callback
-    public interface GpuInfoCallback {
-        void onGpuInfoRetrieved(String gpuInfo);
-    }
-
-    // Function to get GPU information asynchronously
-    public void getDeviceGpu(final GpuInfoCallback callback) {
-        GLSurfaceView glSurfaceView = new GLSurfaceView(context);
-        glSurfaceView.setEGLContextClientVersion(2);  // Set OpenGL ES version
-
-        glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
-            @Override
-            public void onSurfaceCreated(GL10 gl, javax.microedition.khronos.egl.EGLConfig config) {
-                // Get the GPU renderer string
-                String gpuInfo = gl.glGetString(GL10.GL_RENDERER);
-                // Trigger the callback with the GPU info
-                    loger.logVerbose(gpuInfo, "ha ha ha");
-                if (callback != null) {
-                    callback.onGpuInfoRetrieved(gpuInfo);
-                }
-            }
-
-            @Override
-            public void onDrawFrame(GL10 gl) {
-                // Leave this empty for now
-            }
-
-            @Override
-            public void onSurfaceChanged(GL10 gl, int width, int height) {
-                // Handle surface changes if needed
-            }
-        });
-
-        // Trigger the renderer's lifecycle to retrieve GPU info
-        glSurfaceView.requestRender(); 
-    }
-
 }
