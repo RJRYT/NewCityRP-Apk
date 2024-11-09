@@ -26,6 +26,9 @@ class DownloadHelper {
 
     public boolean checkFilesFromServerWithLocalFiles(String dataUrl) {
         try {
+            LogManager loger = new LogManager(context);
+            loger.logDebug("checkFilesFromServerWithLocalFiles",dataUrl);
+            loger.logVerbose(getDeviceGpu());
             // Fetch the list of files from the server (full or lite list)
             URL url = new URL(dataUrl);  // Use the appropriate URL based on user selection (full or lite)
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -33,7 +36,7 @@ class DownloadHelper {
             urlConnection.setConnectTimeout(15000);
             urlConnection.setReadTimeout(15000);
             urlConnection.connect();
-
+            
             // Read the response from the server
             InputStream inputStream = urlConnection.getInputStream();
             String response = convertStreamToString(inputStream);
@@ -107,8 +110,6 @@ class DownloadHelper {
     public String getDeviceGpu() {
         String gpuVendor = GLES20.glGetString(GLES20.GL_VENDOR);
         String gpuRenderer = GLES20.glGetString(GLES20.GL_RENDERER);
-        LogManager loger = new LogManager(context);
-        loger.logDebug(gpuRenderer, gpuVendor);
         return gpuVendor + " " + gpuRenderer;
     }
 
