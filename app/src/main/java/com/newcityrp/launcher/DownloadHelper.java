@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import android.opengl.GLES20;
+import javax.microedition.khronos.opengles.GL10;
 import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -108,9 +108,8 @@ class DownloadHelper {
 
     // Placeholder function to get the device's GPU type
     public String getDeviceGpu() {
-        String gpuVendor = GLES20.glGetString(GLES20.GL_VENDOR);
-        String gpuRenderer = GLES20.glGetString(GLES20.GL_RENDERER);
-        return gpuVendor + " " + gpuRenderer;
+        String glGetString = gl10.glGetString(GL10.GL_RENDERER);
+        return glGetString;
     }
 
 }
