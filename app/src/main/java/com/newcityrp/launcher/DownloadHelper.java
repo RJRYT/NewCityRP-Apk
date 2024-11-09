@@ -107,7 +107,8 @@ class DownloadHelper {
     public String getDeviceGpu() {
         String gpuVendor = GLES20.glGetString(GLES20.GL_VENDOR);
         String gpuRenderer = GLES20.glGetString(GLES20.GL_RENDERER);
-
+        LogManager loger = new LogManager(context);
+        loger.logDebug(gpuRenderer, gpuVendor);
         return gpuVendor + " " + gpuRenderer;
     }
 

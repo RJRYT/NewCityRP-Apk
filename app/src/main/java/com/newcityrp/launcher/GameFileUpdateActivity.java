@@ -157,7 +157,6 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                 for (int i = 0; i < filesArray.length(); i++) {
                     JSONObject fileObject = filesArray.getJSONObject(i);
                     // Extract file details and initiate download
-                            logManager.logVerbose(fileObject);
                     updateDownloadProgress(i, filesArray.length(), fileObject);
                 }
                     } catch(JSONException err) {
