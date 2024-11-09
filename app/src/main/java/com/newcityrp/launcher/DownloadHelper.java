@@ -1,6 +1,7 @@
 package com.newcityrp.launcher;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import javax.microedition.khronos.opengles.GL10;
+import android.opengl.GLSurfaceView;
 import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +20,7 @@ class DownloadHelper {
 
     private final Context context;
     private HttpClient httpClient;
+    private LogManager loger;
 
     private static final String KEY_GPU_INFO = "gpu_info";
     private static final String PREFS_NAME = "AppPrefs";
@@ -25,11 +28,11 @@ class DownloadHelper {
     public DownloadHelper(Context context) {
         this.context = context;
         this.httpClient = new HttpClient(context);
+        this.loger = new LogManager(context);
     }
 
     public boolean checkFilesFromServerWithLocalFiles(String dataUrl) {
         try {
-            LogManager loger = new LogManager(context);
             loger.logDebug("checkFilesFromServerWithLocalFiles: ",dataUrl);
             loger.logVerbose(getDeviceGpuText());
             // Fetch the list of files from the server (full or lite list)
@@ -109,7 +112,7 @@ class DownloadHelper {
         return gpu.equals(deviceGpu);
     }
     public String getDeviceGpuText() {
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return preferences.getString(KEY_GPU_INFO, "unknown");
     }
 
@@ -129,6 +132,7 @@ class DownloadHelper {
                 // Get the GPU renderer string
                 String gpuInfo = gl.glGetString(GL10.GL_RENDERER);
                 // Trigger the callback with the GPU info
+                    loger.logVerbose(gpuInfo, "ha ha ha");
                 if (callback != null) {
                     callback.onGpuInfoRetrieved(gpuInfo);
                 }
