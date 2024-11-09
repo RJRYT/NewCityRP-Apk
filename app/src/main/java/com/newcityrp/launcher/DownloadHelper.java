@@ -19,6 +19,9 @@ class DownloadHelper {
     private final Context context;
     private HttpClient httpClient;
 
+    private static final String KEY_GPU_INFO = "gpu_info";
+    private static final String PREFS_NAME = "AppPrefs";
+
     public DownloadHelper(Context context) {
         this.context = context;
         this.httpClient = new HttpClient(context);
@@ -27,8 +30,8 @@ class DownloadHelper {
     public boolean checkFilesFromServerWithLocalFiles(String dataUrl) {
         try {
             LogManager loger = new LogManager(context);
-            loger.logDebug("checkFilesFromServerWithLocalFiles",dataUrl);
-            loger.logVerbose(getDeviceGpu());
+            loger.logDebug("checkFilesFromServerWithLocalFiles: ",dataUrl);
+            loger.logVerbose(getDeviceGpuText());
             // Fetch the list of files from the server (full or lite list)
             URL url = new URL(dataUrl);  // Use the appropriate URL based on user selection (full or lite)
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -102,14 +105,48 @@ class DownloadHelper {
     // Helper function to check if GPU is supported
     public boolean isGpuSupported(String gpu) {
         // Assuming that we have a method to get the device's GPU type.
-        String deviceGpu = getDeviceGpu();  // You should implement this to check the GPU type on the device
+        String deviceGpu = getDeviceGpuText();  // You should implement this to check the GPU type on the device
         return gpu.equals(deviceGpu);
     }
+    public String getDeviceGpuText() {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return preferences.getString(KEY_GPU_INFO, "unknown");
+    }
 
-    // Placeholder function to get the device's GPU type
-    public String getDeviceGpu() {
-        String glGetString = gl10.glGetString(GL10.GL_RENDERER);
-        return glGetString;
+    // Interface for GPU info callback
+    public interface GpuInfoCallback {
+        void onGpuInfoRetrieved(String gpuInfo);
+    }
+
+    // Function to get GPU information asynchronously
+    public void getDeviceGpu(final GpuInfoCallback callback) {
+        GLSurfaceView glSurfaceView = new GLSurfaceView(context);
+        glSurfaceView.setEGLContextClientVersion(2);  // Set OpenGL ES version
+
+        glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
+            @Override
+            public void onSurfaceCreated(GL10 gl, javax.microedition.khronos.egl.EGLConfig config) {
+                // Get the GPU renderer string
+                String gpuInfo = gl.glGetString(GL10.GL_RENDERER);
+                // Trigger the callback with the GPU info
+                if (callback != null) {
+                    callback.onGpuInfoRetrieved(gpuInfo);
+                }
+            }
+
+            @Override
+            public void onDrawFrame(GL10 gl) {
+                // Leave this empty for now
+            }
+
+            @Override
+            public void onSurfaceChanged(GL10 gl, int width, int height) {
+                // Handle surface changes if needed
+            }
+        });
+
+        // Trigger the renderer's lifecycle to retrieve GPU info
+        glSurfaceView.requestRender(); 
     }
 
 }

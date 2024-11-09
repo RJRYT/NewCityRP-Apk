@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "AppPrefs";
     private static final String KEY_NOTIFICATION_SHOWN = "notification_shown";
     private static final String GAME_FILES_DIR = "files";
+    private static final String KEY_GPU_INFO = "gpu_info";
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         //default page
         viewPager.setCurrentItem(2);
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
-        
         
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             
@@ -123,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        String gpuInfo = getGpuInfoFromPreferences();
+        if (gpuInfo == null) {
+            // If not, fetch and store it
+            fetchAndStoreGpuInfo();
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -174,5 +180,31 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean(KEY_NOTIFICATION_SHOWN, true);
             editor.apply();
         }
+    }
+
+    // Fetch GPU info from SharedPreferences
+    private String getGpuInfoFromPreferences() {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return preferences.getString(KEY_GPU_INFO, null);
+    }
+
+    // Fetch GPU info and store it in SharedPreferences
+    private void fetchAndStoreGpuInfo() {
+        DownloadHelper downloadHelper = new DownloadHelper(this);
+        downloadHelper.getDeviceGpu(new DownloadHelper.GpuInfoCallback() {
+            @Override
+            public void onGpuInfoRetrieved(String gpuInfo) {
+                // Store the GPU info in SharedPreferences
+                saveGpuInfoToPreferences(gpuInfo);
+            }
+        });
+    }
+
+    // Save GPU info to SharedPreferences
+    private void saveGpuInfoToPreferences(String gpuInfo) {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(KEY_GPU_INFO, gpuInfo);
+        editor.apply();
     }
 }
