@@ -117,6 +117,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"></activity>
+        <activity 
+            android:name=".GameFileUpdateActivity"
+            android:label="Game File Update"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
     
     <meta-data

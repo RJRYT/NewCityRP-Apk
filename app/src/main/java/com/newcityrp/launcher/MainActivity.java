@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "AppPrefs";
     private static final String KEY_NOTIFICATION_SHOWN = "notification_shown";
+    private static final String GAME_FILES_DIR = "files";
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(MainActivity.this, GameFileUpdateActivity.class);
+                        startActivity(intent);
+                    }
+                });
+            }
+        }).start();
     }
     
     private void onPermissionsResult(Map<String, Boolean> permissions) {

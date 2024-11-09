@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/downloadStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Downloading Game Files..."
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/currentFileText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current File: N/A"/>
+
+    <TextView
+        android:id="@+id/downloadSizeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Downloaded Size: 0 / 0 MB"/>
+
+    <TextView
+        android:id="@+id/downloadSpeedText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Download Speed: 0 KB/s"/>
+
+    <TextView
+        android:id="@+id/estimatedTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estimated Time: N/A"/>
+
+    <ProgressBar
+        android:id="@+id/downloadProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

@@ -25,7 +25,6 @@ public class SettingsFragment extends Fragment {
 
     private final int[] fpsValues = {30, 60, 90};
     private final int[] chatStringValues = {5, 10, 15};
-    private static final String GAME_FILES_DIR = "files";
 
     @Nullable
     @Override
@@ -108,7 +107,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void deleteGameFiles() {
-        File gameFilesDir = new File(requireContext().getFilesDir(), GAME_FILES_DIR);
+        File gameFilesDir = new File(requireContext().getExternalFilesDir(null), "");
         
         if (deleteDirectory(gameFilesDir)) {
             // Show a success message
