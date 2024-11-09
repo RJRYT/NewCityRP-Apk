@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import android.content.SharedPreferences;
 import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
+import javax.microedition.khronos.egl.EGLConfig;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -189,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             // Called when the surface is created for the first time
             SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            String gpu = gl.glGetString(GL10.GL_RENDERER);  // Get GPU info
+            String gpuInfo = gl.glGetString(GL10.GL_RENDERER);  // Get GPU info
             
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString(KEY_GPU_INFO, gpuInfo);
@@ -204,11 +205,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             // Called when the surface size changes (e.g., on screen rotation)
-        }
-
-        @Override
-        public void onSurfaceDestroyed(GL10 gl) {
-            // Called when the surface is destroyed (e.g., when activity is paused)
         }
     }
 }
