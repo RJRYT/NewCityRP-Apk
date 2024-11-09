@@ -120,6 +120,8 @@
         <activity 
             android:name=".GameFileUpdateActivity"
             android:label="Game File Update"
+            android:launchMode="singleTask"
+            android:noHistory="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
     

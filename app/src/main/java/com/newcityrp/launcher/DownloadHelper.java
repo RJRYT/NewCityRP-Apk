@@ -1,8 +1,18 @@
 package com.newcityrp.launcher;
 
 import android.content.Context;
+import android.widget.Toast;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import android.opengl.GLES20;
+import java.net.URL;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 class DownloadHelper {
 
@@ -40,7 +50,7 @@ class DownloadHelper {
                 String fileUrl = fileObject.getString("url");
 
                 // Check if the file exists locally
-                File localFile = new File(getFilesDir(), filePath);  // Use appropriate folder for your app
+                File localFile = new File(context.getExternalFilesDir(null), filePath);  // Use appropriate folder for your app
                 if (!localFile.exists()) {
                     // File is missing, return false
                     return false;

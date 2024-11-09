@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.Manifest;
 import android.os.Bundle;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Toast;
 import android.content.Context;

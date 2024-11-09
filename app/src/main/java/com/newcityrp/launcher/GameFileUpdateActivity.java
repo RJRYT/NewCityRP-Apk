@@ -1,5 +1,6 @@
 package com.newcityrp.launcher;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONArray;
@@ -81,6 +83,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
     private boolean areGameFilesAvailable() {
         File gameFilesDir = new File(getExternalFilesDir(null), "");
+        logManager.logDebug(gameFilesDir);
         return gameFilesDir.exists() && gameFilesDir.isDirectory() && gameFilesDir.listFiles().length > 0;
     }
 
@@ -88,33 +91,39 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         logManager.logDebug("GameFileUpdateActivity: startDownloadProcess");
         setContentView(R.layout.activity_game_file_update);
         setupDownloadUI();
-        fetchGameData(chosenGameType)
+        fetchGameData(chosenGameType);
     }
 
     private void fetchGameFileURLs() {
-        httpClient.fetchData("mobile/update.json", new HttpClient.DataCallback() {
-            @Override
-            public void onSuccess(JSONObject data) {
-                logManager.logDebug("GameFileUpdateActivity: fetchGameFileURLs");
-                String fullUrl = data.getString("data_full_url");
-                String liteUrl = data.getString("data_lite_url");
-                String sampUrl = data.getString("data_samp_url");
-                logManager.logDebug(fullUrl, liteUrl, sampUrl);
+    httpClient.fetchData(
+        "mobile/update.json",
+        new HttpClient.DataCallback() {
+          @Override
+          public void onSuccess(JSONObject data) {
+            logManager.logDebug("GameFileUpdateActivity: fetchGameFileURLs");
+            try {
+              String fullUrl = data.getString("data_full_url");
+              String liteUrl = data.getString("data_lite_url");
+              String sampUrl = data.getString("data_samp_url");
+              logManager.logDebug(fullUrl, liteUrl, sampUrl);
 
-                SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("data_full_url", fullUrl);
-                editor.putString("data_lite_url", liteUrl);
-                editor.putString("data_samp_url", sampUrl);
-                editor.apply();
+              SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
+              SharedPreferences.Editor editor = prefs.edit();
+              editor.putString("data_full_url", fullUrl);
+              editor.putString("data_lite_url", liteUrl);
+              editor.putString("data_samp_url", sampUrl);
+              editor.apply();
+            } catch (JSONException err) {
+              logManager.logDebug(err);
             }
+          }
 
-            @Override
-            public void onFailure(String error) {
-                Toast.makeText(this, "error on fetchGameFileURLs", 1).show();
-                logManager.logDebug("GameFileUpdateActivity: error on fetchGameFileURLs", error);
-                finish();
-            }
+          @Override
+          public void onFailure(String error) {
+            //  Toast.makeText(this, "error on fetchGameFileURLs", 1).show();
+            logManager.logDebug("GameFileUpdateActivity: error on fetchGameFileURLs", error);
+            finish();
+          }
         });
     }
 
@@ -141,18 +150,24 @@ public class GameFileUpdateActivity extends AppCompatActivity {
             @Override
             public void onSuccess(JSONObject data) {
                 logManager.logDebug("GameFileUpdateActivity: downloadGameFiles");
-                JSONArray filesArray = data.getJSONArray("files");
+                
+                    try {
+                    	JSONArray filesArray = data.getJSONArray("files");
 
                 for (int i = 0; i < filesArray.length(); i++) {
                     JSONObject fileObject = filesArray.getJSONObject(i);
                     // Extract file details and initiate download
+                            logManager.logVerbose(fileObject);
                     updateDownloadProgress(i, filesArray.length(), fileObject);
                 }
+                    } catch(JSONException err) {
+                    	logManager.logDebug(err);
+                    }
             }
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(this, "error on downloadGameFiles", 1).show();
+               // Toast.makeText(this, "error on downloadGameFiles", 1).show();
                 logManager.logDebug("GameFileUpdateActivity: error on downloadGameFiles", error);
                 finish();
             }
@@ -168,15 +183,23 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         });
     }
 
-    private void checkFilesIsNeedUpdate() {
-        SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
-        String dataUrl = gameType.equals("lite") ? prefs.getString("data_lite_url", "") : prefs.getString("data_full_url", "");
+    private boolean checkFilesIsNeedUpdate() {
+        try {
+        	SharedPreferences prefs = getSharedPreferences("GameUpdatePrefs", MODE_PRIVATE);
+            SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+            chosenGameType = apppref.getString("gameType", "full");
+        String dataUrl = chosenGameType.equals("lite") ? prefs.getString("data_lite_url", "") : prefs.getString("data_full_url", "");
         String sampUrl = prefs.getString("data_samp_url", "");
 
         if (!dataUrl.isEmpty() && !sampUrl.isEmpty()) {
-            return !downloadHelper.checkFilesFromServerWithLocalFiles(dataUrl) && !downloadHelper.checkFilesFromServerWithLocalFiles(sampUrl)
+            return !downloadHelper.checkFilesFromServerWithLocalFiles(dataUrl) && !downloadHelper.checkFilesFromServerWithLocalFiles(sampUrl);
         } else {
             return false;
         }
+        } catch(Exception err) {
+        	logManager.logError(err);
+            return false;
+        }
+        
     }
 }
