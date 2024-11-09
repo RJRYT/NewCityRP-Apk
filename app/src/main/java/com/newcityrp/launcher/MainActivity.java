@@ -126,41 +126,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String gpuInfo = preferences.getString(KEY_GPU_INFO, null);
-        if (gpuInfo == null) {
-            // If not, fetch it and store in SharedPreferences
-            GLSurfaceView glSurfaceView = new GLSurfaceView(this);
-            glSurfaceView.setEGLContextClientVersion(2); // Set OpenGL ES version
-            glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
-                @Override
-                public void onSurfaceCreated(GL10 gl, javax.microedition.khronos.egl.EGLConfig config) {
-                    // Get the GPU renderer string
-                    String gpuInfo = gl.glGetString(GL10.GL_RENDERER);
-
-                    // Store the GPU info in SharedPreferences
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString(KEY_GPU_INFO, gpuInfo);
-                    editor.apply();
-
-                    // Optionally show GPU info in a Toast
-                    Toast.makeText(MainActivity.this, "GPU Info: " + gpuInfo, Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onDrawFrame(GL10 gl) {
-                    // Leave empty, no need to render frames
-                }
-
-                @Override
-                public void onSurfaceChanged(GL10 gl, int width, int height) {
-                    // Handle surface changes if needed
-                }
-            });
-        } else {
-            // GPU info already available in SharedPreferences
-            Toast.makeText(this, "GPU Info (from SharedPreferences): " + gpuInfo, Toast.LENGTH_SHORT).show();
-        }
+        GLSurfaceView glSurfaceView = new GLSurfaceView(this);
+        glSurfaceView.setEGLContextClientVersion(2); // Optional: for OpenGL ES 2.0
+        glSurfaceView.setRenderer(new AppRenderer()); // Set the custom renderer
+        setContentView(glSurfaceView);
 
         new Thread(new Runnable() {
             @Override
@@ -211,6 +180,35 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(KEY_NOTIFICATION_SHOWN, true);
             editor.apply();
+        }
+    }
+
+    private class AppRenderer implements GLSurfaceView.Renderer {
+
+        @Override
+        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+            // Called when the surface is created for the first time
+            SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            String gpu = gl.glGetString(GL10.GL_RENDERER);  // Get GPU info
+            
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(KEY_GPU_INFO, gpuInfo);
+            editor.apply();
+        }
+
+        @Override
+        public void onDrawFrame(GL10 gl) {
+            // Called every frame to render the content
+        }
+
+        @Override
+        public void onSurfaceChanged(GL10 gl, int width, int height) {
+            // Called when the surface size changes (e.g., on screen rotation)
+        }
+
+        @Override
+        public void onSurfaceDestroyed(GL10 gl) {
+            // Called when the surface is destroyed (e.g., when activity is paused)
         }
     }
 }
