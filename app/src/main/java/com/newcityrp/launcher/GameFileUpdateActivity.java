@@ -55,8 +55,8 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     private void setupGameTypeSelection() {
         setContentView(R.layout.activity_game_type_selection);
         SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-        Button liteButton = findViewById(R.id.liteButton);
-        Button fullButton = findViewById(R.id.fullButton);
+        Button liteButton = findViewById(R.id.dataSelectionLiteButton);
+        Button fullButton = findViewById(R.id.dataSelectionFullButton);
 
         liteButton.setOnClickListener(v -> {
             chosenGameType = "lite";

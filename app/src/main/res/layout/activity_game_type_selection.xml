@@ -1,31 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp">
+<RelativeLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent">
 
-    <TextView
-        android:id="@+id/chooseGameTypeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Choose Game Type"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+    <ImageView
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:scaleType="centerCrop"
+         android:src="@drawable/background"
+         android:id="@+id/backgroundImage" />
 
-    <Button
-        android:id="@+id/liteButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lite" />
+    <LinearLayout
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:layout_centerInParent="true"
+         android:gravity="center"
+         android:padding="24dp"
+         android:orientation="vertical">
 
-    <Button
-        android:id="@+id/fullButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Full"
-        android:layout_marginTop="16dp"/>
-</LinearLayout>
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:layout_marginBottom="24dp"
+             android:gravity="center"
+             android:textSize="24sp"
+             android:textColor="@android:color/white"
+             android:id="@+id/chooseGameTypeText"
+             android:text="Game Data Selection"
+             android:textStyle="bold" />
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:layout_marginBottom="30dp"
+             android:textSize="20sp"
+             android:textColor="@android:color/white"
+             android:id="@+id/dataSelectionLiteButton"
+            android:background="@drawable/button_custom"
+             android:text="Lite (900 MB)" />
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:textSize="20sp"
+             android:textColor="@android:color/white"
+             android:id="@+id/dataSelectionFullButton"
+            android:background="@drawable/button_custom"
+             android:text="Full (2.3 GB)" />
+
+    </LinearLayout>
+
+</RelativeLayout>
