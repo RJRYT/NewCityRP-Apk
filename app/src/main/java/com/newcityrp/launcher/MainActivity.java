@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Environment;
 import android.provider.Settings;
 import android.widget.Toast;
 import android.content.Context;
@@ -138,19 +139,26 @@ public class MainActivity extends AppCompatActivity {
         glSurfaceView.setRenderer(new AppRenderer()); // Set the custom renderer
         setContentView(glSurfaceView);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(MainActivity.this, GameFileUpdateActivity.class);
-                        startActivity(intent);
-                    }
-                });
-            }
-        }).start();
+        if(permissionHelper.arePermissionsGranted()) {
+      new Thread(
+              new Runnable() {
+                @Override
+                public void run() {
+                  new Handler(Looper.getMainLooper())
+                      .post(
+                          new Runnable() {
+                            @Override
+                            public void run() {
+                              Intent intent =
+                                  new Intent(MainActivity.this, GameFileUpdateActivity.class);
+                              startActivity(intent);
+                            }
+                          });
+                }
+              })
+          .start();
     }
+  }
 
     private final BroadcastReceiver finishReceiver = new BroadcastReceiver() {
         @Override
@@ -168,9 +176,18 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Check permissions only if the dialog was not previously shown
         if (!permissionHelper.permissionDialogShown) {
+            permissionHelper.permissionDialogShown = false;
             permissionHelper.checkAndRequestPermissions();
         }
+        if(permissionHelper.allFilesPermsReqTriggered) {
+        	permissionHelper.allFilesPermsReqTriggered = false;
+            if(permissionHelper.arePermissionsGranted()) {
+            	permissionHelper.restartApp(this);
+            } else {
+            	Toast.makeText(this, "All files access permission is required.", Toast.LENGTH_SHORT).show();
+            }
     }
+  }
 
     @Override
     protected void onDestroy() {

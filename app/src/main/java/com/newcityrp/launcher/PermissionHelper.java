@@ -10,6 +10,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.os.Environment;
 import android.widget.Toast;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -27,6 +28,8 @@ public class PermissionHelper {
     private boolean isMicrophonePermissionGranted = false;
     private boolean isNotificationPermissionGranted = false;
     public boolean permissionDialogShown = false;
+    public boolean allFilesPermsReqTriggered = false;
+    private int permissionreqretries = 0;
 
     public interface PermissionCallback {
         void onPermissionsGranted();
@@ -57,6 +60,7 @@ public class PermissionHelper {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                 Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
                 intent.setData(uri);
+                allFilesPermsReqTriggered = true;
                 activity.startActivity(intent);
             } else {
                 Log.e("PermissionError", "Activity reference is null");
@@ -70,17 +74,17 @@ public class PermissionHelper {
         }
     }
 
-    private void restartApp(Activity activity) {
-        if (activity != null) {
-            Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
-            if (intent != null) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.startActivity(intent);
-                activity.finish();
-                Runtime.getRuntime().exit(0); // Forcefully terminate the app
-            }
+    public void restartApp(Activity activity) {
+        Toast.makeText(activity, "Restarting",1).show();
+    if (activity != null) {
+        Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent);
+            activity.finishAffinity(); // Closes all activities
         }
-    }    
+    }
+}
 
     // Request legacy permission for Android 10 and below
     private void requestLegacyPermission(Activity activity) {
@@ -88,6 +92,8 @@ public class PermissionHelper {
     }
 
     public void checkAndRequestPermissions() {
+        permissionreqretries ++;
+        if(permissionreqretries < 3) {
         isMicrophonePermissionGranted = ContextCompat.checkSelfPermission(
                 context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
 
@@ -98,9 +104,16 @@ public class PermissionHelper {
             if (!permissionDialogShown) {
                 showPermissionsDialog();
             }
-        } else {
+        } else if(!areFileAccessGranted()){
+            checkPermissionsForCreateFiles();
+            
+        }else{
             callback.onPermissionsGranted();
         }
+            } else {
+            callback.onPermissionsDenied();
+                Toast.makeText(context, "Restart the app to continue...",1).show();
+            }
     }
 
     private void showPermissionsDialog() {
@@ -171,4 +184,57 @@ public class PermissionHelper {
             .create()
             .show();
     }
+    
+    public boolean arePermissionsGranted() {
+        // Check for voice recording permission
+        boolean voiceGranted = ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+
+        // Check for notification permission (required on Android 13+)
+        boolean notificationGranted = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationGranted = NotificationManagerCompat.from(context).areNotificationsEnabled();
+        }
+
+        // Check for all files access (special permission on Android 11+)
+        boolean fileAccessGranted;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            fileAccessGranted = Environment.isExternalStorageManager();
+        } else {
+            fileAccessGranted = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
+
+        return voiceGranted && notificationGranted && fileAccessGranted;
+    }
+    
+    public boolean areVoiceAndNotifyGranted() {
+        // Check for voice recording permission
+        boolean voiceGranted = ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+
+        // Check for notification permission (required on Android 13+)
+        boolean notificationGranted = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationGranted = NotificationManagerCompat.from(context).areNotificationsEnabled();
+        }
+
+        return voiceGranted && notificationGranted;
+    }
+    
+    public boolean areFileAccessGranted() {
+       
+        // Check for all files access (special permission on Android 11+)
+        boolean fileAccessGranted;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            fileAccessGranted = Environment.isExternalStorageManager();
+        } else {
+            fileAccessGranted = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
+
+        return fileAccessGranted;
+    }
 }
+
+
+
+
+
+

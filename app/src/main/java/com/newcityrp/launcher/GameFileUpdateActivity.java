@@ -192,7 +192,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         }
         } catch(Exception err) {
         	logManager.logError("checkFilesIsNeedUpdate: ", err);
-            logManager.logError(err.printStackTrace());
+            logManager.logError(err.getCause(), err.getStackTrace());
             return false;
         }
         
