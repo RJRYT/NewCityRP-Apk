@@ -107,20 +107,15 @@ class DownloadHelper {
                         String filePath = fileObject.getString("path");
                         String fileUrl = fileObject.getString("url");
 
-                        // Check if the file's GPU compatibility matches the device's GPU (optional)
-                        String gpu = fileObject.getString("gpu");
-                        if (!gpu.equals("all") && !isGpuSupported(gpu)) {
-                            loger.logDebug("checkFilesFromServerWithLocalFiles: gpu not supported: ",fileName, "file gpu/device gpu",gpu,getDeviceGpu());
-                            callback.onResult(false); // If GPU is not supported, return false
-                            return;
-                        }
-
                         // Check if the file exists locally
                         File localFile = new File(context.getExternalFilesDir(null), filePath); // Use appropriate folder for your app
+                        String gpu = fileObject.getString("gpu");
                         if (!localFile.exists()) {
-                            loger.logDebug("checkFilesFromServerWithLocalFiles: file didnt exist: ",fileName);
-                            callback.onResult(false); // File is missing, return false
-                            return;
+                            if (gpu.equals("all") || isGpuSupported(gpu)) {
+                                loger.logDebug("checkFilesFromServerWithLocalFiles: file didnt exist: ",fileName);
+                                callback.onResult(false); // File is missing, return false
+                                return;
+                            }
                         }
 
                         // Check if the local file's size matches the server file size
