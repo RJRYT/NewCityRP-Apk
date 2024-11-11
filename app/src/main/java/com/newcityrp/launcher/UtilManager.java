@@ -63,6 +63,11 @@ class UtilManager {
     }
 
     public boolean isGameFilesDownloaded(Context context) {
+        SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        String gameType = apppref.getString("gameType", null);
+        if (gameType == null || gameType.isEmpty()) {
+            return false; 
+        }
         File gameFilesDir = new File(context.getExternalFilesDir(null), "");
         return gameFilesDir.exists() && gameFilesDir.isDirectory() && gameFilesDir.listFiles().length > 0;
     }
