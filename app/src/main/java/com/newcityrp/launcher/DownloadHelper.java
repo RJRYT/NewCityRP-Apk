@@ -107,9 +107,18 @@ class DownloadHelper {
                         String filePath = fileObject.getString("path");
                         String fileUrl = fileObject.getString("url");
 
+                        // Check if the file's GPU compatibility matches the device's GPU (optional)
+                        String gpu = fileObject.getString("gpu");
+                        if (!gpu.equals("all") && !isGpuSupported(gpu)) {
+                            loger.logDebug("checkFilesFromServerWithLocalFiles: gpu not supported: ",file.getName(), "file gpu/device gpu",gpu,getDeviceGpu());
+                            callback.onResult(false); // If GPU is not supported, return false
+                            return;
+                        }
+
                         // Check if the file exists locally
                         File localFile = new File(context.getExternalFilesDir(null), filePath); // Use appropriate folder for your app
                         if (!localFile.exists()) {
+                            loger.logDebug("checkFilesFromServerWithLocalFiles: file didnt exist: ",file.getName());
                             callback.onResult(false); // File is missing, return false
                             return;
                         }
@@ -118,14 +127,8 @@ class DownloadHelper {
                         long localFileSize = localFile.length();
                         long serverFileSize = Long.parseLong(fileObject.getString("size"));
                         if (localFileSize != serverFileSize) {
+                            loger.logDebug("checkFilesFromServerWithLocalFiles: file size didnt match: ",file.getName());
                             callback.onResult(false); // File size mismatch, return false
-                            return;
-                        }
-
-                        // Check if the file's GPU compatibility matches the device's GPU (optional)
-                        String gpu = fileObject.getString("gpu");
-                        if (!gpu.equals("all") && !isGpuSupported(gpu)) {
-                            callback.onResult(false); // If GPU is not supported, return false
                             return;
                         }
                     }
@@ -176,8 +179,6 @@ class DownloadHelper {
         String chosenGameType = apppref.getString("gameType", "full");
         String dataUrl = chosenGameType.equals("lite") ? preferences.getString("data_lite_url", "") : preferences.getString("data_full_url", "");
         String sampUrl = preferences.getString("data_samp_url", "");
-        loger.logDebug("getMissingFilesAndSizes: gameType ",chosenGameType);
-        loger.logDebug("getMissingFilesAndSizes: url ",dataUrl, sampUrl);
 
         List<FileData> allFiles = new ArrayList<>();
 
@@ -233,8 +234,6 @@ class DownloadHelper {
                         String path = fileObject.getString("path");
                         String fileUrl = fileObject.getString("url");
                         String gpu = fileObject.getString("gpu");
-
-                        loger.logDebug("[fetchFilesFromUrl] File: ",name);
 
                         FileData fileData = new FileData(name, size, path, fileUrl, gpu);
                         fileDataList.add(fileData);
@@ -360,11 +359,14 @@ class DownloadHelper {
             @Override
             public void onResult(Boolean dataStatus) {
                 // Check sampUrl after dataUrl completes
+                loger.logDebug("checkUpdates: dataStatus: ",dataStatus);
                 checkFilesFromServerWithLocalFiles(sampUrl, new FileCheckCallback<Boolean>() {
                     @Override
                     public void onResult(Boolean sampStatus) {
                         // If either dataStatus or sampStatus is false, we need an update
+                        loger.logDebug("checkUpdates: sampStatus: ",sampStatus);
                         boolean updateNeeded = !dataStatus || !sampStatus;
+                        loger.logDebug("checkUpdates: updateNeeded: ",updateNeeded);
                         callback.onResult(updateNeeded);
                     }
                 });
