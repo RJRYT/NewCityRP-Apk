@@ -389,7 +389,8 @@ class DownloadHelper {
     }
     public String getDeviceGpu() {
         SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String gpu = preferences.getString(KEY_GPU_INFO, "unknown");
+        String gpu = preferences.getString(KEY_GPU_INFO, null);
+        loger.logDebug("getDeviceGpu: ",gpu);
         
         return (gpu != null) 
         ? (gpu.toLowerCase().contains("adreno") ? "dex"  // For Adreno GPUs
