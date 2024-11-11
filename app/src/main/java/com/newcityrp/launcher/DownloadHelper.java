@@ -173,9 +173,11 @@ class DownloadHelper {
 
     // Method to get missing files and their sizes
     public void getMissingFilesAndSizes(FilesCallback<List<FileData>> callback) {
-        SharedPreferences preferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-        String dataUrl = preferences.getString("dataUrl", "");
-        String sampUrl = preferences.getString("sampUrl", "");
+        String chosenGameType = apppref.getString("gameType", "full");
+        String dataUrl = chosenGameType.equals("lite") ? preferences.getString("data_lite_url", "") : preferences.getString("data_full_url", "");
+        String sampUrl = preferences.getString("data_samp_url", "");
+        loger.logDebug("getMissingFilesAndSizes: gameType ",chosenGameType);
+        loger.logDebug("getMissingFilesAndSizes: url ",dataUrl, sampUrl);
 
         List<FileData> allFiles = new ArrayList<>();
 
@@ -189,7 +191,15 @@ class DownloadHelper {
                 List<FileData> missingFiles = new ArrayList<>();
                 for (FileData file : allFiles) {
                     File localFile = new File(context.getExternalFilesDir(null), file.getPath());
-                    if (!localFile.exists()) missingFiles.add(file);
+                    String fileGpu = file.getGpu();
+
+                    if (!localFile.exists()) {
+                        // Check if the file is compatible with the device's GPU
+                        if (fileGpu.equals("all") || isGpuSupported(fileGpu)) {
+                            loger.logDebug("getMissingFilesAndSizes: missing file: ",file.getName());
+                            missingFiles.add(file); // Add only if the file is compatible
+                        }
+                    }
                 }
 
                 new Handler(Looper.getMainLooper()).post(() -> callback.onComplete(missingFiles));
@@ -224,6 +234,8 @@ class DownloadHelper {
                         String fileUrl = fileObject.getString("url");
                         String gpu = fileObject.getString("gpu");
 
+                        loger.logDebug("[fetchFilesFromUrl] File: ",name);
+
                         FileData fileData = new FileData(name, size, path, fileUrl, gpu);
                         fileDataList.add(fileData);
                     }
@@ -250,7 +262,7 @@ class DownloadHelper {
             for (FileData file : files) {
                 File localFile = new File(context.getExternalFilesDir(null), file.getPath());
                 localFile.getParentFile().mkdirs(); // Ensure the directories exist
-
+                loger.logDebug("downloadFiles: ",file.getName());
                 HttpURLConnection urlConnection = null;
                 try {
                     URL fileUrl = new URL(file.getUrl());
@@ -269,6 +281,7 @@ class DownloadHelper {
                             downloadedSize += bytesRead;
 
                             int percentComplete = (int) ((downloadedSize * 100) / totalSize);
+                            loger.logDebug("downloadFiles: ",file.getName(), " percentComplete: ",percentComplete);
                             new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(percentComplete, file));
                         }
 

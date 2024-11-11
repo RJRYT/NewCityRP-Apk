@@ -16,6 +16,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
     private DownloadHelper downloadHelper;
     private LogManager logManager;
+    private UtilManager utilManager;
     private TextView downloadStatusText;
     private TextView currentFileText;
     private TextView downloadSizeText;
@@ -38,6 +39,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
         downloadHelper = new DownloadHelper(this);
         logManager = new LogManager(this);
+        utilManager = new UtilManager(this);
 
         // Directly start the download process as soon as the activity is created
         startDownloadProcess();
@@ -49,12 +51,12 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         downloadHelper.getMissingFilesAndSizes(missingFiles -> {
             if (missingFiles == null || missingFiles.isEmpty()) {
                 Toast.makeText(GameFileUpdateActivity.this, "No files to update.", Toast.LENGTH_SHORT).show();
-                finish();  // Close the activity if no files need updating
+                utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
                 return;
             }
 
             long totalSize = downloadHelper.getTotalSize(missingFiles);
-            downloadSizeText.setText("Total Size: " + (totalSize / 1024 / 1024) + " MB");
+            downloadSizeText.setText((totalSize / 1024 / 1024) + " MB");
 
             // Start downloading the missing files and update progress
             downloadHelper.downloadFiles(missingFiles, new DownloadHelper.DownloadCallback() {
@@ -63,17 +65,14 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                     // Update the progress bar and current file information
                     downloadProgressBar.setProgress(progressPercent);
                     downloadStatusText.setText("Downloading... " + progressPercent + "%");
-                    currentFileText.setText("Current File: " + currentFile.getName());
+                    currentFileText.setText(currentFile.getName());
                 }
 
                 @Override
                 public void onComplete() {
                     // Download is complete, notify user and return to MainActivity
                     Toast.makeText(GameFileUpdateActivity.this, "Game files updated successfully!", Toast.LENGTH_SHORT).show();
-                    Intent mainIntent = new Intent(GameFileUpdateActivity.this, MainActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(mainIntent);
-                    finish();
+                    utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
                 }
             });
         });
