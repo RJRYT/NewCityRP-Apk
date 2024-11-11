@@ -28,6 +28,35 @@ class DownloadHelper {
     private static final String KEY_GPU_INFO = "gpu_info";
     private static final String PREFS_NAME = "AppPrefs";
 
+    public class FileData {
+        private String name;
+        private String size;
+        private String path;
+        private String url;
+        private String gpu;
+
+        // Getter methods
+        public String getSize() {
+            return size;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public String getGpu() {
+            return gpu;
+        }
+    }
+
     public DownloadHelper(Context context) {
         this.context = context;
         this.httpClient = new HttpClient(context);
@@ -237,7 +266,13 @@ class DownloadHelper {
     public int getTotalSize(List<FileData> files) {
         int totalSize = 0;
         for (FileData file : files) {
-            totalSize += file.getSize();
+            try {
+                // Parse the size as an integer
+                int fileSize = Integer.parseInt(file.getSize());
+                totalSize += fileSize;
+            } catch (NumberFormatException e) {
+                e.printStackTrace(); // Log or handle the error if parsing fails
+            }
         }
         return totalSize;
     }
