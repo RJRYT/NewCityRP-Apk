@@ -44,7 +44,7 @@ class DownloadHelper {
         }
 
         // Getter methods
-        public String getSize() {
+        public long getSize() {
             return size;
         }
 
@@ -271,16 +271,11 @@ class DownloadHelper {
     }
 
     // Method to calculate the total size of files
-    public int getTotalSize(List<FileData> files) {
-        int totalSize = 0;
+    public long getTotalSize(List<FileData> files) {
+        long totalSize = 0;
         for (FileData file : files) {
-            try {
-                // Parse the size as an integer
-                int fileSize = Integer.parseInt(file.getSize());
-                totalSize += fileSize;
-            } catch (NumberFormatException e) {
-                e.printStackTrace(); // Log or handle the error if parsing fails
-            }
+            long fileSize = file.getSize();
+            totalSize += fileSize;
         }
         return totalSize;
     }

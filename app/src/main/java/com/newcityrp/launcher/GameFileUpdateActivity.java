@@ -50,7 +50,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                 return;
             }
 
-            int totalSize = downloadHelper.getTotalSize(missingFiles);
+            long totalSize = downloadHelper.getTotalSize(missingFiles);
             downloadSizeText.setText("Total Size: " + (totalSize / 1024 / 1024) + " MB");
 
             // Start downloading the missing files and update progress
