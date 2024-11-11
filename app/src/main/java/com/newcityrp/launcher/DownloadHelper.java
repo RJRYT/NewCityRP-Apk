@@ -77,7 +77,7 @@ class DownloadHelper {
         executorService = Executors.newSingleThreadExecutor();
     }
 
-    public void checkFilesFromServerWithLocalFiles(final String dataUrl, final Callback<Boolean> callback) {
+    public void checkFilesFromServerWithLocalFiles(final String dataUrl, final FileCheckCallback<Boolean> callback) {
         // Run network tasks in a background thread
         executorService.execute(new Runnable() {
             @Override
@@ -157,11 +157,11 @@ class DownloadHelper {
     }
 
     // Callback interfaces for download progress and completion
-    public interface Callback<T> {
+    public interface FilesCallback<T> {
         void onComplete(T result);
     }
 
-    public interface Callback<T> {
+    public interface FileCheckCallback<T> {
         void onResult(T result);
     }
 
@@ -171,7 +171,7 @@ class DownloadHelper {
     }
 
     // Method to get missing files and their sizes
-    public void getMissingFilesAndSizes(Callback<List<FileData>> callback) {
+    public void getMissingFilesAndSizes(FilesCallback<List<FileData>> callback) {
         SharedPreferences preferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         String dataUrl = preferences.getString("dataUrl", "");
         String sampUrl = preferences.getString("sampUrl", "");
@@ -197,7 +197,7 @@ class DownloadHelper {
     }
 
     // Helper method to fetch files from a URL and parse JSON using HttpURLConnection
-    private void fetchFilesFromUrl(String urlString, Callback<List<FileData>> callback) {
+    private void fetchFilesFromUrl(String urlString, FilesCallback<List<FileData>> callback) {
         new Thread(() -> {
             List<FileData> fileDataList = new ArrayList<>();
             HttpURLConnection urlConnection = null;
@@ -297,7 +297,7 @@ class DownloadHelper {
         return totalSize;
     }
 
-    public void checkUpdates(final Callback<Boolean> callback) {
+    public void checkUpdates(final FileCheckCallback<Boolean> callback) {
         String chosenGameType = apppref.getString("gameType", "full");
         String dataUrl = chosenGameType.equals("lite") ? preferences.getString("data_lite_url", "") : preferences.getString("data_full_url", "");
         String sampUrl = preferences.getString("data_samp_url", "");
@@ -308,11 +308,11 @@ class DownloadHelper {
         }
 
         // Run both checks asynchronously
-        checkFilesFromServerWithLocalFiles(dataUrl, new Callback<Boolean>() {
+        checkFilesFromServerWithLocalFiles(dataUrl, new FileCheckCallback<Boolean>() {
             @Override
             public void onResult(Boolean dataStatus) {
                 // Check sampUrl after dataUrl completes
-                checkFilesFromServerWithLocalFiles(sampUrl, new Callback<Boolean>() {
+                checkFilesFromServerWithLocalFiles(sampUrl, new FileCheckCallback<Boolean>() {
                     @Override
                     public void onResult(Boolean sampStatus) {
                         // If either dataStatus or sampStatus is false, we need an update
