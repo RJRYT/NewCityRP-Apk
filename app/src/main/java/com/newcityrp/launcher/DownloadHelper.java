@@ -122,9 +122,11 @@ class DownloadHelper {
                         long localFileSize = localFile.length();
                         long serverFileSize = Long.parseLong(fileObject.getString("size"));
                         if (localFileSize != serverFileSize) {
-                            loger.logDebug("checkFilesFromServerWithLocalFiles: file size didnt match: ",fileName);
-                            callback.onResult(false); // File size mismatch, return false
-                            return;
+                            if (gpu.equals("all") || isGpuSupported(gpu)){
+                                loger.logDebug("checkFilesFromServerWithLocalFiles: file size didnt match: ",fileName);
+                                callback.onResult(false); // File size mismatch, return false
+                                return;
+                            }
                         }
                     }
 
