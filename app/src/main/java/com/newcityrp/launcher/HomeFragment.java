@@ -58,6 +58,34 @@ public class HomeFragment extends Fragment {
             editor.apply();
         }
         updateGameStatusText();
+
+        updateGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show confirmation dialog
+                new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Confirm Update")
+                    .setMessage("Are you sure you want to update the game files?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(MainActivity.this, GameFileUpdateActivity.class);
+                            startActivity(intent);
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).finishActivity();
+                            }
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Close the dialog
+                            dialog.dismiss();
+                        }
+                    })
+                    .show();
+            }
+        });
         return view;
     }
 
@@ -66,34 +94,6 @@ public class HomeFragment extends Fragment {
         super.onResume();
         updateGameStatusText();
     }
-
-    updateGameButton.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            // Show confirmation dialog
-            new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Confirm Update")
-                .setMessage("Are you sure you want to update the game files?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(MainActivity.this, GameFileUpdateActivity.class);
-                        startActivity(intent);
-                        if (getActivity() instanceof MainActivity) {
-                            ((MainActivity) getActivity()).finishActivity();
-                        }
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Close the dialog
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-        }
-    });
 
     private void updateGameStatusText() {
         String status = preferences.getString("update_status", "checking");
