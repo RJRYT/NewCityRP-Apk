@@ -63,7 +63,7 @@ class UtilManager {
     }
 
     public boolean isGameFilesDownloaded(Context context) {
-        SharedPreferences apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        SharedPreferences apppref = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         String gameType = apppref.getString("gameType", null);
         if (gameType == null || gameType.isEmpty()) {
             return false; 
