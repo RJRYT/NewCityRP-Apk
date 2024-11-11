@@ -49,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        permissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            this::onPermissionsResult
+        );
+
         logManager = new LogManager(this);
         utilManager = new UtilManager(this);
         permissionHelper = new PermissionHelper(this, permissionLauncher, new PermissionHelper.PermissionCallback() {
@@ -125,10 +130,6 @@ public class MainActivity extends AppCompatActivity {
         glSurfaceView.setRenderer(new AppRenderer()); // Set the custom renderer
         setContentView(glSurfaceView);
         */
-        permissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestMultiplePermissions(),
-            this::onPermissionsResult
-        );
 
         if(permissionHelper.arePermissionsGranted()) {
             if(!utilManager.isGameFilesDownloaded(this)) {
