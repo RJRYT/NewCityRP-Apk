@@ -13,12 +13,14 @@ public class GameDataSelectionActivity extends AppCompatActivity {
     Button liteButton, fullButton;
     SharedPreferences apppref;
     UtilManager utilManager;
+    private LogManager logManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); 
         setContentView(R.layout.activity_game_type_selection);
         utilManager = new UtilManager(this);
+        logManager = new LogManager(this);
 
         apppref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         liteButton = findViewById(R.id.dataSelectionLiteButton);
@@ -43,5 +45,6 @@ public class GameDataSelectionActivity extends AppCompatActivity {
                 utilManager.launchMainActivityFreshly(GameDataSelectionActivity.this);
             }
         });
+        logManager.logDebug("========GameFileUpdateActivity========");
     }
 }

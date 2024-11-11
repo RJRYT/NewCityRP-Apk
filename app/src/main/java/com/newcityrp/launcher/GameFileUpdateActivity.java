@@ -15,6 +15,7 @@ import java.util.List;
 public class GameFileUpdateActivity extends AppCompatActivity {
 
     private DownloadHelper downloadHelper;
+    private LogManager logManager;
     private TextView downloadStatusText;
     private TextView currentFileText;
     private TextView downloadSizeText;
@@ -36,9 +37,11 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         downloadProgressBar = findViewById(R.id.downloadProgressBar);
 
         downloadHelper = new DownloadHelper(this);
+        logManager = new LogManager(this);
 
         // Directly start the download process as soon as the activity is created
         startDownloadProcess();
+        logManager.logDebug("========GameFileUpdateActivity========");
     }
 
     // Start the download process
