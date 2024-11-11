@@ -30,12 +30,12 @@ class DownloadHelper {
 
     public class FileData {
         private String name;
-        private String size;
+        private long size;
         private String path;
         private String url;
         private String gpu;
 
-        public FileData(String name, String size, String path, String url, String gpu) {
+        public FileData(String name, long size, String path, String url, String gpu) {
             this.name = name;
             this.size = size;
             this.path = path;

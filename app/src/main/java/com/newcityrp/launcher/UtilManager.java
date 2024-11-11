@@ -62,7 +62,7 @@ class UtilManager {
         }
     }
 
-    private boolean isGameFilesDownloaded(Context context) {
+    public boolean isGameFilesDownloaded(Context context) {
         File gameFilesDir = new File(context.getExternalFilesDir(null), "");
         return gameFilesDir.exists() && gameFilesDir.isDirectory() && gameFilesDir.listFiles().length > 0;
     }

@@ -7,6 +7,10 @@
     <color name="backgroundColor">#121212</color>
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="textColorSecondary">#BBBBBB</color>
+
+    <color name="colorRed">#FF2C2C</color>
+    <color name="colorGreen">#A4C639</color>
+    <color name="colorYellow">#FFFF00</color>
     
     <color name="gradientStartColor">#ff1b49</color>
     <color name="gradientEndColor">#e67d20</color>

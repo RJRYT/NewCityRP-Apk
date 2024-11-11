@@ -100,17 +100,17 @@ public class HomeFragment extends Fragment {
         switch (status) {
             case "need_to_update":
                 statusTextView.setText("Need to Update");
-                statusTextView.setTextColor(Color.RED);
+                statusTextView.setTextColor(R.color.colorRed);
                 updateGameButton.setVisibility(View.VISIBLE);
                 break;
             case "checking":
                 statusTextView.setText("Checking");
-                statusTextView.setTextColor(Color.YELLOW);
+                statusTextView.setTextColor(R.color.colorYellow);
                 updateGameButton.setVisibility(View.GONE);
                 break;
             case "ready_to_play":
                 statusTextView.setText("Ready to Play");
-                statusTextView.setTextColor(Color.GREEN);
+                statusTextView.setTextColor(R.color.colorGreen);
                 updateGameButton.setVisibility(View.GONE);
                 break;
         }
@@ -140,7 +140,9 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onFailure(String error) {
                     logManager.logError("HomeFragment: error on fetchGameFileURLs", error);
-                    finish();
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).finishActivity();
+                    }
                 }
         });
     }
