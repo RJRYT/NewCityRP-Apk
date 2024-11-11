@@ -6,8 +6,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="16dp">
-
-    <!-- App Logo -->
+ 
     <ImageView
         android:id="@+id/appLogo"
         android:layout_width="100dp"
@@ -15,7 +14,6 @@
         android:src="@drawable/logoround"
         android:layout_marginBottom="8dp"/>
 
-    <!-- App Name -->
     <TextView
         android:id="@+id/appName"
         android:layout_width="wrap_content"
@@ -26,7 +24,6 @@
         android:textColor="#333333"
         android:layout_marginBottom="24dp"/>
 
-    <!-- Game Status Label -->
     <TextView
         android:id="@+id/gameStatusLabel"
         android:layout_width="wrap_content"
@@ -37,7 +34,6 @@
         android:textColor="#555555"
         android:layout_marginBottom="8dp"/>
 
-    <!-- Status Text with Dynamic Underline -->
     <TextView
         android:id="@+id/statusTextView"
         android:layout_width="wrap_content"
@@ -49,7 +45,6 @@
         android:background="@drawable/status_border"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Update Game Button -->
     <Button
         android:id="@+id/updateGameButton"
         android:layout_width="wrap_content"

@@ -119,12 +119,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
+/*
         GLSurfaceView glSurfaceView = new GLSurfaceView(this);
         glSurfaceView.setEGLContextClientVersion(2); // Optional: for OpenGL ES 2.0
         glSurfaceView.setRenderer(new AppRenderer()); // Set the custom renderer
         setContentView(glSurfaceView);
-        
+        */
         permissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(),
             this::onPermissionsResult
