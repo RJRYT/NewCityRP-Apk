@@ -25,17 +25,23 @@ public class GameDataSelectionActivity extends AppCompatActivity {
         fullButton = findViewById(R.id.dataSelectionFullButton);
     }
 
-    liteButton.setOnClickListener(v -> {
-        SharedPreferences.Editor editor = apppref.edit();
-        editor.putString("gameType", "lite");
-        editor.apply();
-        utilManager.launchMainActivityFreshly(this);
+    liteButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            SharedPreferences.Editor editor = apppref.edit();
+            editor.putString("gameType", "lite");
+            editor.apply();
+            utilManager.launchMainActivityFreshly(this);
+        }
     });
 
-    fullButton.setOnClickListener(v -> {
+    fullButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
         SharedPreferences.Editor editor = apppref.edit();
         editor.putString("gameType", "full");
         editor.apply();
         utilManager.launchMainActivityFreshly(this);
+        }
     });
 }
