@@ -45,6 +45,19 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         startDownloadProcess();
         logManager.logDebug("========GameFileUpdateActivity========");
     }
+    
+    private String formatSize(long sizeInBytes) {
+    final String[] units = {"B", "KB", "MB", "GB", "TB"};
+    double size = sizeInBytes;
+    int unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+
+    return String.format("%.2f %s", size, units[unitIndex]);
+}
 
     // Start the download process
     private void startDownloadProcess() {
@@ -56,18 +69,19 @@ public class GameFileUpdateActivity extends AppCompatActivity {
             }
 
             long totalSize = downloadHelper.getTotalSize(missingFiles);
-            downloadSizeText.setText((totalSize / 1024 / 1024) + " MB");
+            downloadSizeText.setText(formatSize(totalSize));
 
             // Start downloading the missing files and update progress
             downloadHelper.downloadFiles(missingFiles, new DownloadHelper.DownloadCallback() {
                 @Override
-                public void onProgressUpdate(int progressPercent, DownloadHelper.FileData currentFile, String speed, String estimatedTimeLeft) {
+                public void onProgressUpdate(int progressPercent, DownloadHelper.FileData currentFile, String speed, String estimatedTimeLeft, String downloadedSize) {
                     // Update the progress bar and current file information
                     downloadProgressBar.setProgress(progressPercent);
                     downloadStatusText.setText("Downloading... " + progressPercent + "%");
                     currentFileText.setText(currentFile.getName());
                     downloadSpeedText.setText(speed);
                     estimatedTimeText.setText(estimatedTimeLeft + " left");
+                    downloadSizeText.setText(downloadedSize+"/"+formatSize(totalSize));
                 }
 
                 @Override

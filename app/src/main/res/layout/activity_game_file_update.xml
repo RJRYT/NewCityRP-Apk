@@ -26,7 +26,7 @@
              android:textSize="20sp"
              android:textColor="@android:color/white"
              android:id="@+id/downloadStatusText"
-             android:text="Downloading Game Files..."
+             android:text="Checking Game Files..."
              android:textStyle="bold" />
 
         <LinearLayout
@@ -42,7 +42,7 @@
                  android:textColor="@android:color/white"
                  android:layout_weight="2"
                  android:id="@+id/currentFileText"
-                 android:text="Current File: N/A" />
+                 android:text="" />
 
             <TextView
                  android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
                  android:textColor="@android:color/white"
                  android:layout_weight="1"
                  android:id="@+id/downloadSizeText"
-                 android:text="Downloaded Size: 0 / 0 MB" />
+                 android:text="" />
 
         </LinearLayout>
 
@@ -77,7 +77,7 @@
                  android:layout_weight="2"
                  android:layout_gravity="start"
                  android:id="@+id/downloadSpeedText"
-                 android:text="Download Speed: 0 KB/s" />
+                 android:text="" />
 
             <TextView
                  android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
                  android:layout_weight="1"
                  android:layout_gravity="end"
                  android:id="@+id/estimatedTimeText"
-                 android:text="Estimated Time: N/A" />
+                 android:text="" />
 
         </LinearLayout>
 

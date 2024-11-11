@@ -170,7 +170,7 @@ class DownloadHelper {
     }
 
     public interface DownloadCallback {
-        void onProgressUpdate(int percentComplete, FileData file, String speed, String estimatedTimeLeft);
+        void onProgressUpdate(int percentComplete, FileData file, String speed, String estimatedTimeLeft, String downloadedSize);
         void onComplete();
     }
 
@@ -301,8 +301,9 @@ class DownloadHelper {
                             // Update UI with progress, speed, and time left
                             int finalPercentComplete = percentComplete;
                             String finalSpeed = formatSpeed(speed);
+                            String downloadedSizeFormatted = formatSize(downloadedSize);
                             String finalEstimatedTimeLeft = formatTime(estimatedTimeLeft);
-                            new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(finalPercentComplete, file, finalSpeed, finalEstimatedTimeLeft));
+                            new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(finalPercentComplete, file, finalSpeed, finalEstimatedTimeLeft, downloadedSizeFormatted));
                         }
 
                         outputStream.close();
@@ -340,6 +341,21 @@ class DownloadHelper {
             return String.format("%d sec", remainingSeconds);
         }
     }
+    
+    
+    // Format size in a human-readable form (KB, MB, GB)
+private String formatSize(long sizeInBytes) {
+    final String[] units = {"B", "KB", "MB", "GB", "TB"};
+    double size = sizeInBytes;
+    int unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+
+    return String.format("%.2f %s", size, units[unitIndex]);
+}
 
     // Method to calculate the total size of files
     public long getTotalSize(List<FileData> files) {
@@ -390,10 +406,9 @@ class DownloadHelper {
     public String getDeviceGpu() {
         SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String gpu = preferences.getString(KEY_GPU_INFO, null);
-        loger.logDebug("getDeviceGpu: ",gpu);
         
         return (gpu != null) 
-        ? (gpu.toLowerCase().contains("adreno") ? "dex"  // For Adreno GPUs
+        ? (gpu.toLowerCase().contains("adreno") ? "dxt"  // For Adreno GPUs
             : (gpu.toLowerCase().contains("powervr") ? "pvr"  // For PowerVR GPUs
             : "etc"))  // For other GPUs
         : "unknown";  // If GPU info is null or unavailable
@@ -405,3 +420,7 @@ class DownloadHelper {
         }
     }
 }
+
+
+
+
