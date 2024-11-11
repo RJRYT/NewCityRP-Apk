@@ -1,6 +1,8 @@
 package com.newcityrp.launcher;
 
 import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
@@ -23,7 +25,7 @@ class UtilManager {
         this.httpClient = new HttpClient(context);
         this.loger = new LogManager(context);
         this.downloadHelper = new DownloadHelper(context);
-        this.alertManager = new AlertManager(context);
+        this.alertManager = new AlertManager((Activity) context);
     }
 
     public void launchMainActivityFreshly(Context context) {
@@ -37,7 +39,7 @@ class UtilManager {
 
     public String getAppVersion() {
         try {
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return packageInfo.versionName; // Fetch the version name
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -46,11 +48,11 @@ class UtilManager {
     }
 
     public void sendGreetingNotification() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         boolean notificationShown = prefs.getBoolean(KEY_NOTIFICATION_SHOWN, false);
 
         if (!notificationShown) {
-            NotificationHelper notificationHelper = new NotificationHelper(this);
+            NotificationHelper notificationHelper = new NotificationHelper(context);
             notificationHelper.notify("Welcome to NewCityRP!", "Proceed to check for app updates and game file verification.");
 
             // Update shared preferences

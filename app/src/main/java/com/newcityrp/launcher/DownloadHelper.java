@@ -35,6 +35,14 @@ class DownloadHelper {
         private String url;
         private String gpu;
 
+        public FileData(String name, String size, String path, String url, String gpu) {
+            this.name = name;
+            this.size = size;
+            this.path = path;
+            this.url = url;
+            this.gpu = gpu;
+        }
+
         // Getter methods
         public String getSize() {
             return size;
