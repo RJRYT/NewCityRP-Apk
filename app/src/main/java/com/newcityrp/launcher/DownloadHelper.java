@@ -200,6 +200,13 @@ class DownloadHelper {
                             loger.logDebug("getMissingFilesAndSizes: missing file: ",file.getName());
                             missingFiles.add(file); // Add only if the file is compatible
                         }
+                    } else {
+                        long localFileSize = localFile.length();
+                        long serverFileSize = file.getSize();
+                        if (localFileSize != serverFileSize) {
+                            loger.logDebug("getMissingFilesAndSizes: file size mismatch: ",file.getName());
+                            missingFiles.add(file); // Add only if the file is compatible
+                        }
                     }
                 }
 
