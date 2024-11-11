@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -307,11 +308,11 @@ class DownloadHelper {
         }
 
         // Run both checks asynchronously
-        downloadHelper.checkFilesFromServerWithLocalFiles(dataUrl, new Callback<Boolean>() {
+        checkFilesFromServerWithLocalFiles(dataUrl, new Callback<Boolean>() {
             @Override
             public void onResult(Boolean dataStatus) {
                 // Check sampUrl after dataUrl completes
-                downloadHelper.checkFilesFromServerWithLocalFiles(sampUrl, new Callback<Boolean>() {
+                checkFilesFromServerWithLocalFiles(sampUrl, new Callback<Boolean>() {
                     @Override
                     public void onResult(Boolean sampStatus) {
                         // If either dataStatus or sampStatus is false, we need an update
