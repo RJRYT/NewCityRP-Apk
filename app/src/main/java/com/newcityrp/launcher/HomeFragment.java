@@ -44,19 +44,23 @@ public class HomeFragment extends Fragment {
         editor.putString("update_status", "checking");
         editor.apply();
 
-        downloadHelper.checkUpdates(new DownloadHelper.FileCheckCallback<Boolean>() {
-            @Override
-            public void onResult(Boolean updateNeeded) {
-                if (updateNeeded) {
-                    editor.putString("update_status", "need_to_update");
-                    editor.apply();
-                    updateGameStatusText();
-                } else {
-                    editor.putString("update_status", "ready_to_play");
-                    editor.apply();
-                    updateGameStatusText();
-                }
-            }
+    downloadHelper.checkUpdates(
+        new DownloadHelper.FileCheckCallback<Boolean>() {
+          @Override
+          public void onResult(Boolean updateNeeded) {
+            requireActivity()
+                .runOnUiThread(
+                    new Runnable() {
+                      @Override
+                      public void run() {
+                        if (updateNeeded) {
+                          saveGameStatus("need_to_update");
+                        } else {
+                          saveGameStatus("ready_to_play");
+                        }
+                      }
+                    });
+          }
         });
 
         updateGameStatusText();
@@ -95,6 +99,13 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         updateGameStatusText();
+    }
+    
+    private void saveGameStatus(String status) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("update_status", status);
+        editor.apply();
+    	updateGameStatusText();
     }
 
     private void updateGameStatusText() {
