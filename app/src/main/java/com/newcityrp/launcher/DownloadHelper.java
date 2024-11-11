@@ -110,7 +110,7 @@ class DownloadHelper {
                         // Check if the file's GPU compatibility matches the device's GPU (optional)
                         String gpu = fileObject.getString("gpu");
                         if (!gpu.equals("all") && !isGpuSupported(gpu)) {
-                            loger.logDebug("checkFilesFromServerWithLocalFiles: gpu not supported: ",file.getName(), "file gpu/device gpu",gpu,getDeviceGpu());
+                            loger.logDebug("checkFilesFromServerWithLocalFiles: gpu not supported: ",fileName, "file gpu/device gpu",gpu,getDeviceGpu());
                             callback.onResult(false); // If GPU is not supported, return false
                             return;
                         }
@@ -118,7 +118,7 @@ class DownloadHelper {
                         // Check if the file exists locally
                         File localFile = new File(context.getExternalFilesDir(null), filePath); // Use appropriate folder for your app
                         if (!localFile.exists()) {
-                            loger.logDebug("checkFilesFromServerWithLocalFiles: file didnt exist: ",file.getName());
+                            loger.logDebug("checkFilesFromServerWithLocalFiles: file didnt exist: ",fileName);
                             callback.onResult(false); // File is missing, return false
                             return;
                         }
@@ -127,7 +127,7 @@ class DownloadHelper {
                         long localFileSize = localFile.length();
                         long serverFileSize = Long.parseLong(fileObject.getString("size"));
                         if (localFileSize != serverFileSize) {
-                            loger.logDebug("checkFilesFromServerWithLocalFiles: file size didnt match: ",file.getName());
+                            loger.logDebug("checkFilesFromServerWithLocalFiles: file size didnt match: ",fileName);
                             callback.onResult(false); // File size mismatch, return false
                             return;
                         }

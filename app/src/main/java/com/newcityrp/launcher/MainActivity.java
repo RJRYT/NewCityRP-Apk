@@ -156,16 +156,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Check permissions only if the dialog was not previously shown
-        if (!permissionHelper.permissionDialogShown) {
-            permissionHelper.checkAndRequestPermissions();
-        }
         if(permissionHelper.allFilesPermsReqTriggered) {
-        	permissionHelper.allFilesPermsReqTriggered = false;
             if(permissionHelper.arePermissionsGranted()) {
             	permissionHelper.restartApp(this);
-            } else {
-            	Toast.makeText(this, "All files access permission is required.", Toast.LENGTH_SHORT).show();
             }
         }
     }
