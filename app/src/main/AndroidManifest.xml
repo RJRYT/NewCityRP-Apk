@@ -116,13 +116,22 @@
                     android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
+        <activity 
+            android:name=".MainActivity"
+            android:label="Main Activity"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme" />
+        <activity 
+            android:name=".GameDataSelectionActivity"
+            android:label="Game File Selection"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/AppTheme" />
         <activity 
             android:name=".GameFileUpdateActivity"
             android:label="Game File Update"
-            android:launchMode="singleTask"
-            android:noHistory="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"/>
     </application>
     
     <meta-data

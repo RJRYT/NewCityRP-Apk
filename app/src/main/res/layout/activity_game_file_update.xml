@@ -60,6 +60,7 @@
              android:layout_marginBottom="8dp"
              style="@style/Widget.AppCompat.ProgressBar.Horizontal"
              android:layout_marginTop="8dp"
+             android:progressTint="@color/themeColor"
              android:id="@+id/downloadProgressBar" />
 
         <LinearLayout

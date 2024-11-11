@@ -13,6 +13,11 @@ import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.os.Handler;
+import android.os.Looper;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 class DownloadHelper {
 
@@ -99,6 +104,142 @@ class DownloadHelper {
             e.printStackTrace();
         }
         return stringBuilder.toString();
+    }
+
+    // Callback interfaces for download progress and completion
+    public interface Callback<T> {
+        void onComplete(T result);
+    }
+
+    public interface DownloadCallback {
+        void onProgressUpdate(int progressPercent, FileData currentFile);
+        void onComplete();
+    }
+
+    // Method to get missing files and their sizes
+    public void getMissingFilesAndSizes(Callback<List<FileData>> callback) {
+        SharedPreferences preferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        String dataUrl = preferences.getString("dataUrl", "");
+        String sampUrl = preferences.getString("sampUrl", "");
+
+        List<FileData> allFiles = new ArrayList<>();
+
+        // Fetch files from data URL and samp URL, then combine them
+        fetchFilesFromUrl(dataUrl, dataFiles -> {
+            if (dataFiles != null) allFiles.addAll(dataFiles);
+
+            fetchFilesFromUrl(sampUrl, sampFiles -> {
+                if (sampFiles != null) allFiles.addAll(sampFiles);
+
+                List<FileData> missingFiles = new ArrayList<>();
+                for (FileData file : allFiles) {
+                    File localFile = new File(context.getExternalFilesDir(null), file.getPath());
+                    if (!localFile.exists()) missingFiles.add(file);
+                }
+
+                new Handler(Looper.getMainLooper()).post(() -> callback.onComplete(missingFiles));
+            });
+        });
+    }
+
+    // Helper method to fetch files from a URL and parse JSON using HttpURLConnection
+    private void fetchFilesFromUrl(String urlString, Callback<List<FileData>> callback) {
+        new Thread(() -> {
+            List<FileData> fileDataList = new ArrayList<>();
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL(urlString);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = urlConnection.getInputStream();
+                    String jsonResponse = convertStreamToString(inputStream);
+
+                    // Parse the JSON response
+                    JSONObject jsonObject = new JSONObject(jsonResponse);
+                    JSONArray filesArray = jsonObject.getJSONArray("files");
+
+                    for (int i = 0; i < filesArray.length(); i++) {
+                        JSONObject fileObject = filesArray.getJSONObject(i);
+                        String name = fileObject.getString("name");
+                        long size = fileObject.getLong("size");
+                        String path = fileObject.getString("path");
+                        String fileUrl = fileObject.getString("url");
+                        String gpu = fileObject.getString("gpu");
+
+                        FileData fileData = new FileData(name, size, path, fileUrl, gpu);
+                        fileDataList.add(fileData);
+                    }
+                }
+
+                callback.onComplete(fileDataList);
+            } catch (Exception e) {
+                e.printStackTrace();
+                callback.onComplete(null);
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+        }).start();
+    }
+
+    // Method to download files and update progress using HttpURLConnection
+    public void downloadFiles(List<FileData> files, DownloadCallback callback) {
+        new Thread(() -> {
+            long totalSize = getTotalSize(files);
+            long downloadedSize = 0;
+
+            for (FileData file : files) {
+                File localFile = new File(context.getExternalFilesDir(null), file.getPath());
+                localFile.getParentFile().mkdirs(); // Ensure the directories exist
+
+                HttpURLConnection urlConnection = null;
+                try {
+                    URL fileUrl = new URL(file.getUrl());
+                    urlConnection = (HttpURLConnection) fileUrl.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+
+                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        InputStream inputStream = urlConnection.getInputStream();
+                        FileOutputStream outputStream = new FileOutputStream(localFile);
+
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                            downloadedSize += bytesRead;
+
+                            int percentComplete = (int) ((downloadedSize * 100) / totalSize);
+                            new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(percentComplete, file));
+                        }
+
+                        outputStream.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                }
+            }
+
+            // Notify download completion
+            new Handler(Looper.getMainLooper()).post(callback::onComplete);
+        }).start();
+    }
+
+    // Method to calculate the total size of files
+    public int getTotalSize(List<FileData> files) {
+        int totalSize = 0;
+        for (FileData file : files) {
+            totalSize += file.getSize();
+        }
+        return totalSize;
     }
 
     // Helper function to check if GPU is supported

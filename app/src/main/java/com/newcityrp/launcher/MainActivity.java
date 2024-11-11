@@ -3,15 +3,12 @@ package com.newcityrp.launcher;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.Manifest;
 import android.os.Bundle;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Environment;
 import android.provider.Settings;
 import android.widget.Toast;
@@ -40,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertManager alertManager;
     private LogManager logManager;
     private PermissionHelper permissionHelper;
+    UtilManager utilManager;
 
     private static final String PREFS_NAME = "AppPrefs";
     private static final String KEY_NOTIFICATION_SHOWN = "notification_shown";
@@ -50,12 +48,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        permissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestMultiplePermissions(),
-                this::onPermissionsResult
-        );
 
+        logManager = new LogManager(this);
+        utilManager = new UtilManager(this);
         permissionHelper = new PermissionHelper(this, permissionLauncher, new PermissionHelper.PermissionCallback() {
             @Override
             public void onPermissionsGranted() {
@@ -67,15 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
-        permissionHelper.checkAndRequestPermissions();
-
-        // Register the broadcast receiver
-        IntentFilter filter = new IntentFilter("FINISH_MAIN_ACTIVITY");
-        registerReceiver(finishReceiver, filter);
-
-        Toast.makeText(this, getString(R.string.app_name_long) + " v" + getAppVersion(), Toast.LENGTH_LONG).show();
-        logManager = new LogManager(this);        
-        logManager.logInfo("========Application started========");
 
         viewPager = findViewById(R.id.viewPager);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -138,35 +124,30 @@ public class MainActivity extends AppCompatActivity {
         glSurfaceView.setEGLContextClientVersion(2); // Optional: for OpenGL ES 2.0
         glSurfaceView.setRenderer(new AppRenderer()); // Set the custom renderer
         setContentView(glSurfaceView);
+        
+        permissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            this::onPermissionsResult
+        );
 
         if(permissionHelper.arePermissionsGranted()) {
-      new Thread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  new Handler(Looper.getMainLooper())
-                      .post(
-                          new Runnable() {
-                            @Override
-                            public void run() {
-                              Intent intent =
-                                  new Intent(MainActivity.this, GameFileUpdateActivity.class);
-                              startActivity(intent);
-                            }
-                          });
-                }
-              })
-          .start();
-    }
-  }
-
-    private final BroadcastReceiver finishReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            finish();  // Finish MainActivity
+            if(!utilManager.isGameFilesDownloaded(this)) {
+                Intent intent = new Intent(MainActivity.this, GameDataSelectionActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        } else {
+            permissionHelper.checkAndRequestPermissions();
         }
-    };
-    
+
+        logManager.logInfo("========Application started========");
+        Toast.makeText(this, getString(R.string.app_name_long) + " v" + getAppVersion(), Toast.LENGTH_LONG).show();
+    }
+
+    public void finishActivity() {
+        finish();
+    }
+
     private void onPermissionsResult(Map<String, Boolean> permissions) {
         permissionHelper.handlePermissionsResult(permissions);
     }
@@ -186,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
             	Toast.makeText(this, "All files access permission is required.", Toast.LENGTH_SHORT).show();
             }
+        }
     }
-  }
 
     @Override
     protected void onDestroy() {
