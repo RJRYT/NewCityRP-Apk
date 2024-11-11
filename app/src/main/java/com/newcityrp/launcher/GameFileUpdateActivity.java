@@ -61,11 +61,13 @@ public class GameFileUpdateActivity extends AppCompatActivity {
             // Start downloading the missing files and update progress
             downloadHelper.downloadFiles(missingFiles, new DownloadHelper.DownloadCallback() {
                 @Override
-                public void onProgressUpdate(int progressPercent, DownloadHelper.FileData currentFile) {
+                public void onProgressUpdate(int progressPercent, DownloadHelper.FileData currentFile, String speed, String estimatedTimeLeft) {
                     // Update the progress bar and current file information
                     downloadProgressBar.setProgress(progressPercent);
                     downloadStatusText.setText("Downloading... " + progressPercent + "%");
                     currentFileText.setText(currentFile.getName());
+                    downloadSpeedText.setText(speed);
+                    estimatedTimeText.setText(estimatedTimeLeft + " left");
                 }
 
                 @Override

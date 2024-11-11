@@ -167,7 +167,7 @@ class DownloadHelper {
     }
 
     public interface DownloadCallback {
-        void onProgressUpdate(int progressPercent, FileData currentFile);
+        void onProgressUpdate(int percentComplete, FileData file, String speed, String estimatedTimeLeft);
         void onComplete();
     }
 
@@ -258,6 +258,7 @@ class DownloadHelper {
         new Thread(() -> {
             long totalSize = getTotalSize(files);
             long downloadedSize = 0;
+            long startTime = System.currentTimeMillis();
 
             for (FileData file : files) {
                 File localFile = new File(context.getExternalFilesDir(null), file.getPath());
@@ -280,9 +281,22 @@ class DownloadHelper {
                             outputStream.write(buffer, 0, bytesRead);
                             downloadedSize += bytesRead;
 
+                            // Calculate percent complete
                             int percentComplete = (int) ((downloadedSize * 100) / totalSize);
-                            loger.logDebug("downloadFiles: ",file.getName(), " percentComplete: ",percentComplete);
-                            new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(percentComplete, file));
+
+                            // Calculate elapsed time and speed
+                            long elapsedTime = System.currentTimeMillis() - startTime;
+                            double speed = (downloadedSize / 1024.0) / (elapsedTime / 1000.0); // KB/s
+
+                            // Estimate time remaining
+                            long remainingSize = totalSize - downloadedSize;
+                            long estimatedTimeLeft = (long) (remainingSize / (speed * 1024)); // seconds
+
+                            // Update UI with progress, speed, and time left
+                            int finalPercentComplete = percentComplete;
+                            String finalSpeed = formatSpeed(speed);
+                            String finalEstimatedTimeLeft = formatTime(estimatedTimeLeft);
+                            new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(finalPercentComplete, file, finalSpeed, finalEstimatedTimeLeft));
                         }
 
                         outputStream.close();
@@ -299,6 +313,26 @@ class DownloadHelper {
             // Notify download completion
             new Handler(Looper.getMainLooper()).post(callback::onComplete);
         }).start();
+    }
+
+    // Helper method to format speed
+    private String formatSpeed(double speed) {
+        if (speed >= 1024) {
+            return String.format("%.2f MB/s", speed / 1024);
+        } else {
+            return String.format("%.2f KB/s", speed);
+        }
+    }
+
+    // Helper method to format time
+    private String formatTime(long seconds) {
+        long minutes = seconds / 60;
+        long remainingSeconds = seconds % 60;
+        if (minutes > 0) {
+            return String.format("%d min %d sec", minutes, remainingSeconds);
+        } else {
+            return String.format("%d sec", remainingSeconds);
+        }
     }
 
     // Method to calculate the total size of files
