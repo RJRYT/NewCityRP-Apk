@@ -44,7 +44,7 @@ public class HomeFragment extends Fragment {
         editor.putString("update_status", "checking");
         editor.apply();
 
-        downloadHelper.checkUpdates(new Callback<Boolean>() {
+        downloadHelper.checkUpdates(new DownloadHelper.FileCheckCallback<Boolean>() {
             @Override
             public void onResult(Boolean updateNeeded) {
                 if (updateNeeded) {
