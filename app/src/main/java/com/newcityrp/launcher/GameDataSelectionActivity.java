@@ -30,7 +30,7 @@ public class GameDataSelectionActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = apppref.edit();
                 editor.putString("gameType", "lite");
                 editor.apply();
-                utilManager.launchMainActivityFreshly(this);
+                utilManager.launchMainActivityFreshly(GameDataSelectionActivity.this);
             }
         });
 
@@ -40,7 +40,7 @@ public class GameDataSelectionActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = apppref.edit();
                 editor.putString("gameType", "full");
                 editor.apply();
-                utilManager.launchMainActivityFreshly(this);
+                utilManager.launchMainActivityFreshly(GameDataSelectionActivity.this);
             }
         });
     }

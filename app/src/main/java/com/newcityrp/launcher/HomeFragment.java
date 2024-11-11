@@ -26,9 +26,12 @@ public class HomeFragment extends Fragment {
     private TextView statusTextView;
     private Button updateGameButton;
 
+    @Nullable
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        statusTextView = view.findViewById(R.id.statusTextView);
+        updateGameButton = view.findViewById(R.id.updateGameButton);
 
         httpClient = new HttpClient(requireContext());
         logManager = new LogManager(requireContext());
@@ -41,15 +44,7 @@ public class HomeFragment extends Fragment {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("update_status", "checking");
         editor.apply();
-    }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-        statusTextView = view.findViewById(R.id.statusTextView);
-        updateGameButton = view.findViewById(R.id.updateGameButton);
-        SharedPreferences.Editor editor = preferences.edit();
         if(isUpdateAvaliable()) {
             editor.putString("update_status", "need_to_update");
             editor.apply();
@@ -63,13 +58,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Show confirmation dialog
-                new AlertDialog.Builder(MainActivity.this)
+                new AlertDialog.Builder(getActivity())
                     .setTitle("Confirm Update")
                     .setMessage("Are you sure you want to update the game files?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(MainActivity.this, GameFileUpdateActivity.class);
+                            Intent intent = new Intent(getActivity(), GameFileUpdateActivity.class);
                             startActivity(intent);
                             if (getActivity() instanceof MainActivity) {
                                 ((MainActivity) getActivity()).finishActivity();
@@ -90,7 +85,7 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         updateGameStatusText();
     }
