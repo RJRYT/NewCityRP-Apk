@@ -29,7 +29,6 @@ public class PermissionHelper {
     private boolean isNotificationPermissionGranted = false;
     public boolean permissionDialogShown = false;
     public boolean allFilesPermsReqTriggered = false;
-    private int permissionreqretries = 0;
 
     public interface PermissionCallback {
         void onPermissionsGranted();
@@ -92,8 +91,6 @@ public class PermissionHelper {
     }
 
     public void checkAndRequestPermissions() {
-        permissionreqretries ++;
-        if(permissionreqretries < 3) {
         isMicrophonePermissionGranted = ContextCompat.checkSelfPermission(
                 context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
 
@@ -110,10 +107,6 @@ public class PermissionHelper {
         }else{
             callback.onPermissionsGranted();
         }
-            } else {
-            callback.onPermissionsDenied();
-                Toast.makeText(context, "Restart the app to continue...",1).show();
-            }
     }
 
     private void showPermissionsDialog() {

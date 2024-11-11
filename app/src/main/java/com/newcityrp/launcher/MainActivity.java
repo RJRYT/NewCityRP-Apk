@@ -158,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Check permissions only if the dialog was not previously shown
         if (!permissionHelper.permissionDialogShown) {
-            permissionHelper.permissionDialogShown = false;
             permissionHelper.checkAndRequestPermissions();
         }
         if(permissionHelper.allFilesPermsReqTriggered) {
