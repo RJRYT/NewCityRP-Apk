@@ -22,7 +22,7 @@ public class HomeFragment extends Fragment {
     private HttpClient httpClient;
     private LogManager logManager;
     private DownloadHelper downloadHelper;
-    private SharedPreferences preferences, apppref;
+    private SharedPreferences preferences;
     private TextView statusTextView;
     private Button updateGameButton;
 
@@ -37,7 +37,6 @@ public class HomeFragment extends Fragment {
         logManager = new LogManager(requireContext());
         downloadHelper = new DownloadHelper(requireContext()); 
         preferences = requireActivity().getSharedPreferences("GameUpdatePrefs", Context.MODE_PRIVATE);
-        apppref = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
 
         fetchGameFileURLs();
 
@@ -45,13 +44,21 @@ public class HomeFragment extends Fragment {
         editor.putString("update_status", "checking");
         editor.apply();
 
-        if(isUpdateAvaliable()) {
-            editor.putString("update_status", "need_to_update");
-            editor.apply();
-        } else {
-            editor.putString("update_status", "ready_to_play");
-            editor.apply();
-        }
+        downloadHelper.checkUpdates(new Callback<Boolean>() {
+            @Override
+            public void onResult(Boolean updateNeeded) {
+                if (updateNeeded) {
+                    editor.putString("update_status", "need_to_update");
+                    editor.apply();
+                    updateGameStatusText();
+                } else {
+                    editor.putString("update_status", "ready_to_play");
+                    editor.apply();
+                    updateGameStatusText();
+                }
+            }
+        });
+
         updateGameStatusText();
 
         updateGameButton.setOnClickListener(new View.OnClickListener() {
@@ -140,18 +147,5 @@ public class HomeFragment extends Fragment {
                     }
                 }
         });
-    }
-
-    private boolean isUpdateAvaliable() {
-        String chosenGameType = apppref.getString("gameType", "full");
-        String dataUrl = chosenGameType.equals("lite") ? preferences.getString("data_lite_url", "") : preferences.getString("data_full_url", "");
-        String sampUrl = preferences.getString("data_samp_url", "");
-
-        Boolean dataStatus = downloadHelper.checkFilesFromServerWithLocalFiles(dataUrl);
-        Boolean sampStatus = downloadHelper.checkFilesFromServerWithLocalFiles(sampUrl);
-
-        if (dataUrl.isEmpty()) return true;
-        if (sampUrl.isEmpty()) return true;
-        return !dataStatus && !sampStatus;
     }
 }

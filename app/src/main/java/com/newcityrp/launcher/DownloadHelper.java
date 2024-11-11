@@ -24,6 +24,8 @@ class DownloadHelper {
     private final Context context;
     private HttpClient httpClient;
     private LogManager loger;
+    private SharedPreferences preferences, apppref;
+    private ExecutorService executorService;
 
     private static final String KEY_GPU_INFO = "gpu_info";
     private static final String PREFS_NAME = "AppPrefs";
@@ -69,64 +71,74 @@ class DownloadHelper {
         this.context = context;
         this.httpClient = new HttpClient(context);
         this.loger = new LogManager(context);
+        preferences = context.getSharedPreferences("GameUpdatePrefs", Context.MODE_PRIVATE);
+        apppref = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        executorService = Executors.newSingleThreadExecutor();
     }
 
-    public boolean checkFilesFromServerWithLocalFiles(String dataUrl) {
-        try {
-            // Fetch the list of files from the server (full or lite list)
-            URL url = new URL(dataUrl);  // Use the appropriate URL based on user selection (full or lite)
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.setConnectTimeout(15000);
-            urlConnection.setReadTimeout(15000);
-            urlConnection.connect();
-            
-            // Read the response from the server
-            InputStream inputStream = urlConnection.getInputStream();
-            String response = convertStreamToString(inputStream);
+    public void checkFilesFromServerWithLocalFiles(final String dataUrl, final Callback<Boolean> callback) {
+        // Run network tasks in a background thread
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Fetch the list of files from the server (full or lite list)
+                    URL url = new URL(dataUrl); // Use the appropriate URL based on user selection (full or lite)
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.setConnectTimeout(15000);
+                    urlConnection.setReadTimeout(15000);
+                    urlConnection.connect();
 
-            // Parse the JSON response
-            JSONObject jsonResponse = new JSONObject(response);
-            JSONArray filesArray = jsonResponse.getJSONArray("files");
+                    // Read the response from the server
+                    InputStream inputStream = urlConnection.getInputStream();
+                    String response = convertStreamToString(inputStream);
 
-            // Check each file
-            for (int i = 0; i < filesArray.length(); i++) {
-                JSONObject fileObject = filesArray.getJSONObject(i);
-                String fileName = fileObject.getString("name");
-                String filePath = fileObject.getString("path");
-                String fileUrl = fileObject.getString("url");
+                    // Parse the JSON response
+                    JSONObject jsonResponse = new JSONObject(response);
+                    JSONArray filesArray = jsonResponse.getJSONArray("files");
 
-                // Check if the file exists locally
-                File localFile = new File(context.getExternalFilesDir(null), filePath);  // Use appropriate folder for your app
-                if (!localFile.exists()) {
-                    // File is missing, return false
-                    return false;
-                }
+                    // Check each file
+                    for (int i = 0; i < filesArray.length(); i++) {
+                        JSONObject fileObject = filesArray.getJSONObject(i);
+                        String fileName = fileObject.getString("name");
+                        String filePath = fileObject.getString("path");
+                        String fileUrl = fileObject.getString("url");
 
-                // Check if the local file's size matches the server file size
-                long localFileSize = localFile.length();
-                long serverFileSize = Long.parseLong(fileObject.getString("size"));
-                if (localFileSize != serverFileSize) {
-                    // File size mismatch, return false
-                    return false;
-                }
+                        // Check if the file exists locally
+                        File localFile = new File(context.getExternalFilesDir(null), filePath); // Use appropriate folder for your app
+                        if (!localFile.exists()) {
+                            callback.onResult(false); // File is missing, return false
+                            return;
+                        }
 
-                // Check if the file's GPU compatibility matches the device's GPU (optional)
-                String gpu = fileObject.getString("gpu");
-                if (!gpu.equals("all") && !isGpuSupported(gpu)) {
-                    // If the file is not compatible with the device's GPU, return false
-                    return false;
+                        // Check if the local file's size matches the server file size
+                        long localFileSize = localFile.length();
+                        long serverFileSize = Long.parseLong(fileObject.getString("size"));
+                        if (localFileSize != serverFileSize) {
+                            callback.onResult(false); // File size mismatch, return false
+                            return;
+                        }
+
+                        // Check if the file's GPU compatibility matches the device's GPU (optional)
+                        String gpu = fileObject.getString("gpu");
+                        if (!gpu.equals("all") && !isGpuSupported(gpu)) {
+                            callback.onResult(false); // If GPU is not supported, return false
+                            return;
+                        }
+                    }
+
+                    // All files are valid
+                    callback.onResult(true);
+
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                    callback.onResult(false); // Return false if there was an error during the check
                 }
             }
-
-            // All files are valid
-            return true;
-
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-            return false;  // Return false if there was an error during the check
-        }
+        });
     }
+
 
     // Helper function to convert InputStream to String (for reading the server's JSON response)
     private String convertStreamToString(InputStream inputStream) {
@@ -146,6 +158,10 @@ class DownloadHelper {
     // Callback interfaces for download progress and completion
     public interface Callback<T> {
         void onComplete(T result);
+    }
+
+    public interface Callback<T> {
+        void onResult(T result);
     }
 
     public interface DownloadCallback {
@@ -280,6 +296,33 @@ class DownloadHelper {
         return totalSize;
     }
 
+    public void checkUpdates(final Callback<Boolean> callback) {
+        String chosenGameType = apppref.getString("gameType", "full");
+        String dataUrl = chosenGameType.equals("lite") ? preferences.getString("data_lite_url", "") : preferences.getString("data_full_url", "");
+        String sampUrl = preferences.getString("data_samp_url", "");
+
+        if (dataUrl.isEmpty() || sampUrl.isEmpty()) {
+            callback.onResult(true); // If either URL is empty, we assume an update is needed
+            return;
+        }
+
+        // Run both checks asynchronously
+        downloadHelper.checkFilesFromServerWithLocalFiles(dataUrl, new Callback<Boolean>() {
+            @Override
+            public void onResult(Boolean dataStatus) {
+                // Check sampUrl after dataUrl completes
+                downloadHelper.checkFilesFromServerWithLocalFiles(sampUrl, new Callback<Boolean>() {
+                    @Override
+                    public void onResult(Boolean sampStatus) {
+                        // If either dataStatus or sampStatus is false, we need an update
+                        boolean updateNeeded = !dataStatus || !sampStatus;
+                        callback.onResult(updateNeeded);
+                    }
+                });
+            }
+        });
+    }
+
     // Helper function to check if GPU is supported
     public boolean isGpuSupported(String gpu) {
         // Assuming that we have a method to get the device's GPU type.
@@ -295,5 +338,11 @@ class DownloadHelper {
             : (gpu.toLowerCase().contains("powervr") ? "pvr"  // For PowerVR GPUs
             : "etc"))  // For other GPUs
         : "unknown";  // If GPU info is null or unavailable
+    }
+
+    public void shutdown() {
+        if (executorService != null) {
+            executorService.shutdown();
+        }
     }
 }
