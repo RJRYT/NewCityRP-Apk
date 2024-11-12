@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.content.SharedPreferences;
-import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

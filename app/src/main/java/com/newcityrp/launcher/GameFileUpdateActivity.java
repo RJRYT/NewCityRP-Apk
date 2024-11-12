@@ -170,14 +170,13 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         runOnUiThread(() -> {
-                            downloadErrorText.setText(error);
-                            downloadProgressBar.setProgress(0);
+                            downloadErrorText.setText(error+ " We recommend to restart the app");
+                            downloadProgressBar.setVisibility(View.GONE);
                             downloadStatusText.setVisibility(View.GONE);
                             currentFileText.setVisibility(View.GONE);
                             downloadSpeedText.setVisibility(View.GONE);
                             estimatedTimeText.setVisibility(View.GONE);
                             downloadSizeText.setVisibility(View.GONE);
-                            Toast.makeText(GameFileUpdateActivity.this, "Download Failed!", Toast.LENGTH_SHORT).show();
                             downloadHelper.shutdown();
                         });
                     }
@@ -207,11 +206,6 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             // Handle task completion, update UI
-            if ("Completed".equals(result)) {
-                Toast.makeText(GameFileUpdateActivity.this, "Download complete.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(GameFileUpdateActivity.this, "Download was cancelled.", Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
