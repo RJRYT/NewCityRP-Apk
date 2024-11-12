@@ -23,6 +23,7 @@ import org.json.JSONObject;
 public class InfoFragment extends Fragment {
 
     private InfoRepository infoRepository;
+    private AlertManager alertManager;
     private TextView serverTitleTextView, descriptionTextView, createdAtTextView, ownersTextView, serverVersionTextView, appBuildVersionTextView;
     private LinearLayout ownersLayout, serverLinksLayout;
 
@@ -30,6 +31,7 @@ public class InfoFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         infoRepository = new InfoRepository(requireContext());
+        alertManager = new AlertManager(requireActivity());
     }
 
     @Nullable
@@ -68,7 +70,10 @@ public class InfoFragment extends Fragment {
 
             @Override
             public void onFailure(String error) {
-                getActivity().runOnUiThread(() -> descriptionTextView.setText("Failed to load server info."));
+                getActivity().runOnUiThread(() -> {
+                    descriptionTextView.setText("Failed to load server info.");
+                    alertManager.showAlert("Network error. check your internet connection.", AlertManager.AlertType.ERROR);
+                });
             }
         });
     }

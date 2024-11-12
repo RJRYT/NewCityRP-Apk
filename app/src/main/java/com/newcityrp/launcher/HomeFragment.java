@@ -21,6 +21,7 @@ public class HomeFragment extends Fragment {
 
     private HttpClient httpClient;
     private LogManager logManager;
+    private AlertManager alertManager;
     private DownloadHelper downloadHelper;
     private SharedPreferences preferences;
     private TextView statusTextView;
@@ -35,6 +36,7 @@ public class HomeFragment extends Fragment {
 
         httpClient = new HttpClient(requireContext());
         logManager = new LogManager(requireContext());
+        alertManager = new AlertManager(requireActivity());
         downloadHelper = new DownloadHelper(requireContext()); 
         preferences = requireActivity().getSharedPreferences("GameUpdatePrefs", Context.MODE_PRIVATE);
 
@@ -153,9 +155,7 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onFailure(String error) {
                     logManager.logError("HomeFragment: error on fetchGameFileURLs", error);
-                    if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).finishActivity();
-                    }
+                    alertManager.showAlert("Network error. check your internet connection.", AlertManager.AlertType.ERROR);
                 }
         });
     }

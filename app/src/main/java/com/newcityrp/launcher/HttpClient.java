@@ -57,7 +57,7 @@ public class HttpClient {
                     callback.onFailure("Server returned: " + responseCode);
                 }
             } catch (Exception e) {
-                logManager.logError("Error fetching data: " + e.getMessage());
+                logManager.logError("Error on http:fetchData: " + e.getMessage() + " url: "+ endpoint);
                 callback.onFailure(e.getMessage());
             } finally {
                 if (connection != null) {
@@ -103,7 +103,7 @@ public class HttpClient {
                     callback.onFailure("Server returned: " + responseCode);
                 }
             } catch (Exception e) {
-                logManager.logError("Error fetching data: " + e.getMessage());
+                logManager.logError("Error on http:fetchDataAlt: " + e.getMessage() + " url: "+ endpoint);
                 callback.onFailure(e.getMessage());
             } finally {
                 if (connection != null) {
