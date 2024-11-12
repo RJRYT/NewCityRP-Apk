@@ -28,7 +28,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     private TextView downloadSpeedText;
     private TextView estimatedTimeText;
     private ProgressBar downloadProgressBar;
-    private DownloadTask downloadTask;
+    private DownloadFilesTask downloadTask;
     private long totalSize;
 
     @Override
@@ -50,7 +50,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         utilManager = new UtilManager(this);
 
         // Directly start the download process as soon as the activity is created
-        downloadTask = new DownloadTask();
+        downloadTask = new DownloadFilesTask();
         downloadTask.execute();
         logManager.logDebug("========GameFileUpdateActivity========");
     }
@@ -142,7 +142,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                         Toast.makeText(GameFileUpdateActivity.this, "No files to update.", Toast.LENGTH_SHORT).show();
                         utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
                     });
-                    return "Completed";
+                    return;
                 }
 
                 totalSize = downloadHelper.getTotalSize(missingFiles);
