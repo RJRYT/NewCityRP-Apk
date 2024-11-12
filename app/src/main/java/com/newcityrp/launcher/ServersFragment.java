@@ -2,12 +2,17 @@ package com.newcityrp.launcher;
 
 import android.os.Bundle;
 import android.content.Context;
+import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,12 +23,13 @@ public class ServersFragment extends Fragment {
 
     private ServerListRepository serverListRepository;
     private AlertManager alertManager;
-    FavoriteManager favoriteManager;
+    private FavoriteManager favoriteManager;
+    private RecyclerView recyclerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        infoRepository = new InfoRepository(requireContext());
+        serverListRepository = new ServerListRepository(requireContext());
         alertManager = new AlertManager(requireActivity());
         favoriteManager = new FavoriteManager(requireContext());
     }
@@ -33,6 +39,7 @@ public class ServersFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_servers, container, false);
 
+        recyclerView = view.findViewById(R.id.recyclerViewServers);
         loadServerList();
 
         return view;
@@ -83,7 +90,6 @@ public class ServersFragment extends Fragment {
     }
 
     private void displayServerList(List<Server> serverList) {
-        RecyclerView recyclerView = getView().findViewById(R.id.recyclerViewServers);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         ServerAdapter adapter = new ServerAdapter(serverList, getContext());
         recyclerView.setAdapter(adapter);
@@ -118,7 +124,7 @@ public class ServersFragment extends Fragment {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((ServersFragment) context).showServerDetailsDialog(server);
+                    showServerDetailsDialog(server);
                 }
             });
         }
@@ -128,7 +134,7 @@ public class ServersFragment extends Fragment {
             return serverList.size();
         }
 
-        static class ServerViewHolder extends RecyclerView.ViewHolder {
+        class ServerViewHolder extends RecyclerView.ViewHolder {
             TextView tvServerName, tvServerInfo;
             ImageView imgLockStatus;
 
