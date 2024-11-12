@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.os.AsyncTask;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +24,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     private TextView downloadSpeedText;
     private TextView estimatedTimeText;
     private ProgressBar downloadProgressBar;
+    private long totalSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,55 +44,127 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         utilManager = new UtilManager(this);
 
         // Directly start the download process as soon as the activity is created
-        startDownloadProcess();
+        new DownloadFilesTask().execute();
         logManager.logDebug("========GameFileUpdateActivity========");
     }
     
     private String formatSize(long sizeInBytes) {
-    final String[] units = {"B", "KB", "MB", "GB", "TB"};
-    double size = sizeInBytes;
-    int unitIndex = 0;
+        final String[] units = {"B", "KB", "MB", "GB", "TB"};
+        double size = sizeInBytes;
+        int unitIndex = 0;
 
-    while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
-        unitIndex++;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+
+        return String.format("%.2f %s", size, units[unitIndex]);
     }
 
-    return String.format("%.2f %s", size, units[unitIndex]);
-}
+    public class DownloadProgressData {
+        private int progressPercent;
+        private DownloadHelper.FileData currentFile;
+        private String speed;
+        private String estimatedTimeLeft;
+        private String downloadedSize;
+
+        public DownloadProgressData(int progressPercent, DownloadHelper.FileData currentFile, String speed, String estimatedTimeLeft, String downloadedSize) {
+            this.progressPercent = progressPercent;
+            this.currentFile = currentFile;
+            this.speed = speed;
+            this.estimatedTimeLeft = estimatedTimeLeft;
+            this.downloadedSize = downloadedSize;
+        }
+
+        public int getProgressPercent() {
+            return progressPercent;
+        }
+
+        public DownloadHelper.FileData getCurrentFile() {
+            return currentFile;
+        }
+
+        public String getSpeed() {
+            return speed;
+        }
+
+        public String getEstimatedTimeLeft() {
+            return estimatedTimeLeft;
+        }
+
+        public String getDownloadedSize() {
+            return downloadedSize;
+        }
+    }
+
 
     // Start the download process
-    private void startDownloadProcess() {
-        downloadHelper.getMissingFilesAndSizes(missingFiles -> {
-            if (missingFiles == null || missingFiles.isEmpty()) {
-                Toast.makeText(GameFileUpdateActivity.this, "No files to update.", Toast.LENGTH_SHORT).show();
-                utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
-                return;
-            }
+    private class DownloadFilesTask extends AsyncTask<Void, DownloadProgressData, Void> {
 
-            long totalSize = downloadHelper.getTotalSize(missingFiles);
-            downloadSizeText.setText(formatSize(totalSize));
+        @Override
+        protected void onPreExecute() {
+            // Initial setup before download
+            downloadStatusText.setText("Preparing to download...");
+        }
 
-            // Start downloading the missing files and update progress
-            downloadHelper.downloadFiles(missingFiles, new DownloadHelper.DownloadCallback() {
-                @Override
-                public void onProgressUpdate(int progressPercent, DownloadHelper.FileData currentFile, String speed, String estimatedTimeLeft, String downloadedSize) {
-                    // Update the progress bar and current file information
-                    downloadProgressBar.setProgress(progressPercent);
-                    downloadStatusText.setText("Downloading... " + progressPercent + "%");
-                    currentFileText.setText(currentFile.getName());
-                    downloadSpeedText.setText(speed);
-                    estimatedTimeText.setText(estimatedTimeLeft + " left");
-                    downloadSizeText.setText(downloadedSize+"/"+formatSize(totalSize));
+        @Override
+        protected Void doInBackground(Void... voids) {
+            downloadHelper.getMissingFilesAndSizes(missingFiles -> {
+                if (missingFiles == null || missingFiles.isEmpty()) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(GameFileUpdateActivity.this, "No files to update.", Toast.LENGTH_SHORT).show();
+                        utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
+                    });
+                    return;
                 }
 
-                @Override
-                public void onComplete() {
-                    // Download is complete, notify user and return to MainActivity
-                    Toast.makeText(GameFileUpdateActivity.this, "Game files updated successfully!", Toast.LENGTH_SHORT).show();
-                    utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
-                }
+                totalSize = downloadHelper.getTotalSize(missingFiles);
+                runOnUiThread(() -> downloadSizeText.setText(formatSize(totalSize)));
+
+                downloadHelper.downloadFiles(missingFiles, new DownloadHelper.DownloadCallback() {
+                    @Override
+                    public void onProgressUpdate(int progressPercent, DownloadHelper.FileData currentFile, String speed, String estimatedTimeLeft, String downloadedSize) {
+                        // Create a DownloadProgressData object and publish the progress
+                        DownloadProgressData progressData = new DownloadProgressData(progressPercent, currentFile, speed, estimatedTimeLeft, downloadedSize);
+                        publishProgress(progressData);
+
+                        // Optionally release references after progress update
+                        currentFile = null;  // Free memory by nullifying large object
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        runOnUiThread(() -> {
+                            Toast.makeText(GameFileUpdateActivity.this, "Download Completed!", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                });
             });
-        });
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(DownloadProgressData... values) {
+            if (values.length > 0) {
+                DownloadProgressData progressData = values[0];
+
+                // Update UI with the new progress
+                downloadProgressBar.setProgress(progressData.getProgressPercent());
+                downloadStatusText.setText("Downloading... " + progressData.getProgressPercent() + "%");
+                currentFileText.setText(progressData.getCurrentFile().getName());
+                downloadSpeedText.setText(progressData.getSpeed());
+                estimatedTimeText.setText(progressData.getEstimatedTimeLeft() + " left");
+                downloadSizeText.setText(progressData.getDownloadedSize() + "/" + formatSize(totalSize));
+
+                // Nullify the reference so the object can be garbage collected when no longer used
+                progressData = null;  // Let the garbage collector handle cleanup
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(GameFileUpdateActivity.this, "Game files updated successfully!", Toast.LENGTH_SHORT).show();
+            utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
+        }
     }
 }
