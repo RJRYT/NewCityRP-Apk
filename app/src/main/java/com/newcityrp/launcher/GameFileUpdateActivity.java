@@ -126,7 +126,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     }
 
     // Start the download process
-    private class DownloadFilesTask extends AsyncTask<Void, DownloadProgressData, Void> {
+    private class DownloadFilesTask extends AsyncTask<Void, DownloadProgressData, String> {
 
         @Override
         protected void onPreExecute() {
@@ -135,7 +135,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected String doInBackground(Void... voids) {
             downloadHelper.getMissingFilesAndSizes(missingFiles -> {
                 if (missingFiles == null || missingFiles.isEmpty()) {
                     runOnUiThread(() -> {
