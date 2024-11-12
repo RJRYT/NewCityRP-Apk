@@ -345,7 +345,7 @@ class DownloadHelper {
                             // Update UI with progress, speed, and time left
                             if (percentComplete != lastReportedPercentage) { 
                                 lastReportedPercentage = percentComplete; // Update last reported percentage
-                                
+
                                 String finalSpeed = formatSpeed(speed);
                                 String downloadedSizeFormatted = formatSize(downloadProgress.downloadedSize);
                                 String finalEstimatedTimeLeft = formatTime(estimatedTimeLeft);
@@ -401,9 +401,14 @@ class DownloadHelper {
 
     // Helper method to format time
     private String formatTime(long seconds) {
-        long minutes = seconds / 60;
-        long remainingSeconds = seconds % 60;
-        if (minutes > 0) {
+        long hours = seconds / 3600;
+        long remainingSeconds = seconds % 3600;
+        long minutes = remainingSeconds / 60;
+        remainingSeconds = remainingSeconds % 60;
+
+        if (hours > 0) {
+            return String.format("%d hr %d min %d sec", hours, minutes, remainingSeconds);
+        } else if (minutes > 0) {
             return String.format("%d min %d sec", minutes, remainingSeconds);
         } else {
             return String.format("%d sec", remainingSeconds);
