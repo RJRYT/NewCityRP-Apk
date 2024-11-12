@@ -72,6 +72,42 @@ class DownloadHelper {
         }
     }
 
+    private class DownloadProgress {
+        long downloadedSize;
+        long totalSize;
+        long startTime;
+
+        public DownloadProgress(long downloadedSize, long totalSize, long startTime) {
+            this.downloadedSize = downloadedSize;
+            this.totalSize = totalSize;
+            this.startTime = startTime;
+        }
+
+        public void addDownloadProgress(int progress) {
+            downloadedSize += progress;
+        }
+
+        public int getCompletedPercentage() {
+            return (int) ((downloadedSize * 100) / totalSize);
+        }
+
+        public long getElapsedTime() {
+            return System.currentTimeMillis() - startTime;
+        }
+
+        public double getDownloadSpeed(long elapsedTime) {
+            return (downloadedSize / 1024.0) / (elapsedTime / 1000.0);
+        }
+
+        public long getRemainingSize() {
+            return totalSize - downloadedSize;
+        }
+
+        public long getEstimatedTimeLeft(long remainingSize, double speed) {
+            return (long) (remainingSize / (speed * 1024));
+        }
+    }
+
     public DownloadHelper(Context context) {
         this.context = context;
         this.httpClient = new HttpClient(context);
@@ -264,9 +300,7 @@ class DownloadHelper {
     // Method to download files and update progress using HttpURLConnection
     public void downloadFiles(List<FileData> files, DownloadCallback callback) {
         downloadService.submit(() -> {
-            long totalSize = getTotalSize(files);
-            long downloadedSize = 0;
-            long startTime = System.currentTimeMillis();
+            DownloadProgress downloadProgress = new DownloadProgress(0, getTotalSize(files), System.currentTimeMillis());
 
             for (FileData file : files) {
                 File localFile = new File(context.getExternalFilesDir(null), file.getPath());
@@ -291,23 +325,23 @@ class DownloadHelper {
                         int bytesRead;
                         while ((bytesRead = inputStream.read(buffer)) != -1) {
                             outputStream.write(buffer, 0, bytesRead);
-                            downloadedSize += bytesRead;
+                            downloadProgress.addDownloadProgress(bytesRead);
 
                             // Calculate percent complete
-                            int percentComplete = (int) ((downloadedSize * 100) / totalSize);
+                            int percentComplete = downloadProgress.getCompletedPercentage();
 
                             // Calculate elapsed time and speed
-                            long elapsedTime = System.currentTimeMillis() - startTime;
-                            double speed = (downloadedSize / 1024.0) / (elapsedTime / 1000.0); // KB/s
+                            long elapsedTime = downloadProgress.getElapsedTime();
+                            double speed = downloadProgress.getDownloadSpeed(elapsedTime); // KB/s
 
                             // Estimate time remaining
-                            long remainingSize = totalSize - downloadedSize;
-                            long estimatedTimeLeft = (long) (remainingSize / (speed * 1024)); // seconds
+                            long remainingSize = downloadProgress.getRemainingSize();
+                            long estimatedTimeLeft = downloadProgress.getEstimatedTimeLeft(remainingSize, speed); // seconds
 
                             // Update UI with progress, speed, and time left
                             if (percentComplete % 2 == 0) { // Update every 2%
                                 String finalSpeed = formatSpeed(speed);
-                                String downloadedSizeFormatted = formatSize(downloadedSize);
+                                String downloadedSizeFormatted = formatSize(downloadProgress.downloadedSize);
                                 String finalEstimatedTimeLeft = formatTime(estimatedTimeLeft);
                                 new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(percentComplete, file, finalSpeed, finalEstimatedTimeLeft, downloadedSizeFormatted));
                             }
@@ -333,7 +367,7 @@ class DownloadHelper {
                         if (urlConnection != null) {
                             urlConnection.disconnect();
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -341,7 +375,7 @@ class DownloadHelper {
 
             // Notify download completion or error
             new Handler(Looper.getMainLooper()).post(() -> {
-                if (downloadedSize == totalSize) {
+                if (downloadProgress.downloadedSize == downloadProgress.totalSize) {
                     callback.onComplete();
                 } else {
                     callback.onError("Download incomplete. Some files may not have been downloaded.");
