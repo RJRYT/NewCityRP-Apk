@@ -112,13 +112,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
-                    // Cancel the download if it's ongoing
-                    if (downloadTask != null && downloadTask.getStatus() == AsyncTask.Status.RUNNING) {
-                        downloadTask.cancel(true); // This will stop the download
-                        Toast.makeText(GameFileUpdateActivity.this, "Download cancelled.", Toast.LENGTH_SHORT).show();
-                    }
-                    // Finish the activity to clear it
-                    utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
+                    finish();
                 }
             })
             .setNegativeButton("No", null)

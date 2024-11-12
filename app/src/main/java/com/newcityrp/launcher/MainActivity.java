@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.Manifest;
 import android.os.Bundle;
@@ -133,7 +135,10 @@ public class MainActivity extends AppCompatActivity {
         
 
         if(permissionHelper.arePermissionsGranted()) {
-            if(!utilManager.isGameFilesDownloaded(this)) {
+            if (!isNetworkAvailable()) {
+                showNetworkDialog();
+            } 
+            else if(!utilManager.isGameFilesDownloaded(this)) {
                 Intent intent = new Intent(MainActivity.this, GameDataSelectionActivity.class);
                 startActivity(intent);
                 finish();
@@ -192,6 +197,40 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean(KEY_NOTIFICATION_SHOWN, true);
             editor.apply();
         }
+    }
+
+    // Show a dialog when there is no network connection
+    private void showNetworkDialog() {
+        new AlertDialog.Builder(this)
+            .setMessage("Network is unavailable. Do you want to restart the app?")
+            .setCancelable(false)
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Restart the activity if Yes is clicked
+                    restartActivity();
+                }
+            })
+            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Close the app if No is clicked
+                    finish(); // This will close the app
+                }
+            })
+            .show();
+    }
+
+    // Method to check network connectivity
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    // Method to restart the activity
+    private void restartActivity() {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
     }
 
     private class AppRenderer implements GLSurfaceView.Renderer {
