@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 public class FavoriteManager {
     private static final String FAVORITES_PREF = "favorites_pref";
@@ -57,13 +58,13 @@ public class FavoriteManager {
     }
 
     // Get all favorite servers as Server objects
-    public Set<Server> getFavoriteServersAsObjects() {
+    public List<Server> getFavoriteServersAsObjects() {
         Set<String> favorites = getFavoriteServers();
-        Set<Server> serverSet = new HashSet<>();
+        List<Server> serverList = new ArrayList<>();
         for (String serverString : favorites) {
-            serverSet.add(deserializeServer(serverString));
+            serverList.add(deserializeServer(serverString));
         }
-        return serverSet;
+        return serverList;
     }
 
     // Save favorite servers to SharedPreferences
