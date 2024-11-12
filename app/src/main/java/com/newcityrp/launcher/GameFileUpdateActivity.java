@@ -182,7 +182,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                     }
                 });
             });
-            return "Completed";;
+            return "Completed";
         }
 
         @Override
