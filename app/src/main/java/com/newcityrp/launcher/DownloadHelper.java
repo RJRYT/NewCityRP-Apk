@@ -131,47 +131,51 @@ class DownloadHelper {
                     urlConnection.setReadTimeout(15000);
                     urlConnection.connect();
 
-                    // Read the response from the server
-                    InputStream inputStream = urlConnection.getInputStream();
-                    String response = convertStreamToString(inputStream);
+                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        // Read the response from the server
+                        InputStream inputStream = urlConnection.getInputStream();
+                        String response = convertStreamToString(inputStream);
 
-                    // Parse the JSON response
-                    JSONObject jsonResponse = new JSONObject(response);
-                    JSONArray filesArray = jsonResponse.getJSONArray("files");
+                        // Parse the JSON response
+                        JSONObject jsonResponse = new JSONObject(response);
+                        JSONArray filesArray = jsonResponse.getJSONArray("files");
 
-                    // Check each file
-                    for (int i = 0; i < filesArray.length(); i++) {
-                        JSONObject fileObject = filesArray.getJSONObject(i);
-                        String fileName = fileObject.getString("name");
-                        String filePath = fileObject.getString("path");
-                        String fileUrl = fileObject.getString("url");
+                        // Check each file
+                        for (int i = 0; i < filesArray.length(); i++) {
+                            JSONObject fileObject = filesArray.getJSONObject(i);
+                            String fileName = fileObject.getString("name");
+                            String filePath = fileObject.getString("path");
+                            String fileUrl = fileObject.getString("url");
 
-                        // Check if the file exists locally
-                        File localFile = new File(context.getExternalFilesDir(null), filePath); // Use appropriate folder for your app
-                        String gpu = fileObject.getString("gpu");
-                        if (!localFile.exists()) {
-                            if (gpu.equals("all") || isGpuSupported(gpu)) {
-                                loger.logDebug("checkFilesFromServerWithLocalFiles: file didnt exist: ",fileName);
-                                callback.onResult(false); // File is missing, return false
-                                return;
+                            // Check if the file exists locally
+                            File localFile = new File(context.getExternalFilesDir(null), filePath); // Use appropriate folder for your app
+                            String gpu = fileObject.getString("gpu");
+                            if (!localFile.exists()) {
+                                if (gpu.equals("all") || isGpuSupported(gpu)) {
+                                    loger.logDebug("checkFilesFromServerWithLocalFiles: file didnt exist: ",fileName);
+                                    callback.onResult(false); // File is missing, return false
+                                    return;
+                                }
+                            }
+
+                            // Check if the local file's size matches the server file size
+                            long localFileSize = localFile.length();
+                            long serverFileSize = Long.parseLong(fileObject.getString("size"));
+                            if (localFileSize != serverFileSize) {
+                                if (gpu.equals("all") || isGpuSupported(gpu)){
+                                    loger.logDebug("checkFilesFromServerWithLocalFiles: file size didnt match: ",fileName);
+                                    callback.onResult(false); // File size mismatch, return false
+                                    return;
+                                }
                             }
                         }
 
-                        // Check if the local file's size matches the server file size
-                        long localFileSize = localFile.length();
-                        long serverFileSize = Long.parseLong(fileObject.getString("size"));
-                        if (localFileSize != serverFileSize) {
-                            if (gpu.equals("all") || isGpuSupported(gpu)){
-                                loger.logDebug("checkFilesFromServerWithLocalFiles: file size didnt match: ",fileName);
-                                callback.onResult(false); // File size mismatch, return false
-                                return;
-                            }
-                        }
+                        // All files are valid
+                        callback.onResult(true);
+                    } else {
+                        loger.logDebug("checkFilesFromServerWithLocalFiles: Network error: ", urlConnection.getResponseCode());
+                        callback.onResult(false);
                     }
-
-                    // All files are valid
-                    callback.onResult(true);
-
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                     callback.onResult(false); // Return false if there was an error during the check

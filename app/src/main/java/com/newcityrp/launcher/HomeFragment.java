@@ -154,8 +154,10 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onFailure(String error) {
-                    logManager.logError("HomeFragment: error on fetchGameFileURLs", error);
-                    alertManager.showAlert("Network error. check your internet connection.", AlertManager.AlertType.ERROR);
+                    getActivity().runOnUiThread(() -> {
+                        logManager.logError("HomeFragment: error on fetchGameFileURLs", error);
+                        alertManager.showAlert("Network error. check your internet connection.", AlertManager.AlertType.ERROR);
+                    });
                 }
         });
     }
