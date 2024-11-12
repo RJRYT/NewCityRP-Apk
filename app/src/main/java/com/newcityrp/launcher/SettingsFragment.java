@@ -22,6 +22,7 @@ import com.google.common.primitives.Ints;
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences preferences;
+    private UtilManager utilManager;
 
     private final int[] fpsValues = {30, 60, 90};
     private final int[] chatStringValues = {5, 10, 15};
@@ -31,6 +32,7 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         preferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        utilManager = new UtilManager(requireActivity());
 
         // Set up toggles
         setupToggle(view, R.id.toggleAutoaim, "autoaim");
@@ -92,7 +94,7 @@ public class SettingsFragment extends Fragment {
         TextView gameTypeTextView = view.findViewById(R.id.textGameType);
         Button deleteButton = view.findViewById(R.id.buttonDeleteFiles);
 
-        String gameType = preferences.getString("gameType", "Full");
+        String gameType = preferences.getString("gameType", "---");
         gameTypeTextView.setText("Game Type: " + gameType);
     }
 
@@ -110,8 +112,11 @@ public class SettingsFragment extends Fragment {
         File gameFilesDir = new File(requireContext().getExternalFilesDir(null), "");
         
         if (deleteDirectory(gameFilesDir)) {
-            // Show a success message
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.remove("gameType"); 
+            editor.apply();
             showToast("Game files deleted successfully.");
+            utilManager.launchMainActivityFreshly(requireActivity());
         } else {
             // Show an error message
             showToast("Failed to delete game files.");
