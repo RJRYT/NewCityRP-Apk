@@ -158,8 +158,8 @@ public class ServersFragment extends Fragment {
         ImageView imgJoinServer = dialogView.findViewById(R.id.imgJoinServer);
         ImageView imgFavoriteServer = dialogView.findViewById(R.id.imgFavoriteServer);
 
-        tvServerNameDetail.setText(server.getName());
-        tvServerIPPortDetail.setText(server.getIp() + ":" + server.getPort());
+        tvServerNameDetail.setText("Server Name: " + server.getName());
+        tvServerIPPortDetail.setText("Server Ip: " + server.getIp() + ":" + server.getPort());
         tvPlayerCountDetail.setText("Players: " + server.getOnlinePlayers() + "/" + server.getMaxPlayers());
 
         // Set favorite icon
@@ -176,10 +176,10 @@ public class ServersFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(favoriteManager.isServerFavorite(server)) {
-                    imgFavoriteServer.setImageResource(R.drawable.ic_heart_red);
+                    imgFavoriteServer.setImageResource(R.drawable.ic_heart_white);
                     favoriteManager.removeServerFromFavorites(server);
                 } else {
-                    imgFavoriteServer.setImageResource(R.drawable.ic_heart_white);
+                    imgFavoriteServer.setImageResource(R.drawable.ic_heart_red);
                     favoriteManager.addServerToFavorites(server);
                 }
             }
@@ -195,6 +195,6 @@ public class ServersFragment extends Fragment {
     }
 
     public void joinServer(Server server) {
-        alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.INFO);
+        alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
     }
 }

@@ -6,6 +6,16 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textAllCaps="true"
+        android:id="@+id/textServersTitle"
+        android:text="Hosted Servers"
+        android:textStyle="bold" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewServers"
         android:layout_width="match_parent"
