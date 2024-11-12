@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertManager alertManager;
     private LogManager logManager;
     private PermissionHelper permissionHelper;
-    UtilManager utilManager;
+    private UtilManager utilManager;
 
     private static final String PREFS_NAME = "AppPrefs";
     private static final String KEY_NOTIFICATION_SHOWN = "notification_shown";
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPermissionsGranted() {
                 sendGreetingNotification();
+                utilManager.launchMainActivityFreshly(MainActivity.this);
             }
 
             @Override
