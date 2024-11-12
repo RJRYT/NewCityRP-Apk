@@ -19,6 +19,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     private LogManager logManager;
     private UtilManager utilManager;
     private TextView downloadStatusText;
+    private TextView downloadErrorText;
     private TextView currentFileText;
     private TextView downloadSizeText;
     private TextView downloadSpeedText;
@@ -33,6 +34,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
         // Initialize views
         downloadStatusText = findViewById(R.id.downloadStatusText);
+        downloadErrorText = findViewById(R.id.downloadErrorText);
         currentFileText = findViewById(R.id.currentFileText);
         downloadSizeText = findViewById(R.id.downloadSizeText);
         downloadSpeedText = findViewById(R.id.downloadSpeedText);
@@ -138,6 +140,19 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                             Toast.makeText(GameFileUpdateActivity.this, "Download Completed!", Toast.LENGTH_SHORT).show();
                         });
                     }
+
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> {
+                            downloadErrorText.setText(error);
+                            downloadProgressBar.setProgress(0);
+                            downloadStatusText.setText("Download Failed!");
+                            currentFileText.setText("");
+                            downloadSpeedText.setText("");
+                            estimatedTimeText.setText("");
+                            downloadSizeText.setText("");
+                        });
+                    }
                 });
             });
             return null;
@@ -163,8 +178,15 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            downloadHelper.shutdown();
             Toast.makeText(GameFileUpdateActivity.this, "Game files updated successfully!", Toast.LENGTH_SHORT).show();
             utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        downloadHelper.shutdown();  // Shutdown the services when the activity is destroyed
     }
 }

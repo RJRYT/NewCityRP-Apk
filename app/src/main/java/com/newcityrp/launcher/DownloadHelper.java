@@ -1,6 +1,8 @@
 package com.newcityrp.launcher;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 import java.io.BufferedReader;
@@ -28,6 +30,7 @@ class DownloadHelper {
     private LogManager loger;
     private SharedPreferences preferences, apppref;
     private ExecutorService executorService;
+    private ExecutorService downloadService;
 
     private static final String KEY_GPU_INFO = "gpu_info";
     private static final String PREFS_NAME = "AppPrefs";
@@ -76,6 +79,7 @@ class DownloadHelper {
         preferences = context.getSharedPreferences("GameUpdatePrefs", Context.MODE_PRIVATE);
         apppref = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         executorService = Executors.newSingleThreadExecutor();
+        downloadService = Executors.newFixedThreadPool(4);
     }
 
     public void checkFilesFromServerWithLocalFiles(final String dataUrl, final FileCheckCallback<Boolean> callback) {
@@ -169,6 +173,7 @@ class DownloadHelper {
     public interface DownloadCallback {
         void onProgressUpdate(int percentComplete, FileData file, String speed, String estimatedTimeLeft, String downloadedSize);
         void onComplete();
+        void onError(String error);
     }
 
     // Method to get missing files and their sizes
@@ -258,7 +263,7 @@ class DownloadHelper {
 
     // Method to download files and update progress using HttpURLConnection
     public void downloadFiles(List<FileData> files, DownloadCallback callback) {
-        new Thread(() -> {
+        downloadService.submit(() -> {
             long totalSize = getTotalSize(files);
             long downloadedSize = 0;
             long startTime = System.currentTimeMillis();
@@ -269,6 +274,10 @@ class DownloadHelper {
                 loger.logDebug("downloadFiles: ",file.getName());
                 HttpURLConnection urlConnection = null;
                 try {
+                    if (!isNetworkAvailable()) {
+                        throw new IOException("Network is unavailable. Please check your connection.");
+                    }
+
                     URL fileUrl = new URL(file.getUrl());
                     urlConnection = (HttpURLConnection) fileUrl.openConnection();
                     urlConnection.setRequestMethod("GET");
@@ -296,27 +305,49 @@ class DownloadHelper {
                             long estimatedTimeLeft = (long) (remainingSize / (speed * 1024)); // seconds
 
                             // Update UI with progress, speed, and time left
-                            int finalPercentComplete = percentComplete;
-                            String finalSpeed = formatSpeed(speed);
-                            String downloadedSizeFormatted = formatSize(downloadedSize);
-                            String finalEstimatedTimeLeft = formatTime(estimatedTimeLeft);
-                            new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(finalPercentComplete, file, finalSpeed, finalEstimatedTimeLeft, downloadedSizeFormatted));
+                            if (percentComplete % 2 == 0) { // Update every 2%
+                                String finalSpeed = formatSpeed(speed);
+                                String downloadedSizeFormatted = formatSize(downloadedSize);
+                                String finalEstimatedTimeLeft = formatTime(estimatedTimeLeft);
+                                new Handler(Looper.getMainLooper()).post(() -> callback.onProgressUpdate(percentComplete, file, finalSpeed, finalEstimatedTimeLeft, downloadedSizeFormatted));
+                            }
                         }
 
                         outputStream.close();
+                    } else {
+                        throw new IOException("Server error. HTTP response code: " + urlConnection.getResponseCode());
                     }
+                } catch (IOException e) {
+                    // Handle network issues, server issues, or file issues
+                    e.printStackTrace();
+                    String errorMessage = "Download failed: " + e.getMessage();
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(errorMessage));
+
                 } catch (Exception e) {
                     e.printStackTrace();
+                    String errorMessage = "Unexpected error occurred: " + e.getMessage();
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(errorMessage));
+                    shutdown();
                 } finally {
-                    if (urlConnection != null) {
-                        urlConnection.disconnect();
+                    try {
+                        if (urlConnection != null) {
+                            urlConnection.disconnect();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
 
-            // Notify download completion
-            new Handler(Looper.getMainLooper()).post(callback::onComplete);
-        }).start();
+            // Notify download completion or error
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (downloadedSize == totalSize) {
+                    callback.onComplete();
+                } else {
+                    callback.onError("Download incomplete. Some files may not have been downloaded.");
+                }
+            });
+        });
     }
 
     // Helper method to format speed
@@ -339,20 +370,26 @@ class DownloadHelper {
         }
     }
     
+    // Helper function to check network availability
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
     
     // Format size in a human-readable form (KB, MB, GB)
-private String formatSize(long sizeInBytes) {
-    final String[] units = {"B", "KB", "MB", "GB", "TB"};
-    double size = sizeInBytes;
-    int unitIndex = 0;
+    private String formatSize(long sizeInBytes) {
+        final String[] units = {"B", "KB", "MB", "GB", "TB"};
+        double size = sizeInBytes;
+        int unitIndex = 0;
 
-    while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
-        unitIndex++;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+
+        return String.format("%.2f %s", size, units[unitIndex]);
     }
-
-    return String.format("%.2f %s", size, units[unitIndex]);
-}
 
     // Method to calculate the total size of files
     public long getTotalSize(List<FileData> files) {
@@ -400,6 +437,7 @@ private String formatSize(long sizeInBytes) {
         String deviceGpu = getDeviceGpu();  // You should implement this to check the GPU type on the device
         return gpu.equals(deviceGpu);
     }
+
     public String getDeviceGpu() {
         SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String gpu = preferences.getString(KEY_GPU_INFO, null);
@@ -414,6 +452,9 @@ private String formatSize(long sizeInBytes) {
     public void shutdown() {
         if (executorService != null) {
             executorService.shutdown();
+        }
+        if (downloadService != null) {
+            downloadService.shutdown();
         }
     }
 }

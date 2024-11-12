@@ -92,6 +92,16 @@
 
         </LinearLayout>
 
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:layout_marginBottom="16dp"
+             android:textSize="15sp"
+             android:textColor="@android:color/white"
+             android:id="@+id/downloadErrorText"
+             android:text=""
+             android:textStyle="bold" />
+
     </LinearLayout>
 
 </RelativeLayout>
