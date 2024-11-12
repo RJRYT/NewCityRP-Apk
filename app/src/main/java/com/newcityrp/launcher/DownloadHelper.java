@@ -326,6 +326,7 @@ class DownloadHelper {
 
                         byte[] buffer = new byte[1024];
                         int bytesRead;
+                        int lastReportedPercentage = -1;
                         while ((bytesRead = inputStream.read(buffer)) != -1) {
                             outputStream.write(buffer, 0, bytesRead);
                             downloadProgress.addDownloadProgress(bytesRead);
@@ -342,7 +343,9 @@ class DownloadHelper {
                             long estimatedTimeLeft = downloadProgress.getEstimatedTimeLeft(remainingSize, speed); // seconds
 
                             // Update UI with progress, speed, and time left
-                            if (percentComplete % 2 == 0) { // Update every 2%
+                            if (percentComplete != lastReportedPercentage) { 
+                                lastReportedPercentage = percentComplete; // Update last reported percentage
+                                
                                 String finalSpeed = formatSpeed(speed);
                                 String downloadedSizeFormatted = formatSize(downloadProgress.downloadedSize);
                                 String finalEstimatedTimeLeft = formatTime(estimatedTimeLeft);

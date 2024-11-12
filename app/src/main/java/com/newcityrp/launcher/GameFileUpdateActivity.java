@@ -49,10 +49,12 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         logManager = new LogManager(this);
         utilManager = new UtilManager(this);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        logManager.logDebug("========GameFileUpdateActivity========");
         // Directly start the download process as soon as the activity is created
         downloadTask = new DownloadFilesTask();
         downloadTask.execute();
-        logManager.logDebug("========GameFileUpdateActivity========");
     }
     
     private String formatSize(long sizeInBytes) {
@@ -210,5 +212,6 @@ public class GameFileUpdateActivity extends AppCompatActivity {
             downloadTask.cancel(true); // This will stop the download
         }
         downloadHelper.shutdown();  // Shutdown the services when the activity is destroyed
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 }
