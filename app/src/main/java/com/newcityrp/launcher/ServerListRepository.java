@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import org.json.JSONException;
 import java.io.IOException;
 
-public class InfoRepository {
+public class ServerListRepository {
     private static final long CACHE_EXPIRY_TIME = 3600 * 1000; // 1 hour in milliseconds
 
     private CacheManager cacheManager;
@@ -13,7 +13,7 @@ public class InfoRepository {
     private LogManager logManager;
     private Context context;
 
-    public InfoRepository(Context context) {
+    public ServerListRepository(Context context) {
         this.cacheManager = new CacheManager(context);
         this.httpClient = new HttpClient(context);
     }
@@ -23,22 +23,22 @@ public class InfoRepository {
         void onFailure(String error);
     }
 
-    public void fetchServerInfo(DataCallback callback) {
+    public void fetchServerList(DataCallback callback) {
         logManager = new LogManager(context);
-        String cachedData = cacheManager.getCache(cacheManager.SERVER_INFO_KEY, CACHE_EXPIRY_TIME);
+        String cachedData = cacheManager.getCache(cacheManager.SERVER_LIST_KEY, CACHE_EXPIRY_TIME);
         if (cachedData != null) {
             try {
                 JSONObject cacheObject = new JSONObject(cachedData);
                 callback.onSuccess(cacheObject);
             } catch (JSONException e) {
-                logManager.logError("[fetchServerInfo]Error: ",e.toString());
+                logManager.logError("[fetchServerList]Error: ",e.toString());
                 callback.onFailure(e.getMessage());
             }
         } else {
-            httpClient.fetchData("serverinfo.json", new HttpClient.DataCallback() {
+            httpClient.fetchData("mobile/servers.json", new HttpClient.DataCallback() {
                 @Override
                 public void onSuccess(JSONObject data) {
-                    cacheManager.saveCache(cacheManager.SERVER_INFO_KEY, data.toString());
+                    cacheManager.saveCache(cacheManager.SERVER_LIST_KEY, data.toString());
                     callback.onSuccess(data);
                 }
 

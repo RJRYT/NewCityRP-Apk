@@ -50,7 +50,7 @@ public class HttpClient {
                         JSONObject resultObject = new JSONObject(inline.toString());
                         callback.onSuccess(resultObject);
                     } catch (JSONException e) {
-                        logManager.logError("Error: ",e.toString());
+                        logManager.logError("[fetchData]Error: ",e.toString());
                         callback.onFailure(e.getMessage());
                     }
                 } else {
@@ -96,7 +96,7 @@ public class HttpClient {
                         JSONObject resultObject = new JSONObject(inline.toString());
                         callback.onSuccess(resultObject);
                     } catch (JSONException e) {
-                        logManager.logError("Error: ",e.toString());
+                        logManager.logError("[fetchDataAlt]Error: ",e.toString());
                         callback.onFailure(e.getMessage());
                     }
                 } else {

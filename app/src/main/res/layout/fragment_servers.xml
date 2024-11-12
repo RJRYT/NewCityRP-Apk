@@ -6,13 +6,9 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Welcome to the servers Screen!"
-        android:textSize="18sp"
-        android:padding="8dp" />
-
-    <!-- Add other views here -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewServers"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
