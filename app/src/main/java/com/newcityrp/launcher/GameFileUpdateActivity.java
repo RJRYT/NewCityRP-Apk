@@ -7,8 +7,11 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.os.AsyncTask;
+import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import android.content.DialogInterface;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
@@ -25,6 +28,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
     private TextView downloadSpeedText;
     private TextView estimatedTimeText;
     private ProgressBar downloadProgressBar;
+    private DownloadTask downloadTask;
     private long totalSize;
 
     @Override
@@ -46,7 +50,8 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         utilManager = new UtilManager(this);
 
         // Directly start the download process as soon as the activity is created
-        new DownloadFilesTask().execute();
+        downloadTask = new DownloadTask();
+        downloadTask.execute();
         logManager.logDebug("========GameFileUpdateActivity========");
     }
     
@@ -99,6 +104,26 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+            .setMessage("Are you sure you want to cancel the download?")
+            .setCancelable(false)
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    // Cancel the download if it's ongoing
+                    if (downloadTask != null && downloadTask.getStatus() == AsyncTask.Status.RUNNING) {
+                        downloadTask.cancel(true); // This will stop the download
+                        Toast.makeText(GameFileUpdateActivity.this, "Download cancelled.", Toast.LENGTH_SHORT).show();
+                    }
+                    // Finish the activity to clear it
+                    utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
+                }
+            })
+            .setNegativeButton("No", null)
+            .show();
+    }
 
     // Start the download process
     private class DownloadFilesTask extends AsyncTask<Void, DownloadProgressData, Void> {
@@ -117,7 +142,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                         Toast.makeText(GameFileUpdateActivity.this, "No files to update.", Toast.LENGTH_SHORT).show();
                         utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
                     });
-                    return;
+                    return "Completed";
                 }
 
                 totalSize = downloadHelper.getTotalSize(missingFiles);
@@ -137,7 +162,8 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                     @Override
                     public void onComplete() {
                         runOnUiThread(() -> {
-                            Toast.makeText(GameFileUpdateActivity.this, "Download Completed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GameFileUpdateActivity.this, "Game files updated successfully!", Toast.LENGTH_SHORT).show();
+                            utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
                         });
                     }
 
@@ -146,16 +172,18 @@ public class GameFileUpdateActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             downloadErrorText.setText(error);
                             downloadProgressBar.setProgress(0);
-                            downloadStatusText.setText("Download Failed!");
-                            currentFileText.setText("");
-                            downloadSpeedText.setText("");
-                            estimatedTimeText.setText("");
-                            downloadSizeText.setText("");
+                            downloadStatusText.setVisibility(View.GONE);
+                            currentFileText.setVisibility(View.GONE);
+                            downloadSpeedText.setVisibility(View.GONE);
+                            estimatedTimeText.setVisibility(View.GONE);
+                            downloadSizeText.setVisibility(View.GONE);
+                            Toast.makeText(GameFileUpdateActivity.this, "Download Failed!", Toast.LENGTH_SHORT).show();
+                            downloadHelper.shutdown();
                         });
                     }
                 });
             });
-            return null;
+            return "Completed";;
         }
 
         @Override
@@ -177,16 +205,22 @@ public class GameFileUpdateActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            downloadHelper.shutdown();
-            Toast.makeText(GameFileUpdateActivity.this, "Game files updated successfully!", Toast.LENGTH_SHORT).show();
-            utilManager.launchMainActivityFreshly(GameFileUpdateActivity.this);
+        protected void onPostExecute(String result) {
+            // Handle task completion, update UI
+            if ("Completed".equals(result)) {
+                Toast.makeText(GameFileUpdateActivity.this, "Download complete.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(GameFileUpdateActivity.this, "Download was cancelled.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (downloadTask != null && downloadTask.getStatus() == AsyncTask.Status.RUNNING) {
+            downloadTask.cancel(true); // This will stop the download
+        }
         downloadHelper.shutdown();  // Shutdown the services when the activity is destroyed
     }
 }
