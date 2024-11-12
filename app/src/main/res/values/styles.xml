@@ -2,11 +2,10 @@
 <resources>
 
     <!-- App Theme -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Dark.NoActionBar"> 
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar"> 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:background">@color/backgroundColor</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:statusBarColor">@color/themeColor</item>
         <item name="windowActionBar">false</item>
@@ -14,7 +13,7 @@
     </style>
     
     <!-- Splash Theme -->
-    <style name="SplashTheme" parent="Theme.MaterialComponents.Dark.NoActionBar">
+    <style name="SplashTheme" parent="Theme.MaterialComponents.NoActionBar">
         <item name="android:windowBackground">@drawable/bg_gradient</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
