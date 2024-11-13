@@ -1,5 +1,7 @@
 package com.newcityrp.launcher;
 
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +28,7 @@ public class HomeFragment extends Fragment {
     private SharedPreferences preferences;
     private TextView statusTextView;
     private Button updateGameButton;
+    private GradientDrawable statustextbackground;
 
     @Nullable
     @Override
@@ -33,6 +36,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         statusTextView = view.findViewById(R.id.statusTextView);
         updateGameButton = view.findViewById(R.id.updateGameButton);
+        statustextbackground = (GradientDrawable) statusTextView.getBackground();
         
         httpClient = new HttpClient(requireContext());
         logManager = new LogManager(requireContext());
@@ -113,19 +117,23 @@ public class HomeFragment extends Fragment {
     private void updateGameStatusText() {
         String status = preferences.getString("update_status", "checking");
         switch (status) {
+            
             case "need_to_update":
                 statusTextView.setText("Need to Update");
-                statusTextView.setTextColor(R.color.colorRed);
+                statusTextView.setTextColor(Color.RED);
+                statustextbackground.setStroke(2, Color.RED);
                 updateGameButton.setVisibility(View.VISIBLE);
                 break;
             case "checking":
                 statusTextView.setText("Checking");
-                statusTextView.setTextColor(R.color.colorYellow);
+                statusTextView.setTextColor(Color.YELLOW);
+                statustextbackground.setStroke(2, Color.YELLOW);
                 updateGameButton.setVisibility(View.GONE);
                 break;
             case "ready_to_play":
                 statusTextView.setText("Ready to Play");
-                statusTextView.setTextColor(R.color.colorGreen);
+                statusTextView.setTextColor(Color.GREEN);
+                statustextbackground.setStroke(2, Color.GREEN);
                 updateGameButton.setVisibility(View.GONE);
                 break;
         }
