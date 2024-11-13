@@ -99,7 +99,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(getContext())
+        new AlertDialog.Builder(getContext(), R.style.CustomAlertDialog)
             .setTitle("Delete Game Files")
             .setMessage("Are you sure you want to delete the game files? This action cannot be undone.")
             .setPositiveButton("Delete", (dialog, which) -> deleteGameFiles())

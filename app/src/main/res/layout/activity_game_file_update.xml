@@ -24,7 +24,7 @@
              android:layout_width="wrap_content"
              android:layout_marginBottom="16dp"
              android:textSize="25sp"
-             android:textColor="@android:color/white"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/downloadStatusText"
              android:text="Checking Game Files..."
              android:textStyle="bold" />
@@ -40,7 +40,7 @@
                  android:layout_width="0dp"
                  android:gravity="start"
                  android:textSize="16sp"
-                 android:textColor="@android:color/white"
+                 android:textColor="@color/textColorPrimary"
                  android:layout_weight="1"
                  android:id="@+id/currentFileText"
                  android:text="" />
@@ -50,7 +50,7 @@
                  android:layout_width="0dp"
                  android:gravity="end"
                  android:textSize="16sp"
-                 android:textColor="@android:color/white"
+                 android:textColor="@color/textColorPrimary"
                  android:layout_weight="1"
                  android:id="@+id/downloadSizeText"
                  android:text="" />
@@ -75,7 +75,7 @@
                  android:layout_width="0dp"
                  android:gravity="start"
                  android:textSize="16sp"
-                 android:textColor="@android:color/white"
+                 android:textColor="@color/textColorPrimary"
                  android:layout_weight="1"
                  android:id="@+id/downloadSpeedText"
                  android:text="" />
@@ -85,7 +85,7 @@
                  android:layout_width="0dp"
                  android:gravity="end"
                  android:textSize="16sp"
-                 android:textColor="@android:color/white"
+                 android:textColor="@color/textColorPrimary"
                  android:layout_weight="1"
                  android:id="@+id/estimatedTimeText"
                  android:text="" />
@@ -97,7 +97,7 @@
              android:layout_width="wrap_content"
              android:layout_marginTop="16dp"
              android:textSize="25sp"
-             android:textColor="@android:color/white"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/downloadErrorText"
              android:text=""
              android:textStyle="bold" />

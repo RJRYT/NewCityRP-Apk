@@ -24,6 +24,7 @@
              android:layout_width="wrap_content"
              android:gravity="start"
              android:textSize="22sp"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/tvServerName" />
 
         <TextView
@@ -31,6 +32,7 @@
              android:layout_width="wrap_content"
              android:gravity="start"
              android:textSize="15sp"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/tvServerInfo"
              android:paddingTop="8dp" />
 

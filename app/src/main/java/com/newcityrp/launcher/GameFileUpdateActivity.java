@@ -109,7 +109,7 @@ public class GameFileUpdateActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.CustomAlertDialog)
             .setMessage("Are you sure you want to cancel the download?")
             .setCancelable(false)
             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {

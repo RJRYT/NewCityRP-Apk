@@ -112,6 +112,7 @@ public class InfoFragment extends Fragment {
                 ownerNameTextView.setText(i+1 +". " + owner.getString("name") + 
                                         " (" + owner.getString("username") + ")");
                 ownerNameTextView.setTextSize(16);
+                ownerNameTextView.setTextColor(R.color.textColorPrimary);
                 ownerNameTextView.setTypeface(null, Typeface.BOLD);  // Set text style to bold
                 ownerLayout.addView(ownerNameTextView);
 
@@ -136,6 +137,7 @@ public class InfoFragment extends Fragment {
             infoLinksTitle.setTextSize(18);
             infoLinksTitle.setPadding(8, 8, 8, 8);  // Top padding to match marginTop
             infoLinksTitle.setText("Contact Us: ");  // Set initial text
+            infoLinksTitle.setTextColor(R.color.textColorPrimary);
             infoLinksTitle.setTypeface(null, Typeface.BOLD);  // Set text style to bold
             serverLinksLayout.removeAllViews(); // Clear previous links
             serverLinksLayout.addView(infoLinksTitle);

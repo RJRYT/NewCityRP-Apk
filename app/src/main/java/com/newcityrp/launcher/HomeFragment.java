@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import com.google.android.material.card.MaterialCardView;
 
 public class HomeFragment extends Fragment {
 
@@ -27,7 +26,6 @@ public class HomeFragment extends Fragment {
     private SharedPreferences preferences;
     private TextView statusTextView;
     private Button updateGameButton;
-    private MaterialCardView statusTextContainer;
 
     @Nullable
     @Override
@@ -35,8 +33,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         statusTextView = view.findViewById(R.id.statusTextView);
         updateGameButton = view.findViewById(R.id.updateGameButton);
-        statusTextContainer = view.findViewById(R.id.statusViewContainer); //setStrokeColor
-
+        
         httpClient = new HttpClient(requireContext());
         logManager = new LogManager(requireContext());
         alertManager = new AlertManager(requireActivity());
@@ -74,7 +71,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Show confirmation dialog
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
                     .setTitle("Confirm Update")
                     .setMessage("Are you sure you want to update the game files?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -118,17 +115,17 @@ public class HomeFragment extends Fragment {
         switch (status) {
             case "need_to_update":
                 statusTextView.setText("Need to Update");
-                statusTextContainer.setStrokeColor(R.color.colorRed);
+                statusTextView.setTextColor(R.color.colorRed);
                 updateGameButton.setVisibility(View.VISIBLE);
                 break;
             case "checking":
                 statusTextView.setText("Checking");
-                statusTextContainer.setStrokeColor(R.color.colorYellow);
+                statusTextView.setTextColor(R.color.colorYellow);
                 updateGameButton.setVisibility(View.GONE);
                 break;
             case "ready_to_play":
                 statusTextView.setText("Ready to Play");
-                statusTextContainer.setStrokeColor(R.color.colorGreen);
+                statusTextView.setTextColor(R.color.colorGreen);
                 updateGameButton.setVisibility(View.GONE);
                 break;
         }

@@ -112,7 +112,7 @@ public class PermissionHelper {
     private void showPermissionsDialog() {
         permissionDialogShown = true;
 
-        new AlertDialog.Builder(context)
+        new AlertDialog.Builder(context, R.style.CustomAlertDialog)
             .setTitle("Permissions Required")
             .setMessage("This app needs access to your microphone, notifications, and files to work properly.")
             .setCancelable(false)
@@ -160,7 +160,7 @@ public class PermissionHelper {
     }
 
     private void showSettingsDialog() {
-        new AlertDialog.Builder(context)
+        new AlertDialog.Builder(context, R.style.CustomAlertDialog)
             .setTitle("Permissions Required")
             .setMessage("You have denied some permissions permanently. Please go to settings to enable them.")
             .setCancelable(false)

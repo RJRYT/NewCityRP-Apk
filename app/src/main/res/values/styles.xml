@@ -2,7 +2,9 @@
 <resources>
 
     <!-- App Theme -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar"> 
+    <style
+            name="AppTheme"
+            parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -11,9 +13,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    
+
     <!-- Splash Theme -->
-    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style
+            name="SplashTheme"
+            parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/bg_gradient</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -23,11 +27,32 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="OutlinedCurvedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:strokeWidth">2dp</item>
-        <item name="android:strokeColor">@color/themeColor</item>
-        <item name="android:cornerRadius">16dp</item>
+    <style
+            name="OutlinedCurvedButton"
+            parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeWidth">2dp</item>
+        <item name="strokeColor">@color/themeColor</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
         <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <!-- Background color for the dialog -->
+        <item name="android:background">@color/backgroundColor</item>
+
+        <!-- Title text color and appearance -->
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        
+        <item name="android:textColor">@color/themeColor</item>
+        
+        <!-- Message text color and appearance -->
+        <item name="android:textColorSecondary">@color/textColorSecondary</item>
+       
+        <!-- Button colors and styles -->
+        <item name="android:buttonStyle">@style/OutlinedCurvedButton</item>
     </style>
 
 </resources>

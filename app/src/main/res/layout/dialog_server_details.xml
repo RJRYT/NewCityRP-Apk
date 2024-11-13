@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="@color/backgroundColor"
     android:padding="16dp">
 
     <TextView
@@ -11,18 +12,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="22sp"
+        android:textColor="@color/textColorPrimary"
         android:textStyle="bold"/>
 
     <TextView
         android:id="@+id/tvServerIPPortDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/textColorPrimary"
         android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/tvPlayerCountDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/textColorPrimary"
         android:textSize="20sp"/>
 
     <LinearLayout

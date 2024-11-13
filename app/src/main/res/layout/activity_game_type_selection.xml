@@ -25,7 +25,7 @@
              android:layout_marginBottom="24dp"
              android:gravity="center"
              android:textSize="24sp"
-             android:textColor="@android:color/white"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/chooseGameTypeText"
              android:text="Game Data Selection"
              android:textStyle="bold" />
@@ -34,17 +34,25 @@
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
              android:layout_marginBottom="30dp"
+             android:padding="8dp"
              android:textSize="20sp"
-             android:id="@+id/dataSelectionLiteButton"
+             android:paddingBottom="15dp"
+             android:textColor="@color/textColorPrimary"
              style="@style/OutlinedCurvedButton"
+             android:paddingTop="15dp"
+             android:id="@+id/dataSelectionLiteButton"
              android:text="Lite (900 MB)" />
 
         <com.google.android.material.button.MaterialButton
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
+             android:padding="8dp"
              android:textSize="20sp"
-             android:id="@+id/dataSelectionFullButton"
+             android:paddingBottom="15dp"
+             android:textColor="@color/textColorPrimary"
              style="@style/OutlinedCurvedButton"
+             android:paddingTop="15dp"
+             android:id="@+id/dataSelectionFullButton"
              android:text="Full (2.3 GB)" />
 
     </LinearLayout>

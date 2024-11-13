@@ -31,7 +31,7 @@
          android:layout_width="match_parent"
          android:background="@android:color/transparent"
          android:textSize="28dp"
-         app:itemTextColor="@android:color/white"
+         app:itemTextColor="@color/textColorPrimary"
          app:itemIconSize="28dp"
          app:menu="@menu/bottom_nav_menu"
          app:itemIconTint="@color/bottom_nav_icon_color"

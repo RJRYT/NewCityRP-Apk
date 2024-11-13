@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Show a dialog when there is no network connection
     private void showNetworkDialog() {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.CustomAlertDialog)
             .setMessage("Network is unavailable. Do you want to restart the app?")
             .setCancelable(false)
             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {

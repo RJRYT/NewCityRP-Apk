@@ -14,6 +14,7 @@
          android:textSize="25sp"
          android:textAllCaps="true"
          android:id="@+id/textSettingsTitle"
+         android:textColor="@color/textColorPrimary"
          android:text="Settings"
          android:textStyle="bold" />
 
@@ -29,6 +30,7 @@
              android:layout_width="0dp"
              android:textSize="28sp"
              android:layout_weight="1"
+             android:textColor="@color/textColorPrimary"
              android:text="Autoaim" />
 
         <Switch
@@ -50,6 +52,7 @@
              android:layout_height="wrap_content"
              android:layout_width="0dp"
              android:textSize="28sp"
+             android:textColor="@color/textColorPrimary"
              android:layout_weight="1"
              android:text="Timestamp" />
 
@@ -72,6 +75,7 @@
              android:layout_height="wrap_content"
              android:layout_width="0dp"
              android:textSize="28sp"
+             android:textColor="@color/textColorPrimary"
              android:layout_weight="1"
              android:text="Display FPS" />
 
@@ -94,6 +98,7 @@
              android:layout_height="wrap_content"
              android:layout_width="0dp"
              android:textSize="28sp"
+             android:textColor="@color/textColorPrimary"
              android:layout_weight="1"
              android:text="Voice Chat" />
 
@@ -116,6 +121,7 @@
              android:layout_height="wrap_content"
              android:layout_width="0dp"
              android:textSize="28sp"
+             android:textColor="@color/textColorPrimary"
              android:layout_weight="1"
              android:text="Fastconnect" />
 
@@ -138,6 +144,7 @@
              android:layout_height="wrap_content"
              android:layout_width="0dp"
              android:textSize="28sp"
+             android:textColor="@color/textColorPrimary"
              android:layout_weight="1"
              android:text="FPS Limit" />
 
@@ -153,6 +160,7 @@
              android:layout_height="wrap_content"
              android:layout_width="wrap_content"
              android:textSize="20sp"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/seekBarFpsLimitValue"
              android:text="30" />
 
@@ -172,6 +180,7 @@
              android:layout_width="0dp"
              android:textSize="28sp"
              android:layout_weight="1"
+             android:textColor="@color/textColorPrimary"
              android:text="Chat Strings" />
 
         <SeekBar
@@ -186,6 +195,7 @@
              android:layout_height="wrap_content"
              android:layout_width="wrap_content"
              android:textSize="20sp"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/seekBarChatStringsValue"
              android:text="5" />
 
@@ -203,6 +213,7 @@
              android:layout_width="0dp"
              android:textSize="28sp"
              android:layout_weight="1"
+             android:textColor="@color/textColorPrimary"
              android:id="@+id/textGameType"
              android:text="Game type: Full" />
 
@@ -210,6 +221,7 @@
             android:id="@+id/buttonDeleteFiles"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/textColorPrimary"
             android:text="Delete Game"
             android:textSize="20sp"
             style="@style/OutlinedCurvedButton" />

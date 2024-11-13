@@ -14,14 +14,14 @@
          android:layout_height="24dp"
          android:layout_width="24dp"
          android:layout_marginEnd="8dp"
-         android:tint="@android:color/white"
+         android:tint="@color/textColorPrimary"
          android:id="@+id/alert_icon" />
 
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="0dp"
          android:textSize="16sp"
-         android:textColor="@android:color/white"
+         android:textColor="@color/textColorPrimary"
          android:layout_weight="1"
          android:id="@+id/alert_text"
          android:text="Alert message" />
