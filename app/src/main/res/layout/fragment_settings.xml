@@ -206,14 +206,13 @@
              android:id="@+id/textGameType"
              android:text="Game type: Full" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonDeleteFiles"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Delete Game"
             android:textSize="20sp"
-            android:textColor="@android:color/white"
-            android:background="@drawable/button_delete_files" />
+            style="@style/OutlinedCurvedButton" />
 
     </LinearLayout>
 

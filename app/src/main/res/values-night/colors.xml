@@ -1,2 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <color name="colorPrimary">#121212</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#c90000</color>
+    <color name="themeColor">#cfbbfe</color>
+    <color name="backgroundColor">#121212</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="textColorSecondary">#BBBBBB</color>
+
+    <color name="colorRed">#FF2C2C</color>
+    <color name="colorGreen">#A4C639</color>
+    <color name="colorYellow">#FFFF00</color>
+    
+    <color name="gradientStartColor">#ff1b49</color>
+    <color name="gradientEndColor">#e67d20</color>
+    
+    <color name="errorTextColor">#B71C1C</color>
+    <color name="infoTextColor">#0D47A1</color>
+    <color name="successTextColor">#1B5E20</color>
+</resources>

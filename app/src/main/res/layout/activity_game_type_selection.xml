@@ -30,23 +30,21 @@
              android:text="Game Data Selection"
              android:textStyle="bold" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
              android:layout_marginBottom="30dp"
              android:textSize="20sp"
-             android:textColor="@android:color/white"
              android:id="@+id/dataSelectionLiteButton"
-             android:background="@drawable/button_custom"
+             style="@style/OutlinedCurvedButton"
              android:text="Lite (900 MB)" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
              android:textSize="20sp"
-             android:textColor="@android:color/white"
              android:id="@+id/dataSelectionFullButton"
-             android:background="@drawable/button_custom"
+             style="@style/OutlinedCurvedButton"
              android:text="Full (2.3 GB)" />
 
     </LinearLayout>

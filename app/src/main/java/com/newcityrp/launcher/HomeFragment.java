@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import com.google.android.material.card.MaterialCardView;
 
 public class HomeFragment extends Fragment {
 
@@ -26,6 +27,7 @@ public class HomeFragment extends Fragment {
     private SharedPreferences preferences;
     private TextView statusTextView;
     private Button updateGameButton;
+    private MaterialCardView statusTextContainer;
 
     @Nullable
     @Override
@@ -33,6 +35,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         statusTextView = view.findViewById(R.id.statusTextView);
         updateGameButton = view.findViewById(R.id.updateGameButton);
+        statusTextContainer = view.findViewById(R.id.statusViewContainer); //setStrokeColor
 
         httpClient = new HttpClient(requireContext());
         logManager = new LogManager(requireContext());
@@ -115,17 +118,17 @@ public class HomeFragment extends Fragment {
         switch (status) {
             case "need_to_update":
                 statusTextView.setText("Need to Update");
-                statusTextView.setTextColor(R.color.colorRed);
+                statusTextContainer.setStrokeColor(R.color.colorRed);
                 updateGameButton.setVisibility(View.VISIBLE);
                 break;
             case "checking":
                 statusTextView.setText("Checking");
-                statusTextView.setTextColor(R.color.colorYellow);
+                statusTextContainer.setStrokeColor(R.color.colorYellow);
                 updateGameButton.setVisibility(View.GONE);
                 break;
             case "ready_to_play":
                 statusTextView.setText("Ready to Play");
-                statusTextView.setTextColor(R.color.colorGreen);
+                statusTextContainer.setStrokeColor(R.color.colorGreen);
                 updateGameButton.setVisibility(View.GONE);
                 break;
         }
