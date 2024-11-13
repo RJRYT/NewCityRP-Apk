@@ -44,6 +44,13 @@ public class ServersFragment extends Fragment {
 
         return view;
     }
+    
+    @Override
+public void onResume() {
+    super.onResume();
+    // Reload favorite servers here
+    loadServerList();
+    }
 
     private void loadServerList() {
         serverListRepository.fetchServerList(new ServerListRepository.DataCallback() {
