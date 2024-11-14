@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.content.Context;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -43,13 +44,6 @@ public class ServersFragment extends Fragment {
         loadServerList();
 
         return view;
-    }
-    
-    @Override
-public void onResume() {
-    super.onResume();
-    // Reload favorite servers here
-    loadServerList();
     }
 
     private void loadServerList() {
