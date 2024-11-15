@@ -3,6 +3,7 @@ package com.newcityrp.launcher;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Context;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -220,18 +221,12 @@ public class ServersFragment extends Fragment {
                     alertManager.showAlert("You must enter the server password!", AlertManager.AlertType.ERROR);
                 } else {
                     alertManager.showAlert("Joining server "+server.getName(), AlertManager.AlertType.INFO);
-                    joinServer(server, NickName, ServerPass);
+                    ServerJoinHelper joinHelper = new ServerJoinHelper(requireContext());
+                    joinHelper.joinServer(server, NickName, ServerPass);
                     dialog.dismiss();
                 }
             }
         });
-    }
-
-    public void joinServer(Server server, String NickName, String ServerPass) {
-        //alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
-        //Intent intent = new Intent(requireContext(), GTASA.class);
-        //startActivity(intent);
-        //requireActivity().finish();
     }
     
     private class FetchServerDetailsTask extends AsyncTask<Void, Void, String[]> {

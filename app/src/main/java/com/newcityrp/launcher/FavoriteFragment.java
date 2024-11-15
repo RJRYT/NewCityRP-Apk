@@ -198,18 +198,12 @@ public void onResume() {
                     alertManager.showAlert("You must enter the server password!", AlertManager.AlertType.ERROR);
                 } else {
                     alertManager.showAlert("Joining server "+server.getName(), AlertManager.AlertType.INFO);
-                    joinServer(server, NickName, ServerPass);
+                    ServerJoinHelper joinHelper = new ServerJoinHelper(requireContext());
+                    joinHelper.joinServer(server, NickName, ServerPass);
                     dialog.dismiss();
                 }
             }
         });
-    }
-
-    public void joinServer(Server server, String NickName, String ServerPass) {
-        //alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
-        //Intent intent = new Intent(requireContext(), GTASA.class);
-        //startActivity(intent);
-        //requireActivity().finish();
     }
     
         // Show a dialog for user to enter server IP and port

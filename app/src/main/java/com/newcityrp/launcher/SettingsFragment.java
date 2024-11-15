@@ -36,10 +36,10 @@ public class SettingsFragment extends Fragment {
 
         // Set up toggles
         setupToggle(view, R.id.toggleAutoaim, "autoaim", true);
-        setupToggle(view, R.id.toggleTimestamp, "timestamp");
+        setupToggle(view, R.id.toggleTimestamp, "timestamp", false);
         setupToggle(view, R.id.toggleDisplayFPS, "displayfps", true);
         setupToggle(view, R.id.toggleVoiceChat, "voicechat", true);
-        setupToggle(view, R.id.toggleFastConnect, "fastconnect");
+        setupToggle(view, R.id.toggleFastConnect, "fastconnect", false);
         
         // FPS Limit SeekBar
         setupSeekBar(view, R.id.seekBarFpsLimit, R.id.seekBarFpsLimitValue, "fpsLimit", fpsValues);
@@ -61,7 +61,7 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
-    private void setupToggle(View view, int toggleId, String key, Boolean defValue = false) {
+    private void setupToggle(View view, int toggleId, String key, Boolean defValue) {
         Switch toggle = view.findViewById(toggleId);
         toggle.setChecked(preferences.getBoolean(key, defValue));
         toggle.setOnCheckedChangeListener((buttonView, isChecked) ->

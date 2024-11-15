@@ -3,6 +3,7 @@ package com.newcityrp.launcher;
 import android.content.SharedPreferences;
 import android.content.Context;
 import android.content.Intent;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -58,16 +59,6 @@ public class ServerJoinHelper {
             settingsJson.put("client", clientJson);
             settingsJson.put("launcher", launcherJson);
 
-            // Create the intent to start the GTASA activity
-            Intent intent = new Intent(context, GTASA.class);
-
-            // Pass the server details, nickname, and password as extras
-            intent.putExtra("SERVER_IP", server.getIp());
-            intent.putExtra("SERVER_PORT", server.getPort());
-            intent.putExtra("SERVER_NAME", server.getName());
-            intent.putExtra("NICKNAME", nickName);
-            intent.putExtra("SERVER_PASS", serverPass);
-
             // Save JSON to SAMP/settings.json
             saveSettingsToFile(settingsJson);
 
@@ -81,20 +72,24 @@ public class ServerJoinHelper {
 
     // Save settings to a JSON file
     private void saveSettingsToFile(JSONObject settingsJson) throws IOException {
-        // Define the SAMP directory path
-        File sampDirectory = new File(context.getExternalFilesDir(null), "SAMP");
-        
-        // Ensure the SAMP directory exists
-        if (!sampDirectory.exists()) {
-            sampDirectory.mkdirs(); // Create the directory if it doesn't exist
-        }
+    // Define the SAMP directory path
+    File sampDirectory = new File(context.getExternalFilesDir(null), "SAMP");
 
-        // Define the settings file within the SAMP directory
-        File settingsFile = new File(sampDirectory, "settings.json");
+    // Ensure the SAMP directory exists
+    if (!sampDirectory.exists()) {
+        sampDirectory.mkdirs(); // Create the directory if it doesn't exist
+    }
 
-        // Write the JSON object to the file
-        try (FileWriter writer = new FileWriter(settingsFile)) {
+    // Define the settings file within the SAMP directory
+    File settingsFile = new File(sampDirectory, "settings.json");
+
+    // Write the JSON object to the file
+    try (FileWriter writer = new FileWriter(settingsFile)) {
+        try {
             writer.write(settingsJson.toString(4)); // Pretty print with an indent of 4 spaces
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
+}
 }
