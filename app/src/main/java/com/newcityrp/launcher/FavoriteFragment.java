@@ -137,12 +137,8 @@ public void onResume() {
         TextView tvPlayerCountDetail = dialogView.findViewById(R.id.tvPlayerCountDetail);
         ImageView imgJoinServer = dialogView.findViewById(R.id.imgJoinServer);
         ImageView imgFavoriteServer = dialogView.findViewById(R.id.imgFavoriteServer);
-<<<<<<< HEAD
-=======
         EditText nicknameField = dialogView.findViewById(R.id.nicknameField);
         EditText passwordField = dialogView.findViewById(R.id.passwordField);
-
->>>>>>> 6f7433f (fix)
 
         tvServerNameDetail.setText("Server Name: " + server.getName());
         tvServerIPPortDetail.setText("Server Ip: " + server.getIp() + ":" + server.getPort());
@@ -187,12 +183,9 @@ public void onResume() {
 
     public void joinServer(Server server) {
         alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
-<<<<<<< HEAD
-=======
         //Intent intent = new Intent(requireContext(), GTASA.class);
         //startActivity(intent);
         //requireActivity().finish();
->>>>>>> 6f7433f (fix)
     }
     
         // Show a dialog for user to enter server IP and port

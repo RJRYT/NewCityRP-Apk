@@ -22,18 +22,12 @@
         android:textColor="@color/textColorPrimary"
         android:textSize="20sp"/>
 
-<<<<<<< HEAD
-    <TextView
-=======
     <TextView 
->>>>>>> 6f7433f (fix)
         android:id="@+id/tvPlayerCountDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/textColorPrimary"
         android:textSize="20sp"/>
-<<<<<<< HEAD
-=======
     
     <EditText
     android:id="@+id/nicknameField"
@@ -48,7 +42,6 @@
     android:layout_height="wrap_content"
     android:hint="Enter Password (optional)"
     android:inputType="textPassword" />
->>>>>>> 6f7433f (fix)
 
     <LinearLayout
         android:layout_width="match_parent"

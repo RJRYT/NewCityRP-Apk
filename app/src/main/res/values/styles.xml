@@ -14,11 +14,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-<<<<<<< HEAD
-    <!-- Splash Theme -->
-=======
-    <!-- Splash Theme --> 
->>>>>>> 6f7433f (fix)
     <style
             name="SplashTheme"
             parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -59,8 +54,6 @@
         <item name="android:buttonStyle">@style/OutlinedCurvedButton</item>
     </style>
 
-<<<<<<< HEAD
-=======
        <style name="AppThemeGame" parent="@style/Theme.AppCompat.Light">
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowFullscreen">true</item>
@@ -70,5 +63,4 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
->>>>>>> 6f7433f (fix)
 </resources>

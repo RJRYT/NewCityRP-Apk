@@ -105,8 +105,7 @@
         android:isGame="true"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme">
-<<<<<<< HEAD
-=======
+
          <!--   <activity
             android:theme="@style/AppThemeGame"
             android:name=".GTASA"
@@ -114,7 +113,6 @@
             android:screenOrientation="landscape"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:windowSoftInputMode="adjustNothing" /> -->
->>>>>>> 6f7433f (fix)
         <activity 
             android:name="SplashScreenActivity" 
             android:theme="@style/SplashTheme"
