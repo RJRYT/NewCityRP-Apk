@@ -70,9 +70,15 @@ public void onResume() {
         
         List<Server> serverList = favoriteManager.getFavoriteServersAsObjects();
         
+        // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         ServerAdapter adapter = new ServerAdapter(serverList, getContext());
         recyclerView.setAdapter(adapter);
+        
+        // Refresh server data asynchronously
+        for (Server server : serverList) {
+            new FetchServerDetailsTask(server, adapter).execute();
+        }
     }
     
     public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ServerViewHolder> {
@@ -112,6 +118,14 @@ public void onResume() {
         @Override
         public int getItemCount() {
             return serverList.size();
+        }
+
+        public void updateServer(Server updatedServer) {
+            int index = serverList.indexOf(updatedServer);
+            if (index >= 0) {
+                serverList.set(index, updatedServer);
+                notifyItemChanged(index);
+            }
         }
 
         class ServerViewHolder extends RecyclerView.ViewHolder {
@@ -176,9 +190,6 @@ public void onResume() {
                 dialog.dismiss();
             }
         });
-        
-        new FetchServerDetailsTask().execute(server.getIp(), server.getPort());
-
     }
 
     public void joinServer(Server server) {
@@ -229,25 +240,25 @@ public void onResume() {
 
     // Validate IP and port based on regex patterns
     private boolean isValidIpPort(String valueOf) {
-    // Regex to match IP or domain with optional port
-    Pattern compile = Pattern.compile("^(((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}|localhost|(([0-9]{1,3}\\.){3})[0-9]{1,3}):[0-9]{1,5}$");
-    // Regex to match IP or domain without port
-    Pattern compile2 = Pattern.compile("^(((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}|localhost|(([0-9]{1,3}\\.){3})[0-9]{1,3})$");
+        // Regex to match IP or domain with optional port
+        Pattern compile = Pattern.compile("^(((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}|localhost|(([0-9]{1,3}\\.){3})[0-9]{1,3}):[0-9]{1,5}$");
+        // Regex to match IP or domain without port
+        Pattern compile2 = Pattern.compile("^(((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}|localhost|(([0-9]{1,3}\\.){3})[0-9]{1,3})$");
 
-    // Check if the input matches either regex
-    if (compile.matcher(valueOf).matches() || compile2.matcher(valueOf).matches()) {
-        int i = 7777;
-        String str = ":";
-        if (valueOf.contains(str)) {
-            String[] split = valueOf.split(str);
-            String str2 = split[0];
-            i = Integer.parseInt(split[1]);  // Parse port if provided
-            valueOf = str2;  // Update the valueOf with the IP
+        // Check if the input matches either regex
+        if (compile.matcher(valueOf).matches() || compile2.matcher(valueOf).matches()) {
+            int i = 7777;
+            String str = ":";
+            if (valueOf.contains(str)) {
+                String[] split = valueOf.split(str);
+                String str2 = split[0];
+                i = Integer.parseInt(split[1]);  // Parse port if provided
+                valueOf = str2;  // Update the valueOf with the IP
+            }
+            return true;  // Valid input
         }
-        return true;  // Valid input
+        return false;  // Invalid input
     }
-    return false;  // Invalid input
-}
 
     // Add the server to favorites
     private void addServerToFavorites(String ipAddress, int port) {
@@ -262,48 +273,45 @@ public void onResume() {
         }
     }
 
-    
-    
-    
-    private class FetchServerDetailsTask extends AsyncTask<Object, Void, String[]> {
-    @Override
-    protected String[] doInBackground(Object... params) {
-        String serverIp = (String) params[0];
-        int serverPort = (int) params[1];
+    private class FetchServerDetailsTask extends AsyncTask<Void, Void, String[]> {
+        private final Server server;
+        private final ServerAdapter adapter;
 
-        ServerQuery serverQuery = new ServerQuery(serverIp, serverPort, requireContext());
-        String[] serverInfo = null;
-
-        try {
-            if (serverQuery.pingServer()) {
-                serverInfo = serverQuery.getServerInfo();
-            }
-        } finally {
-            serverQuery.closeSocket();
+        public FetchServerDetailsTask(Server server, ServerAdapter adapter) {
+            this.server = server;
+            this.adapter = adapter;
         }
-        
-        return serverInfo;
-    }
 
-    @Override
-    protected void onPostExecute(String[] serverInfo) {
+        @Override
+        protected String[] doInBackground(Void... voids) {
             
-        if (serverInfo != null) {
-            // Display the server info in your dialog or UI
-            // For example:
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),  R.style.CustomAlertDialog);
-            builder.setTitle("Server Details")
-                    .setMessage("Server Name: " + serverInfo[3] + "\n"
-                            + "Players: " + serverInfo[1] + "/" + serverInfo[2] + "\n"
-                            + "Game Mode: " + serverInfo[4] + "\n"
-                            + "Language: " + serverInfo[5])
-                    .setPositiveButton("OK", null)
-                    .show();
-        } else {
-            Toast.makeText(getActivity(), "Failed to retrieve server info.", Toast.LENGTH_SHORT).show();
+            ServerQuery serverQuery = new ServerQuery(server.getIp(), server.getPort(), requireContext());
+            String[] serverInfo = null;
+
+            try {
+                if (serverQuery.pingServer()) {
+                    serverInfo = serverQuery.getServerInfo();
+                }
+            } finally {
+                serverQuery.closeSocket();
+            }
+            
+            return serverInfo;
+        }
+
+        @Override
+        protected void onPostExecute(String[] serverInfo) {
+            if (serverInfo != null) {
+                server.setName(serverInfo[3]);
+                server.setHasPassword(serverInfo[0]);
+                server.setOnlinePlayers(serverInfo[1]);
+                server.setMaxPlayers(serverInfo[2]);
+                adapter.updateServer(server);
+            } else {
+                Toast.makeText(getContext(), "Failed to update server info", Toast.LENGTH_SHORT).show();
+            }
         }
     }
-}
 }
 
 

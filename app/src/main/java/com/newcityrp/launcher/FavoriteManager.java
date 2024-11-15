@@ -70,14 +70,15 @@ public class FavoriteManager {
 
     // Save favorite servers to SharedPreferences
     private void saveFavorites(Set<String> favorites) {
+        Set<String> favoritesCopy = new HashSet<>(favorites);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putStringSet(FAVORITES_KEY, favorites);
+        editor.putStringSet(FAVORITES_KEY, favoritesCopy);
         editor.apply();
     }
 
     // Get favorite servers as Strings
     private Set<String> getFavoriteServers() {
-        return sharedPreferences.getStringSet(FAVORITES_KEY, new HashSet<>());
+        return new HashSet<>(sharedPreferences.getStringSet(FAVORITES_KEY, new HashSet<>()));
     }
 
     // Convert Server object to String (JSON)
