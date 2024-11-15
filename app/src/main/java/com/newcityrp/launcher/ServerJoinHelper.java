@@ -23,6 +23,10 @@ public class ServerJoinHelper {
         try {
             SharedPreferences sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
 
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("nickname", nickName);
+            editor.apply();
+
             boolean autoaim = sharedPreferences.getBoolean("autoaim", true);
             boolean timestamp = sharedPreferences.getBoolean("timestamp", false);
             boolean displayFps = sharedPreferences.getBoolean("displayfps", true);

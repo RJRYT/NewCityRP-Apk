@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.text.InputType;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.content.SharedPreferences;
 import com.google.android.material.button.MaterialButton;
 import java.util.regex.Pattern;
 
@@ -153,7 +154,11 @@ public void onResume() {
         ImageView imgFavoriteServer = dialogView.findViewById(R.id.imgFavoriteServer);
         EditText nicknameField = dialogView.findViewById(R.id.nicknameField);
         EditText passwordField = dialogView.findViewById(R.id.passwordField);
-        
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        String playerNickname = sharedPreferences.getString("nickname", "");
+        nicknameField.setText(playerNickname);
+
         if(!server.hasPassword()) {
             passwordField.setVisibility(View.GONE);
         }
@@ -190,9 +195,13 @@ public void onResume() {
         imgJoinServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences updatepref = requireActivity().getSharedPreferences("GameUpdatePrefs", Context.MODE_PRIVATE);
+                String status = updatepref.getString("update_status", "checking");
                 String NickName = nicknameField.getText().toString().trim();
                 String ServerPass = passwordField.getText().toString().trim();
-                if(NickName.length() < 3) {
+                if(!status.equals("ready_to_play")) {
+                    alertManager.showAlert("You must update game data to play!", AlertManager.AlertType.ERROR);
+                } else if(NickName.length() < 3) {
                     alertManager.showAlert("You must enter a nickname!", AlertManager.AlertType.ERROR);
                 } else if(server.hasPassword() && ServerPass.length() < 1) {
                     alertManager.showAlert("You must enter the server password!", AlertManager.AlertType.ERROR);

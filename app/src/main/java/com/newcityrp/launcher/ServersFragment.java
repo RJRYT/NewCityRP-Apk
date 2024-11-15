@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.content.SharedPreferences;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONArray;
@@ -178,6 +179,10 @@ public class ServersFragment extends Fragment {
         ImageView imgFavoriteServer = dialogView.findViewById(R.id.imgFavoriteServer);
         EditText nicknameField = dialogView.findViewById(R.id.nicknameField);
         EditText passwordField = dialogView.findViewById(R.id.passwordField);
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        String playerNickname = sharedPreferences.getString("nickname", "");
+        nicknameField.setText(playerNickname);
         
         if(!server.hasPassword()) {
             passwordField.setVisibility(View.GONE);
@@ -213,9 +218,13 @@ public class ServersFragment extends Fragment {
         imgJoinServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences updatepref = requireActivity().getSharedPreferences("GameUpdatePrefs", Context.MODE_PRIVATE);
+                String status = updatepref.getString("update_status", "checking");
                 String NickName = nicknameField.getText().toString().trim();
                 String ServerPass = passwordField.getText().toString().trim();
-                if(NickName.length() < 3) {
+                if(!status.equals("ready_to_play")) {
+                    alertManager.showAlert("You must update game data to play!", AlertManager.AlertType.ERROR);
+                } else if(NickName.length() < 3) {
                     alertManager.showAlert("You must enter a nickname!", AlertManager.AlertType.ERROR);
                 } else if(server.hasPassword() && ServerPass.length() < 1) {
                     alertManager.showAlert("You must enter the server password!", AlertManager.AlertType.ERROR);
