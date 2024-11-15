@@ -26,7 +26,7 @@ public class Server {
     public int getMaxPlayers() { return maxPlayers; }
 
     // Setters
-    public void setName(String name) {this.name = name;}
+    public void setName(String name) {this.name = name.trim();}
     public void setHasPassword(boolean password) {this.hasPassword = password;}
     public void setOnlinePlayers(int onlineplayer) {this.onlinePlayers = onlineplayer;}
     public void setMaxPlayers(int maxplayer) {this.maxPlayers = maxplayer;}

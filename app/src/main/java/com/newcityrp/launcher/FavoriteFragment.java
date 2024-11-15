@@ -306,6 +306,7 @@ public void onResume() {
                 server.setHasPassword(serverInfo[0]);
                 server.setOnlinePlayers(serverInfo[1]);
                 server.setMaxPlayers(serverInfo[2]);
+                favoriteManager.updateFavoriteServerDetails(server);
                 adapter.updateServer(server);
             } else {
                 Toast.makeText(getContext(), "Failed to update server info", Toast.LENGTH_SHORT).show();
