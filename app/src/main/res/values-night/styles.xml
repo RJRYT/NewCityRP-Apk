@@ -22,7 +22,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> 6f7433f (fix)
     <style name="OutlinedCurvedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="strokeWidth">2dp</item>
         <item name="strokeColor">@color/themeColor</item>
@@ -49,4 +53,16 @@
         <item name="android:buttonStyle">@style/OutlinedCurvedButton</item>
     </style>
 
+<<<<<<< HEAD
+=======
+       <style name="AppThemeGame" parent="@style/Theme.AppCompat.Light">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+>>>>>>> 6f7433f (fix)
 </resources>
