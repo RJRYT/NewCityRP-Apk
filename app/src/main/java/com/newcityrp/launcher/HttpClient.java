@@ -57,6 +57,7 @@ public class HttpClient {
                     callback.onFailure("Server returned: " + responseCode);
                 }
             } catch (Exception e) {
+                    e.printStackTrace();
                 logManager.logError("Error on http:fetchData: " + e.getMessage() + " url: "+ endpoint);
                 callback.onFailure(e.getMessage());
             } finally {

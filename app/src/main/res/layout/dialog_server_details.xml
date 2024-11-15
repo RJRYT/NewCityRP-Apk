@@ -1,70 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@color/backgroundColor"
-    android:padding="16dp">
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="wrap_content"
+     android:layout_width="match_parent"
+     android:background="@color/backgroundColor"
+     android:padding="16dp"
+     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/tvServerNameDetail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:textColor="@color/textColorPrimary"
-        android:textStyle="bold"/>
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:textSize="22sp"
+         android:textColor="@color/textColorPrimary"
+         android:id="@+id/tvServerNameDetail"
+         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/tvServerIPPortDetail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/textColorPrimary"
-        android:textSize="20sp"/>
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:textSize="20sp"
+         android:textColor="@color/textColorPrimary"
+         android:id="@+id/tvServerIPPortDetail" />
 
-    <TextView 
-        android:id="@+id/tvPlayerCountDetail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/textColorPrimary"
-        android:textSize="20sp"/>
-    
-    <EditText
-    android:id="@+id/nicknameField"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="Enter Nickname"
-    android:inputType="text" />
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:textSize="20sp"
+         android:textColor="@color/textColorPrimary"
+         android:id="@+id/tvPlayerCountDetail" />
 
     <EditText
-    android:id="@+id/passwordField"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="Enter Password (optional)"
-    android:inputType="textPassword" />
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:hint="Enter Nickname"
+         android:textColorHint="@color/textColorPrimary"
+         android:textColor="@color/textColorPrimary"
+         android:inputType="text"
+         android:id="@+id/nicknameField" />
+
+    <EditText
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:hint="Enter Password (optional)"
+         android:textColorHint="@color/textColorPrimary"
+         android:textColor="@color/textColorPrimary"
+         android:inputType="textPassword"
+         android:id="@+id/passwordField" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="16dp">
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:orientation="horizontal"
+         android:paddingTop="16dp">
 
         <ImageView
-            android:id="@+id/imgJoinServer"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:src="@drawable/ic_play"
-            android:contentDescription="Join server"/>
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:src="@drawable/ic_play"
+             android:contentDescription="Join server"
+             android:gravity="start"
+             android:layout_weight="1"
+             android:id="@+id/imgJoinServer" />
 
         <ImageView
-            android:id="@+id/imgFavoriteServer"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:src="@drawable/ic_heart_white"
-            android:contentDescription="Favorite server"/>
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:src="@drawable/ic_heart_white"
+             android:contentDescription="Favorite server"
+             android:gravity="end"
+             android:layout_weight="1"
+             android:id="@+id/imgFavoriteServer" />
+
     </LinearLayout>
+
 </LinearLayout>

@@ -63,7 +63,7 @@ public class FavoriteFragment extends Fragment {
 public void onResume() {
     super.onResume();
     // Reload favorite servers here
-    //displayServerList();
+    displayServerList();
     }
 
     private void displayServerList() {

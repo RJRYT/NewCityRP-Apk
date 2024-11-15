@@ -64,29 +64,31 @@ public class ServersFragment extends Fragment {
     }
 
     private void parseAndDisplayData(JSONObject jsonResponse) {
-        try {
-            JSONArray filesArray = jsonResponse.getJSONArray("query");
-            List<Server> serverList = new ArrayList<>();
+    try {
+        JSONArray filesArray = jsonResponse.getJSONArray("query");
+        List<Server> serverList = new ArrayList<>();
 
-            for (int i = 0; i < filesArray.length(); i++) {
-                JSONObject fileObject = filesArray.getJSONObject(i);
+        for (int i = 0; i < filesArray.length(); i++) {
+            JSONObject fileObject = filesArray.getJSONObject(i);
 
-                String serverName = fileObject.getString("name");
-                String serverIp = fileObject.getString("ip");
-                int serverPort = fileObject.getInt("port");
-                boolean serverPassword = fileObject.getBoolean("password");
-                int onlinePlayers = fileObject.getInt("online");
-                int maxPlayers = fileObject.getInt("maxplayers");
+            String serverName = fileObject.getString("name");
+            String serverIp = fileObject.getString("ip");
+            int serverPort = fileObject.getInt("port");
+            boolean serverPassword = fileObject.getBoolean("password");
+            int onlinePlayers = fileObject.getInt("online");
+            int maxPlayers = fileObject.getInt("maxplayers");
 
-                Server server = new Server(serverName, serverIp, serverPort, serverPassword, onlinePlayers, maxPlayers);
-                serverList.add(server);
-            }
+            Server server = new Server(serverName, serverIp, serverPort, serverPassword, onlinePlayers, maxPlayers);
+            serverList.add(server);
+        }
 
-            displayServerList(serverList);
+        // Ensure UI update happens on the main thread
+        getActivity().runOnUiThread(() -> displayServerList(serverList));
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-            alertManager.showAlert("Failed to parse servers list.", AlertManager.AlertType.ERROR);
+    } catch (JSONException e) {
+        e.printStackTrace();
+        getActivity().runOnUiThread(() -> 
+            alertManager.showAlert("Failed to parse servers list.", AlertManager.AlertType.ERROR));
         }
     }
 
