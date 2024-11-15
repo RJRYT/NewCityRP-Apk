@@ -100,7 +100,7 @@ public void onResume() {
         @Override
         public void onBindViewHolder(@NonNull ServerViewHolder holder, int position) {
             Server server = serverList.get(position);
-            holder.tvServerName.setText(server.getName());
+            holder.tvServerName.setText(server.getName().trim());
             holder.tvServerInfo.setText(server.getIp() + ":" + server.getPort() + " | " +
                     server.getOnlinePlayers() + "/" + server.getMaxPlayers());
 
@@ -154,7 +154,7 @@ public void onResume() {
         EditText nicknameField = dialogView.findViewById(R.id.nicknameField);
         EditText passwordField = dialogView.findViewById(R.id.passwordField);
 
-        tvServerNameDetail.setText("Server Name: " + server.getName());
+        tvServerNameDetail.setText("Server Name: " + server.getName().trim());
         tvServerIPPortDetail.setText("Server Ip: " + server.getIp() + ":" + server.getPort());
         tvPlayerCountDetail.setText("Players: " + server.getOnlinePlayers() + "/" + server.getMaxPlayers());
 
@@ -303,13 +303,17 @@ public void onResume() {
         protected void onPostExecute(String[] serverInfo) {
             if (serverInfo != null) {
                 server.setName(serverInfo[3]);
-                server.setHasPassword(serverInfo[0]);
-                server.setOnlinePlayers(serverInfo[1]);
-                server.setMaxPlayers(serverInfo[2]);
+                server.setHasPassword(Boolean.parseBoolean(serverInfo[0]));
+                
+                try {
+                    server.setOnlinePlayers(Integer.parseInt(serverInfo[1]));
+                server.setMaxPlayers(Integer.parseInt(serverInfo[2]));
+}
+catch (NumberFormatException e) {
+   e.printStackTrace();
+}
                 adapter.updateServer(server);
-            } else {
-                Toast.makeText(getContext(), "Failed to update server info", Toast.LENGTH_SHORT).show();
-            }
+            } 
         }
     }
 }
