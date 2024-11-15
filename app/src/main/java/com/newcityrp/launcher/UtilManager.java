@@ -72,7 +72,7 @@ class UtilManager {
         }
 
         // If gameType is empty, check if the game files directory exists and has files
-        File gameFilesDir = new File(context.getExternalFilesDir(null), "");
-        return gameFilesDir.exists() && gameFilesDir.isDirectory() && gameFilesDir.listFiles().length > 0;
+        File gameFilesCheck = new File(context.getExternalFilesDir(null), "texdb/gta3.img");
+        return gameFilesCheck.exists();
     }
 }

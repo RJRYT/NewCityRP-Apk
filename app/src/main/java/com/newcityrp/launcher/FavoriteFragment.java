@@ -153,6 +153,10 @@ public void onResume() {
         ImageView imgFavoriteServer = dialogView.findViewById(R.id.imgFavoriteServer);
         EditText nicknameField = dialogView.findViewById(R.id.nicknameField);
         EditText passwordField = dialogView.findViewById(R.id.passwordField);
+        
+        if(!server.hasPassword()) {
+            passwordField.setVisibility(View.GONE);
+        }
 
         tvServerNameDetail.setText("Server Name: " + server.getName().trim());
         tvServerIPPortDetail.setText("Server Ip: " + server.getIp() + ":" + server.getPort());
@@ -186,14 +190,23 @@ public void onResume() {
         imgJoinServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                joinServer(server);
-                dialog.dismiss();
+                String NickName = nicknameField.getText().toString().trim();
+                String ServerPass = passwordField.getText().toString().trim();
+                if(NickName.length() < 3) {
+                    alertManager.showAlert("You must enter a nickname!", AlertManager.AlertType.ERROR);
+                } else if(server.hasPassword() && ServerPass.length() < 1) {
+                    alertManager.showAlert("You must enter the server password!", AlertManager.AlertType.ERROR);
+                } else {
+                    alertManager.showAlert("Joining server "+server.getName(), AlertManager.AlertType.INFO);
+                    joinServer(server, NickName, ServerPass);
+                    dialog.dismiss();
+                }
             }
         });
     }
 
-    public void joinServer(Server server) {
-        alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
+    public void joinServer(Server server, String NickName, String ServerPass) {
+        //alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
         //Intent intent = new Intent(requireContext(), GTASA.class);
         //startActivity(intent);
         //requireActivity().finish();
@@ -302,21 +315,48 @@ public void onResume() {
         @Override
         protected void onPostExecute(String[] serverInfo) {
             if (serverInfo != null) {
-                server.setName(serverInfo[3]);
-                server.setHasPassword(Boolean.parseBoolean(serverInfo[0]));
-                
+                // Check if name, online players, or max players are different before updating
+                String newName = serverInfo[3];
+                boolean hasPassword = Boolean.parseBoolean(serverInfo[0]);
+                int newOnlinePlayers = 0;
+                int newMaxPlayers = 0;
+
                 try {
-                    server.setOnlinePlayers(Integer.parseInt(serverInfo[1]));
-                    server.setMaxPlayers(Integer.parseInt(serverInfo[2]));
-                }
-                catch (NumberFormatException e) {
+                    newOnlinePlayers = Integer.parseInt(serverInfo[1]);
+                    newMaxPlayers = Integer.parseInt(serverInfo[2]);
+                } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
-                favoriteManager.updateFavoriteServerDetails(server);
-                adapter.updateServer(server);
-            } 
+
+                // Only update if any of the details have changed
+                boolean shouldUpdate = false;
+
+                if (!server.getName().equals(newName)) {
+                    server.setName(newName);
+                    shouldUpdate = true;
+                }
+
+                if (server.getOnlinePlayers() != newOnlinePlayers) {
+                    server.setOnlinePlayers(newOnlinePlayers);
+                    shouldUpdate = true;
+                }
+
+                if (server.getMaxPlayers() != newMaxPlayers) {
+                    server.setMaxPlayers(newMaxPlayers);
+                    shouldUpdate = true;
+                }
+
+                if (server.hasPassword() != hasPassword) {
+                    server.setHasPassword(hasPassword);
+                    shouldUpdate = true;
+                }
+
+                // If any data has changed, update the server details
+                if (shouldUpdate) {
+                    favoriteManager.updateFavoriteServerDetails(server);  // Update in favorites list
+                    adapter.updateServer(server);  // Update the UI
+                }
+            }
         }
     }
 }
-
-

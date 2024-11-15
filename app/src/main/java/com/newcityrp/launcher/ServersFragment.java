@@ -175,6 +175,12 @@ public class ServersFragment extends Fragment {
         TextView tvPlayerCountDetail = dialogView.findViewById(R.id.tvPlayerCountDetail);
         ImageView imgJoinServer = dialogView.findViewById(R.id.imgJoinServer);
         ImageView imgFavoriteServer = dialogView.findViewById(R.id.imgFavoriteServer);
+        EditText nicknameField = dialogView.findViewById(R.id.nicknameField);
+        EditText passwordField = dialogView.findViewById(R.id.passwordField);
+        
+        if(!server.hasPassword()) {
+            passwordField.setVisibility(View.GONE);
+        }
 
         tvServerNameDetail.setText("Server Name: " + server.getName());
         tvServerIPPortDetail.setText("Server Ip: " + server.getIp() + ":" + server.getPort());
@@ -206,14 +212,26 @@ public class ServersFragment extends Fragment {
         imgJoinServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                joinServer(server);
-                dialog.dismiss();
+                String NickName = nicknameField.getText().toString().trim();
+                String ServerPass = passwordField.getText().toString().trim();
+                if(NickName.length() < 3) {
+                    alertManager.showAlert("You must enter a nickname!", AlertManager.AlertType.ERROR);
+                } else if(server.hasPassword() && ServerPass.length() < 1) {
+                    alertManager.showAlert("You must enter the server password!", AlertManager.AlertType.ERROR);
+                } else {
+                    alertManager.showAlert("Joining server "+server.getName(), AlertManager.AlertType.INFO);
+                    joinServer(server, NickName, ServerPass);
+                    dialog.dismiss();
+                }
             }
         });
     }
 
-    public void joinServer(Server server) {
-        alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
+    public void joinServer(Server server, String NickName, String ServerPass) {
+        //alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
+        //Intent intent = new Intent(requireContext(), GTASA.class);
+        //startActivity(intent);
+        //requireActivity().finish();
     }
     
     private class FetchServerDetailsTask extends AsyncTask<Void, Void, String[]> {
