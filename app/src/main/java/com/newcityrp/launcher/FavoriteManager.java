@@ -60,21 +60,15 @@ public class FavoriteManager {
 
     // Update the details of a specific server in the favorite list
     public void updateFavoriteServerDetails(Server updatedServer) {
-        List<Server> favoriteServers = getFavoriteServersAsObjects();
-
-        for (int i = 0; i < favoriteServers.size(); i++) {
-            Server server = favoriteServers.get(i);
-
-            // Find the server by matching IP and port
-            if (server.getIp().equals(updatedServer.getIp()) && server.getPort() == updatedServer.getPort()) {
-                // Update the details of the existing server
-                server.setName(updatedServer.getName());
-                server.setOnlinePlayers(updatedServer.getOnlinePlayers());
-                server.setMaxPlayers(updatedServer.getMaxPlayers());
-                server.setHasPassword(updatedServer.hasPassword());
-                // Save the updated list back to storage if necessary
-                saveFavorites(favoriteServers);
-                break;
+        Set<String> favorites = getFavoriteServers();
+        
+        // Check if the server is already in favorites using ip:port comparison
+        for (String serverString : favorites) {
+            Server existingServer = deserializeServer(serverString);
+            if (existingServer.getIp().equals(updatedServer.getIp()) && existingServer.getPort() == updatedServer.getPort()) {
+                removeServerFromFavorites(existingServer);
+                addServerToFavorites(updatedServer);
+                return;
             }
         }
     }

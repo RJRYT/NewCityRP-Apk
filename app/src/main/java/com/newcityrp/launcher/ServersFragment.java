@@ -1,5 +1,6 @@
 package com.newcityrp.launcher;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Context;
 import android.widget.ImageView;
@@ -96,6 +97,12 @@ public class ServersFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         ServerAdapter adapter = new ServerAdapter(serverList, getContext());
         recyclerView.setAdapter(adapter);
+        
+        
+        // Refresh server data asynchronously
+        for (Server server : serverList) {
+            new FetchServerDetailsTask(server, adapter).execute();
+        }
     }
 
     public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ServerViewHolder> {
@@ -135,6 +142,14 @@ public class ServersFragment extends Fragment {
         @Override
         public int getItemCount() {
             return serverList.size();
+        }
+        
+        public void updateServer(Server updatedServer) {
+            int index = serverList.indexOf(updatedServer);
+            if (index >= 0) {
+                serverList.set(index, updatedServer);
+                notifyItemChanged(index);
+            }
         }
 
         class ServerViewHolder extends RecyclerView.ViewHolder {
@@ -199,5 +214,49 @@ public class ServersFragment extends Fragment {
 
     public void joinServer(Server server) {
         alertManager.showAlert("Server Join: "+server.getIp(), AlertManager.AlertType.SUCCESS);
+    }
+    
+    private class FetchServerDetailsTask extends AsyncTask<Void, Void, String[]> {
+        private final Server server;
+        private final ServerAdapter adapter;
+
+        public FetchServerDetailsTask(Server server, ServerAdapter adapter) {
+            this.server = server;
+            this.adapter = adapter;
+        }
+
+        @Override
+        protected String[] doInBackground(Void... voids) {
+            
+            ServerQuery serverQuery = new ServerQuery(server.getIp(), server.getPort(), requireContext());
+            String[] serverInfo = null;
+
+            try {
+                if (serverQuery.pingServer()) {
+                    serverInfo = serverQuery.getServerInfo();
+                }
+            } finally {
+                serverQuery.closeSocket();
+            }
+            
+            return serverInfo;
+        }
+
+        @Override
+        protected void onPostExecute(String[] serverInfo) {
+            if (serverInfo != null) {
+                server.setName(serverInfo[3]);
+                server.setHasPassword(Boolean.parseBoolean(serverInfo[0]));
+                
+                try {
+                    server.setOnlinePlayers(Integer.parseInt(serverInfo[1]));
+                    server.setMaxPlayers(Integer.parseInt(serverInfo[2]));
+                }
+                catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+                adapter.updateServer(server);
+            } 
+        }
     }
 }
