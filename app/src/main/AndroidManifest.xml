@@ -105,14 +105,24 @@
         android:isGame="true"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme">
+        
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:authorities="com.newcityrp.launcher.contentprovider"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/paths" />
+        </provider>
 
-         <!--   <activity
+        <activity
             android:theme="@style/AppThemeGame"
             android:name=".GTASA"
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
-            android:windowSoftInputMode="adjustNothing" /> -->
+            android:windowSoftInputMode="adjustNothing" /> 
         <activity 
             android:name="SplashScreenActivity" 
             android:theme="@style/SplashTheme"

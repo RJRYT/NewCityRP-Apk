@@ -1,27 +1,4 @@
-//----------------------------------------------------------------------------------
-// File:            libs\src\com\nvidia\devtech\AudioHelper.java
-// Samples Version: Android NVIDIA samples 2 
-// Email:           tegradev@nvidia.com
-// Forum:           http://developer.nvidia.com/tegra/forums/tegra-forums/android-development
-//
-// Copyright 2009-2010 NVIDIA Corporation
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-//----------------------------------------------------------------------------------
 package com.nvidia.devtech;
-
-import java.io.IOException;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -29,203 +6,165 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.util.Log;
+import java.io.IOException;
 
-public class AudioHelper 
-{
-	private static final int MAX_SOUND_STREAMS = 10;
-	private static final String TAG = "AudioHelper";
-	private static String ResourceLocation = "com.nvidia.devtech.audio:raw/";
-	
-	private Context 			context = null;    
-	private SoundPool			Sounds = null;
-	private	MediaPlayer			MusicPlayer = null;
-	private static AudioHelper 	instance = null; 
-	
-	private AudioHelper()
-	{	
-	}
-	
-    void Initialise()
-    {     	
-    	Sounds = new SoundPool(MAX_SOUND_STREAMS,  AudioManager.STREAM_MUSIC, 0); 
-        
-        if (Sounds == null)
-        {
-        	Log.e(TAG, "failed to create soundpool instance");
-        }
-        
-        Log.i(TAG, "created sound pool");
-    }	
-    
-    public void finalize()
-	{		
-		if (Sounds != null)
-		{
-			Sounds.release();
-			Sounds = null;
-		}
-		
-		if (MusicPlayer != null)
-		{
-			MusicPlayer.release();
-			MusicPlayer = null;
-		}
-	}
-    
-    public void SetResouceLocation(String s)
-    {
-    	ResourceLocation = s;
+public class AudioHelper {
+    private static final int MAX_SOUND_STREAMS = 10;
+    private static String ResourceLocation = "com.nvidia.devtech.audio:raw/";
+    private static final String TAG = "AudioHelper";
+    private static AudioHelper instance;
+    private MediaPlayer MusicPlayer = null;
+    private SoundPool Sounds = null;
+    private Context context = null;
+
+    private AudioHelper() {
     }
 
-    public void setContext(Context context)
-    {
+    public static AudioHelper getInstance() {
+        if (instance == null) {
+            AudioHelper audioHelper = new AudioHelper();
+            instance = audioHelper;
+            audioHelper.Initialise();
+        }
+        return instance;
+    }
+
+    void Initialise() {
+        SoundPool soundPool = new SoundPool(MAX_SOUND_STREAMS, 3, 0);
+        this.Sounds = soundPool;
+        String str = TAG;
+        if (soundPool == null) {
+            Log.e(str, "failed to create soundpool instance");
+        }
+        Log.i(str, "created sound pool");
+    }
+
+    public int LoadSound(String str, int i) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Load sound ");
+        stringBuilder.append(str);
+        String stringBuilder2 = stringBuilder.toString();
+        String str2 = TAG;
+        Log.i(str2, stringBuilder2);
+        stringBuilder = new StringBuilder();
+        stringBuilder.append(ResourceLocation);
+        stringBuilder.append(str);
+        int identifier = this.context.getResources().getIdentifier(stringBuilder.toString(), null, null);
+        if (identifier != 0) {
+            return this.Sounds.load(this.context, identifier, i);
+        }
+        StringBuilder stringBuilder3 = new StringBuilder();
+        stringBuilder3.append("unidentified resource id for ");
+        stringBuilder3.append(str);
+        Log.i(str2, stringBuilder3.toString());
+        return 0;
+    }
+
+    public int LoadSoundAsset(String str, int i) {
+        AssetFileDescriptor openFd;
+        try {
+            openFd = this.context.getAssets().openFd(str);
+        } catch (IOException e) {
+            e.printStackTrace();
+            openFd = null;
+        }
+        return this.Sounds.load(openFd, i);
+    }
+
+    public void MusicSetDataSource(String str) {
+        try {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(ResourceLocation);
+            stringBuilder.append(str);
+            int identifier = this.context.getResources().getIdentifier(stringBuilder.toString(), null, null);
+            String str2 = TAG;
+            if (identifier == 0) {
+                stringBuilder = new StringBuilder();
+                stringBuilder.append("unidentified resource id for ");
+                stringBuilder.append(str);
+                Log.i(str2, stringBuilder.toString());
+                return;
+            }
+            MediaPlayer create = MediaPlayer.create(this.context, identifier);
+            this.MusicPlayer = create;
+            if (create == null) {
+                stringBuilder = new StringBuilder();
+                stringBuilder.append("failed to create music player");
+                stringBuilder.append(str);
+                Log.i(str2, stringBuilder.toString());
+                return;
+            }
+            create.start();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e2) {
+            e2.printStackTrace();
+        }
+    }
+
+    public void MusicStart() {
+        this.MusicPlayer.start();
+    }
+
+    public void MusicStop() {
+        MediaPlayer mediaPlayer = this.MusicPlayer;
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            this.MusicPlayer.stop();
+            this.MusicPlayer.reset();
+        }
+    }
+
+    public void MusicVolume(float f, float f2) {
+        this.MusicPlayer.setVolume(f, f2);
+    }
+
+    public void PauseSound(int i) {
+        this.Sounds.pause(i);
+    }
+
+    public int PlaySound(int i, float f, float f2, int i2, int i3, float f3) {
+        return this.Sounds.play(i, f, f2, i2, i3, f3);
+    }
+
+    public void ResumeSound(int i) {
+        this.Sounds.resume(i);
+    }
+
+    void SetMaxVolume() {
+        AudioManager audioManager = (AudioManager) this.context.getSystemService("audio");
+        audioManager.setStreamVolume(3, audioManager.getStreamMaxVolume(3), 0);
+    }
+
+    public void SetResouceLocation(String str) {
+        ResourceLocation = str;
+    }
+
+    public void SetVolume(int i, float f, float f2) {
+        this.Sounds.setVolume(i, f, f2);
+    }
+
+    public void StopSound(int i) {
+        this.Sounds.stop(i);
+    }
+
+    public boolean UnloadSample(int i) {
+        return this.Sounds.unload(i);
+    }
+
+    public void finalize() {
+        SoundPool soundPool = this.Sounds;
+        if (soundPool != null) {
+            soundPool.release();
+            this.Sounds = null;
+        }
+        MediaPlayer mediaPlayer = this.MusicPlayer;
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            this.MusicPlayer = null;
+        }
+    }
+
+    public void setContext(Context context) {
         this.context = context;
     }
-	
-    public static AudioHelper getInstance()
-    {
-    	if (instance == null)
-    	{
-    		instance = new AudioHelper();
-    		
-    		instance.Initialise();    		
-    	}
-    	
-    	return instance;
-    }
-	
-	public int LoadSound(String filename, int Priority)
-    {
-		int 	SoundID;
-		
-		Log.i(TAG, "Load sound "+filename);
-		
-		String s = ResourceLocation + filename;
-		
-		int resID = context.getResources().getIdentifier(s, null, null);
-		
-		if (resID == 0)
-		{
-			Log.i(TAG, "unidentified resource id for "+filename);
-			
-			return 0;
-		}
-		
-		SoundID = Sounds.load(context, resID, Priority);
-		
-	    return SoundID;
-    } 
-	
-	public int LoadSoundAsset(String filename, int Priority)
-    {
-		int SoundID;
-		
-		AssetFileDescriptor FD = null;
-		
-		try 
-		{
-			FD = context.getAssets().openFd(filename);
-		} 
-		catch (IOException e) 
-		{		
-			e.printStackTrace();
-		} 
-	
-		SoundID = Sounds.load(FD, Priority);
-	    
-	    return SoundID;
-    } 
-	
-	public void PauseSound(int SoundID)
-    {			
-		Sounds.pause(SoundID);
-    } 
-	
-	public void ResumeSound(int SoundID)
-    {			
-		Sounds.resume(SoundID);
-    } 
-	
-	public void StopSound(int SoundID)
-    {			
-		Sounds.stop(SoundID);
-    } 
-	
-	public int PlaySound(int SoundID, float lv, float rv, int priority, int loop, float rate)
-    {					
-		return Sounds.play(SoundID, lv, rv, priority, loop, rate); 
-    }
-	
-	public void SetVolume(int SoundID, float vl, float vr)
-    {					
-		Sounds.setVolume(SoundID, vl, vr); 
-    }
-	
-	public boolean UnloadSample(int SoundID)
-    {					
-		return Sounds.unload(SoundID); 
-    }
-	
-	public void MusicSetDataSource(String filename)
-	{		
-		try 
-		{	
-			String s = ResourceLocation + filename;
-			
-			int resID = context.getResources().getIdentifier(s, null, null);
-					
-			if (resID == 0)
-			{
-				Log.i(TAG, "unidentified resource id for "+filename);
-				
-				return;
-			}			
-			
-			 MusicPlayer = MediaPlayer.create(context, resID);
-			 
-			 if (MusicPlayer == null)
-			 {
-				 Log.i(TAG, "failed to create music player"+filename);
-				 
-				 return;
-			 }
-			 
-			MusicPlayer.start();						
-		} 
-		catch (IllegalArgumentException e) 
-		{		
-			e.printStackTrace();
-		}
-		catch (IllegalStateException e) 
-		{		
-			e.printStackTrace();
-		}  
-	}
-
-	public void MusicStart()
-	{
-		MusicPlayer.start();		
-	}
-
-	public void MusicVolume(float VolumeL, float VolumeR)
-	{
-		MusicPlayer.setVolume(VolumeL, VolumeR);
-	}
-	
-	void SetMaxVolume()
-	{
-		AudioManager mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-		int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-
-		mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0);
-	}
-
-	public void MusicStop()
-	{
-		if (MusicPlayer != null && MusicPlayer.isPlaying())
-		{
-			MusicPlayer.stop();
-			MusicPlayer.reset();
-		}
-	}
 }

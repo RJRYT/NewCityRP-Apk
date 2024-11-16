@@ -1,31 +1,13 @@
-//----------------------------------------------------------------------------------
-// File:            libs\src\com\nvidia\devtech\NvEventQueueActivity.java
-// Samples Version: Android NVIDIA samples 2 
-// Email:           tegradev@nvidia.com
-// Forum:           http://developer.nvidia.com/tegra/forums/tegra-forums/android-development
-//
-// Copyright 2009-2010 NVIDIA Corporation
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-//----------------------------------------------------------------------------------
 package com.nvidia.devtech;
 
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,193 +15,669 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewParent;
+import android.view.View.OnSystemUiVisibilityChangeListener;
+import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.FragmentActivity;
-
-import com.newcityrp.launcher.R;
-import com.newcityrp.launcher.core.DialogClientSettings;
-
+import com.nvidia.devtech.HeightProvider.HeightListener;
+import com.nvidia.devtech.InputManager.InputListener;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
-import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
-/**
-A base class used to provide a native-code event-loop interface to an
-application.  This class is designed to be subclassed by the application
-with very little need to extend the Java.  Paired with its native static-link
-library, libnv_event.a, this package makes it possible for native applciations
-to avoid any direct use of Java code.  In addition, input and other events are
-automatically queued and provided to the application in native code via a
-classic event queue-like API.  EGL functionality such as bind/unbind and swap
-are also made available to the native code for ease of application porting.
-Please see the external SDK documentation for an introduction to the use of
-this class and its paired native library.
-*/
-public abstract class NvEventQueueActivity extends FragmentActivity implements SensorEventListener {
+import androidx.appcompat.app.AppCompatActivity;
+import com.newcityrp.launcher.R;
 
 
-    protected Handler handler = null;
 
-    private int SwapBufferSkip = 0;
-
-    protected boolean paused = false;
-
-    protected boolean wantsMultitouch = false;
-
-	protected boolean supportPauseResume = true;
-    protected boolean ResumeEventDone = false;
-
-    //accelerometer related
-  //  protected boolean wantsAccelerometer = false;
- //   protected SensorManager mSensorManager = null;
-    protected ClipboardManager mClipboardManager = null;
-    protected int mSensorDelay = SensorManager.SENSOR_DELAY_GAME; //other options: SensorManager.SENSOR_DELAY_FASTEST, SensorManager.SENSOR_DELAY_NORMAL and SensorManager.SENSOR_DELAY_UI
-	protected Display display = null;
-
-	FrameLayout mAndroidUI = null;
-    private static final int EGL_RENDERABLE_TYPE = 0x3040;
-    private static final int EGL_OPENGL_ES2_BIT = 0x0004;
+public abstract class NvEventQueueActivity extends AppCompatActivity implements SensorEventListener, InputListener, OnTouchListener, HeightListener {
+    private static final int EGL_CONTEXT_CLIENT_VERSION = 12440;
+    private static final int EGL_OPENGL_ES2_BIT = 4;
     private static final int EGL_OPENGL_ES3_BIT = 64;
-    private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-    EGL10 egl = null;
-    GL11 gl = null;
-
-    private boolean ranInit = false;
-    protected EGLSurface eglSurface = null;
-    protected EGLDisplay eglDisplay = null;
-    protected EGLContext eglContext = null;
-    protected EGLConfig eglConfig = null;
-
-	protected SurfaceHolder cachedSurfaceHolder = null;
-    private int surfaceWidth = 0;
-    private int surfaceHeight = 0;
-
-    private int fixedWidth = 0;
-    private int fixedHeight = 0;
+    private static final int EGL_RENDERABLE_TYPE = 12352;
+    private boolean GameIsFocused = false;
     private boolean HasGLExtensions = false;
-    private String glVendor = null;
+    protected boolean ResumeEventDone = false;
+    private int SwapBufferSkip = 0;
+    private boolean Use2Touches = true;
+    protected int alphaSize = 0;
+    private AssetManager assetMgr = null;
+    private boolean bInitDone = false;
+    protected int blueSize = 5;
+    protected SurfaceHolder cachedSurfaceHolder = null;
+    protected int[] configAttrs = null;
+    protected int[] contextAttrs = null;
+    protected int depthSize = 16;
+    protected Display display = null;
+    EGL10 egl = null;
+    protected EGLConfig eglConfig = null;
+    protected EGLContext eglContext = null;
+    protected EGLDisplay eglDisplay = null;
+    protected EGLSurface eglSurface = null;
+    private int fixedHeight = 0;
+    private int fixedWidth = 0;
+    GL11 gl = null;
     private String glExtensions = null;
     private String glRenderer = null;
+    private String glVendor = null;
     private String glVersion = null;
-    //private boolean GameIsFocused = false;
-    private boolean viewIsActive = false;
-    boolean waitingForResume = false;
-
-    private ConstraintLayout mRootFrame = null;
+    protected int greenSize = 6;
+    protected Handler handler = null;
+    protected ClipboardManager mClipboardManager = null;
+    private HeightProvider mHeightProvider = null;
+    private InputManager mInputManager = null;
+    private FrameLayout mRootFrame = null;
+    protected int mSensorDelay = 1;
+    protected SensorManager mSensorManager = null;
     private SurfaceView mSurfaceView = null;
+    private int mUseFullscreen = 0;
+    protected boolean paused = false;
+    private boolean ranInit = false;
+    protected int redSize = 5;
+    protected int stencilSize = 0;
+    private int surfaceHeight = 0;
+    private int surfaceWidth = 0;
+    private boolean viewIsActive = false;
+    public boolean waitForPermissions = false;
+    protected boolean wantsAccelerometer = false;
+    protected boolean wantsMultitouch = false;
 
-    //private HeightProvider mHeightProvider = null;
-    private DialogClientSettings mDialogClientSettings = null;
-
-    /* *
-     * Helper function to select fixed window size.
-     * */ 
-    public void setFixedSize(int fw, int fh)
-    {
-    	fixedWidth = fw;
-    	fixedHeight = fh;
+    public class RawData {
+        public byte[] data;
+        public int length;
     }
 
-    private int mUseFullscreen = 0;
+    public class RawTexture extends RawData {
+        public int height;
+        public int width;
 
-    public void showClientSettings()
+        public RawTexture() {
+            super();
+        }
+    }
+
+    class a implements OnSystemUiVisibilityChangeListener {
+        a() {
+        }
+
+        public void onSystemUiVisibilityChange(int i) {
+            if ((i & NvEventQueueActivity.EGL_OPENGL_ES2_BIT) == 0) {
+                NvEventQueueActivity.this.hideSystemUI();
+            }
+        }
+    }
+
+    class c implements Callback {
+        final /* synthetic */ NvEventQueueActivity b;
+
+        c(NvEventQueueActivity nvEventQueueActivity) {
+            this.b = nvEventQueueActivity;
+        }
+
+        public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
+            PrintStream printStream = System.out;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Surface changed: ");
+            stringBuilder.append(i2);
+            stringBuilder.append(", ");
+            stringBuilder.append(i3);
+            printStream.println(stringBuilder.toString());
+            NvEventQueueActivity.this.surfaceWidth = i2;
+            NvEventQueueActivity.this.surfaceHeight = i3;
+            NvEventQueueActivity nvEventQueueActivity = NvEventQueueActivity.this;
+            nvEventQueueActivity.setWindowSize(nvEventQueueActivity.surfaceWidth, NvEventQueueActivity.this.surfaceHeight);
+        }
+
+        public void surfaceCreated(SurfaceHolder surfaceHolder) {
+            System.out.println("systemInit.surfaceCreated");
+            Object obj = NvEventQueueActivity.this.cachedSurfaceHolder == null ? 1 : null;
+            NvEventQueueActivity nvEventQueueActivity = NvEventQueueActivity.this;
+            nvEventQueueActivity.cachedSurfaceHolder = surfaceHolder;
+            if (!(nvEventQueueActivity.fixedWidth == 0 || NvEventQueueActivity.this.fixedHeight == 0)) {
+                System.out.println("Setting fixed window size");
+                surfaceHolder.setFixedSize(NvEventQueueActivity.this.fixedWidth, NvEventQueueActivity.this.fixedHeight);
+            }
+            NvEventQueueActivity.this.ranInit = true;
+            if (!(NvEventQueueActivity.this.bInitDone || NvEventQueueActivity.this.init(true))) {
+                NvEventQueueActivity.this.handler.post(new Runnable()
+                                 {
+                                     public void run()
+                                     {
+                                         new AlertDialog.Builder(NvEventQueueActivity.this)
+                                                 .setMessage("Application initialization failed. The application will exit.")
+                                                 .setPositiveButton("Ok",
+                                                         new DialogInterface.OnClickListener ()
+                                                         {
+                                                             public void onClick(DialogInterface i, int a)
+                                                             {
+                                                                 finish();
+                                                             }
+                                                         }
+                                                 )
+                                                 .setCancelable(false)
+                                                 .show();
+                                     }
+                                 });
+            }
+            PrintStream printStream = System.out;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("surfaceCreated: w:");
+            stringBuilder.append(NvEventQueueActivity.this.surfaceWidth);
+            stringBuilder.append(", h:");
+            stringBuilder.append(NvEventQueueActivity.this.surfaceHeight);
+            printStream.println(stringBuilder.toString());
+            if (obj == null && NvEventQueueActivity.this.ResumeEventDone) {
+                System.out.println("entering resumeEvent");
+                NvEventQueueActivity.this.resumeEvent();
+                System.out.println("returned from resumeEvent");
+            }
+            NvEventQueueActivity nvEventQueueActivity2 = NvEventQueueActivity.this;
+            nvEventQueueActivity2.setWindowSize(nvEventQueueActivity2.surfaceWidth, NvEventQueueActivity.this.surfaceHeight);
+        }
+
+        public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+            System.out.println("systemInit.surfaceDestroyed");
+            NvEventQueueActivity.this.viewIsActive = false;
+            NvEventQueueActivity.this.pauseEvent();
+            NvEventQueueActivity.this.destroyEGLSurface();
+        }
+    }
+
+    class d implements Runnable {
+        final /* synthetic */ int b;
+
+        d(int i) {
+            this.b = i;
+        }
+
+        public void run() {
+            String str = this.b == 1 ? "com.jekmant.perfectlauncher" : "none";
+            if (this.b == 2) {
+                str = "com.jekmant.matlauncher";
+            }
+            Intent launchIntentForPackage = NvEventQueueActivity.this.getPackageManager().getLaunchIntentForPackage(str);
+            if (launchIntentForPackage != null) {
+                launchIntentForPackage.putExtra("minimize", true);
+                NvEventQueueActivity nvEventQueueActivity = NvEventQueueActivity.this;
+                if (nvEventQueueActivity.ResumeEventDone) {
+                    nvEventQueueActivity.pauseEvent();
+                }
+                System.out.println("Calling launcher activity");
+                NvEventQueueActivity.this.startActivity(launchIntentForPackage);
+                System.out.println("Called launcher activity");
+            }
+        }
+    }
+
+    private native void onInputEnd(byte[] bArr);
+
+    private void processCutout() {
+        if (VERSION.SDK_INT >= 28 && this.mUseFullscreen == 1) {
+            getWindow().getAttributes().layoutInDisplayCutoutMode = 1;
+        }
+    }
+
+    public void DoResumeEvent()
+    {
+        new Thread(new Runnable() {
+            public void run() {
+                while (NvEventQueueActivity.this.cachedSurfaceHolder == null)
+                {
+                    NvEventQueueActivity.this.mSleep(1000);
+                }
+                System.out.println("Call from DoResumeEvent");
+                NvEventQueueActivity.this.resumeEvent();
+                NvEventQueueActivity.this.ResumeEventDone = true;
+            }
+        }).start();
+    }
+
+    public void GetGLExtensions() {
+        if (!this.HasGLExtensions) {
+            GL11 gl11 = this.gl;
+            if (gl11 != null && this.cachedSurfaceHolder != null) {
+                this.glVendor = gl11.glGetString(7936);
+                this.glExtensions = this.gl.glGetString(7939);
+                this.glRenderer = this.gl.glGetString(7937);
+                this.glVersion = this.gl.glGetString(7938);
+                PrintStream printStream = System.out;
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("Vendor: ");
+                stringBuilder.append(this.glVendor);
+                printStream.println(stringBuilder.toString());
+                printStream = System.out;
+                stringBuilder = new StringBuilder();
+                stringBuilder.append("Extensions ");
+                stringBuilder.append(this.glExtensions);
+                printStream.println(stringBuilder.toString());
+                printStream = System.out;
+                stringBuilder = new StringBuilder();
+                stringBuilder.append("Renderer: ");
+                stringBuilder.append(this.glRenderer);
+                printStream.println(stringBuilder.toString());
+                printStream = System.out;
+                stringBuilder = new StringBuilder();
+                stringBuilder.append("GIVersion: ");
+                stringBuilder.append(this.glVersion);
+                printStream.println(stringBuilder.toString());
+                if (this.glVendor != null) {
+                    this.HasGLExtensions = true;
+                }
+            }
+        }
+    }
+
+    public SurfaceView GetSurfaceView() {
+        return this.mSurfaceView;
+    }
+
+    public boolean InitEGLAndGLES2(int i) {
+        PrintStream printStream;
+        String str;
+        System.out.println("lnitEGLAndGLES2");
+        if (this.cachedSurfaceHolder == null) {
+            printStream = System.out;
+            str = "InitEGLAndGLES2 failed, cachedSurfaceHoIder is null";
+        } else {
+            if (this.eglContext == null ? initEGL() : true) {
+                System.out.println("Should we create a surface?");
+                if (!this.viewIsActive) {
+                    System.out.println("Yes! Calling create surface");
+                    createEGLSurface(this.cachedSurfaceHolder);
+                    System.out.println("Done creating surface");
+                }
+                this.viewIsActive = true;
+                this.SwapBufferSkip = 1;
+                return true;
+            }
+            printStream = System.out;
+            str = "initEGlAndGLES2 failed, core EGL init failure";
+        }
+        printStream.println(str);
+        return false;
+    }
+
+    public void OnInputEnd(String str) {
+        byte[] bytes;
+        try {
+            bytes = str.getBytes("windows-1251");
+        } catch (UnsupportedEncodingException unused) {
+            bytes = null;
+        }
+        onInputEnd(bytes);
+    }
+
+    public native boolean accelerometerEvent(float f, float f2, float f3);
+
+    public void callLauncherActivity(int i) {
+        runOnUiThread(new d(i));
+    }
+
+    public native void cleanup();
+
+    protected void cleanupEGL() {
+        System.out.println("cleanupEGL");
+        destroyEGLSurface();
+        EGLDisplay eGLDisplay = this.eglDisplay;
+        if (eGLDisplay != null) {
+            EGL10 egl10 = this.egl;
+            EGLSurface eGLSurface = EGL10.EGL_NO_SURFACE;
+            egl10.eglMakeCurrent(eGLDisplay, eGLSurface, eGLSurface, EGL10.EGL_NO_CONTEXT);
+        }
+        EGLContext eGLContext = this.eglContext;
+        if (eGLContext != null) {
+            this.egl.eglDestroyContext(this.eglDisplay, eGLContext);
+        }
+        eGLDisplay = this.eglDisplay;
+        if (eGLDisplay != null) {
+            this.egl.eglTerminate(eGLDisplay);
+        }
+        this.eglDisplay = null;
+        this.eglContext = null;
+        this.eglSurface = null;
+        this.ranInit = false;
+        this.eglConfig = null;
+        this.cachedSurfaceHolder = null;
+        this.surfaceWidth = 0;
+        this.surfaceHeight = 0;
+    }
+
+    protected boolean createEGLSurface(SurfaceHolder surfaceHolder) {
+        this.eglSurface = this.egl.eglCreateWindowSurface(this.eglDisplay, this.eglConfig, surfaceHolder, null);
+        PrintStream printStream = System.out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("eglSurface: ");
+        stringBuilder.append(this.eglSurface);
+        stringBuilder.append(", err: ");
+        stringBuilder.append(this.egl.eglGetError());
+        printStream.println(stringBuilder.toString());
+        int[] iArr = new int[1];
+        this.egl.eglQuerySurface(this.eglDisplay, this.eglSurface, 12375, iArr);
+        this.surfaceWidth = iArr[0];
+        this.egl.eglQuerySurface(this.eglDisplay, this.eglSurface, 12374, iArr);
+        this.surfaceHeight = iArr[0];
+        System.out.println("checking glVendor == null?");
+        if (this.glVendor == null) {
+            System.out.println("Making current and back");
+            makeCurrent();
+            unMakeCurrent();
+        }
+        System.out.println("Done create EGL surface");
+        return true;
+    }
+
+    protected void destroyEGLSurface() {
+        System.out.println("*** destroyEGLSurface");
+        EGLDisplay eGLDisplay = this.eglDisplay;
+        if (!(eGLDisplay == null || this.eglSurface == null)) {
+            EGL10 egl10 = this.egl;
+            EGLSurface eGLSurface = EGL10.EGL_NO_SURFACE;
+            egl10.eglMakeCurrent(eGLDisplay, eGLSurface, eGLSurface, EGL10.EGL_NO_CONTEXT);
+        }
+        EGLSurface eGLSurface2 = this.eglSurface;
+        if (eGLSurface2 != null) {
+            this.egl.eglDestroySurface(this.eglDisplay, eGLSurface2);
+        }
+        this.eglSurface = null;
+    }
+
+    public byte[] getClipboardText()
+    {
+        String retn = " ";
+
+        if(mClipboardManager.getPrimaryClip() != null)
+        {
+            ClipData.Item item = mClipboardManager.getPrimaryClip().getItemAt(0);
+            if(item != null)
+            {
+                CharSequence sequence = item.getText();
+                if(sequence != null)
+                {
+                    retn = sequence.toString();
+                }
+            }
+        }
+
+        byte[] toReturn = null;
+        try
+        {
+            toReturn = retn.getBytes("windows-1251");
+        }
+        catch(UnsupportedEncodingException e)
+        {
+
+        }
+
+        return toReturn;
+    }
+
+    public int getOrientation() {
+        return this.display.getOrientation();
+    }
+
+    public boolean getSupportPauseResume() {
+        return true;
+    }
+
+    public int getSurfaceHeight() {
+        return this.surfaceHeight;
+    }
+
+    public int getSurfaceWidth() {
+        return this.surfaceWidth;
+    }
+
+    public void hideInputLayout()
     {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(mDialogClientSettings != null)
-                {
-                    mDialogClientSettings = null;
-                }
-                mDialogClientSettings = new DialogClientSettings();
-                mDialogClientSettings.show(getSupportFragmentManager(), "test");
+                mInputManager.HideInputLayout();
             }
         });
     }
 
-    public static int dpToPx(float f, Context context) {
-        return (int) TypedValue.applyDimension(1, f, context.getResources().getDisplayMetrics());
-    }
-
     public void hideSystemUI() {
-        // Enables regular immersive mode.
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-
-
-
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        getWindow().getDecorView().setSystemUiVisibility(7942);
     }
 
-    /**
-     * Helper class used to pass raw data around.  
-     */
-    public class RawData
-    {
-        /** The actual data bytes. */
-        public byte[] data;
-        /** The length of the data. */
-        public int length;
-    }
-    /**
-     * Helper class used to pass a raw texture around. 
-     */
-    public class RawTexture extends RawData
-    {
-        /** The width of the texture. */
-        public int width;
-        /** The height of the texture. */
-        public int height;
+    public native void imeClosed();
+
+    public native boolean init(boolean z);
+
+    protected boolean initEGL() {
+        int i = 1;
+        if (this.configAttrs == null) {
+            this.configAttrs = new int[]{12344};
+        }
+        int[] iArr = this.configAttrs;
+        this.configAttrs = new int[((iArr.length + 3) - 1)];
+        int i2 = 0;
+        while (i2 < iArr.length - 1) {
+            this.configAttrs[i2] = iArr[i2];
+            i2++;
+        }
+        int[] iArr2 = this.configAttrs;
+        int i3 = i2 + 1;
+        iArr2[i2] = EGL_RENDERABLE_TYPE;
+        i2 = i3 + 1;
+        iArr2[i3] = EGL_OPENGL_ES2_BIT;
+        iArr2[i2] = 12344;
+        this.contextAttrs = new int[]{EGL_CONTEXT_CLIENT_VERSION, 2, 12344};
+        if (iArr2 == null) {
+            this.configAttrs = new int[]{12344};
+        }
+        int[] iArr3 = this.configAttrs;
+        this.configAttrs = new int[((iArr3.length + 13) - 1)];
+        int i4 = 0;
+        while (i4 < iArr3.length - 1) {
+            this.configAttrs[i4] = iArr3[i4];
+            i4++;
+        }
+        iArr3 = this.configAttrs;
+        int i5 = i4 + 1;
+        i3 = 12324;
+        iArr3[i4] = 12324;
+        i4 = i5 + 1;
+        iArr3[i5] = this.redSize;
+        i5 = i4 + 1;
+        int i6 = 12323;
+        iArr3[i4] = 12323;
+        i4 = i5 + 1;
+        iArr3[i5] = this.greenSize;
+        i5 = i4 + 1;
+        iArr3[i4] = 12322;
+        i4 = i5 + 1;
+        iArr3[i5] = this.blueSize;
+        i5 = i4 + 1;
+        iArr3[i4] = 12321;
+        i4 = i5 + 1;
+        iArr3[i5] = this.alphaSize;
+        i5 = i4 + 1;
+        iArr3[i4] = 12326;
+        i4 = i5 + 1;
+        iArr3[i5] = this.stencilSize;
+        i5 = i4 + 1;
+        iArr3[i4] = 12325;
+        i4 = i5 + 1;
+        iArr3[i5] = this.depthSize;
+        iArr3[i4] = 12344;
+        EGL10 egl10 = (EGL10) EGLContext.getEGL();
+        this.egl = egl10;
+        egl10.eglGetError();
+        this.eglDisplay = this.egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
+        PrintStream printStream = System.out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("eglDisplay: ");
+        stringBuilder.append(this.eglDisplay);
+        stringBuilder.append(", errr: ");
+        stringBuilder.append(this.egl.eglGetError());
+        printStream.println(stringBuilder.toString());
+        boolean eglInitialize = this.egl.eglInitialize(this.eglDisplay, new int[2]);
+        PrintStream printStream2 = System.out;
+        StringBuilder stringBuilder2 = new StringBuilder();
+        stringBuilder2.append("EGLInitialize returned: ");
+        stringBuilder2.append(eglInitialize);
+        printStream2.println(stringBuilder2.toString());
+        if (!eglInitialize) {
+            return false;
+        }
+        int eglGetError = this.egl.eglGetError();
+        if (eglGetError != 12288) {
+            return false;
+        }
+        printStream2 = System.out;
+        stringBuilder2 = new StringBuilder();
+        stringBuilder2.append("eglInitialize err: ");
+        stringBuilder2.append(eglGetError);
+        printStream2.println(stringBuilder2.toString());
+        EGLConfig[] eGLConfigArr = new EGLConfig[20];
+        iArr3 = new int[1];
+        this.egl.eglChooseConfig(this.eglDisplay, this.configAttrs, eGLConfigArr, 20, iArr3);
+        PrintStream printStream3 = System.out;
+        StringBuilder stringBuilder3 = new StringBuilder();
+        stringBuilder3.append("eglChooseConfig err: ");
+        stringBuilder3.append(this.egl.eglGetError());
+        printStream3.println(stringBuilder3.toString());
+        i4 = 16777216;
+        iArr2 = new int[1];
+        int i7 = 0;
+        while (i7 < iArr3[0]) {
+            int i8;
+            Object obj;
+            int[] iArr4;
+            for (int i9 = 0; i9 < ((iArr.length - i) >> i); i9++) {
+                int i10 = i9 * 2;
+                this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], this.configAttrs[i10], iArr2);
+                i8 = iArr2[0];
+                int[] iArr5 = this.configAttrs;
+                i10++;
+                if ((i8 & iArr5[i10]) != iArr5[i10]) {
+                    obj = null;
+                    break;
+                }
+            }
+            obj = 1;
+            if (obj == null) {
+                iArr4 = iArr;
+            } else {
+                this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], i3, iArr2);
+                i8 = iArr2[0];
+                this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], i6, iArr2);
+                int i11 = iArr2[0];
+                this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], 12322, iArr2);
+                int i12 = iArr2[0];
+                this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], 12321, iArr2);
+                i3 = iArr2[0];
+                this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], 12325, iArr2);
+                i6 = iArr2[0];
+                iArr4 = iArr;
+                this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], 12326, iArr2);
+                i = iArr2[0];
+                PrintStream printStream4 = System.out;
+                StringBuilder stringBuilder4 = new StringBuilder();
+                stringBuilder4.append(">>> EGL Config [");
+                stringBuilder4.append(i7);
+                stringBuilder4.append("] R");
+                stringBuilder4.append(i8);
+                stringBuilder4.append("G");
+                stringBuilder4.append(i11);
+                stringBuilder4.append("B");
+                stringBuilder4.append(i12);
+                stringBuilder4.append("A");
+                stringBuilder4.append(i3);
+                stringBuilder4.append(" D");
+                stringBuilder4.append(i6);
+                stringBuilder4.append("S");
+                stringBuilder4.append(i);
+                printStream4.println(stringBuilder4.toString());
+                int abs = (((((Math.abs(i8 - this.redSize) + Math.abs(i11 - this.greenSize)) + Math.abs(i12 - this.blueSize)) + Math.abs(i3 - this.alphaSize)) << 16) + (Math.abs(i6 - this.depthSize) << 8)) + Math.abs(i - this.stencilSize);
+                if (abs < i4) {
+                    System.out.println("--------------------------");
+                    PrintStream printStream5 = System.out;
+                    stringBuilder2 = new StringBuilder();
+                    stringBuilder2.append("New config chosen: ");
+                    stringBuilder2.append(i7);
+                    printStream5.println(stringBuilder2.toString());
+                    i = 0;
+                    while (true) {
+                        int[] iArr6 = this.configAttrs;
+                        if (i >= ((iArr6.length - 1) >> 1)) {
+                            break;
+                        }
+                        i12 = i * 2;
+                        this.egl.eglGetConfigAttrib(this.eglDisplay, eGLConfigArr[i7], iArr6[i12], iArr2);
+                        if (iArr2[0] >= this.configAttrs[i12 + 1]) {
+                            printStream3 = System.out;
+                            StringBuilder stringBuilder5 = new StringBuilder();
+                            stringBuilder5.append("setting ");
+                            stringBuilder5.append(i);
+                            stringBuilder5.append(", matches: ");
+                            stringBuilder5.append(iArr2[0]);
+                            printStream3.println(stringBuilder5.toString());
+                        }
+                        i++;
+                    }
+                    this.eglConfig = eGLConfigArr[i7];
+                    i4 = abs;
+                }
+            }
+            i7++;
+            iArr = iArr4;
+            i = 1;
+            i3 = 12324;
+            i6 = 12323;
+        }
+        this.eglContext = this.egl.eglCreateContext(this.eglDisplay, this.eglConfig, EGL10.EGL_NO_CONTEXT, this.contextAttrs);
+        PrintStream printStream6 = System.out;
+        StringBuilder stringBuilder6 = new StringBuilder();
+        stringBuilder6.append("eglCreateContext: ");
+        stringBuilder6.append(this.egl.eglGetError());
+        printStream6.println(stringBuilder6.toString());
+        this.gl = (GL11) this.eglContext.getGL();
+        return true;
     }
 
-    /**
-     * Helper function to load a file into a {@link NvEventQueueActivity.RawData} object.
-     * It'll first try loading the file from "/data/" and if the file doesn't
-     * exist there, it'll try loading it from the assets directory inside the
-     * .APK file. This is to allow the files inside the apk to be overridden
-     * or not be part of the .APK at all during the development phase of the
-     * application, decreasing the size needed to be transmitted to the device
-     * between changes to the code.
-     * 
-     * @param filename The file to load.
-     * @return The RawData object representing the file's fully loaded data,
-     * or null if loading failed. 
-     */
+    public void initGame() {
+        if (!this.waitForPermissions) {
+            systemInit();
+        }
+    }
+
+    public native void jniNvAPKInit(Object obj);
+
+    public native boolean keyEvent(int i, int i2, int i3, int i4, KeyEvent keyEvent);
+
+    /*  JADX ERROR: NullPointerException in pass: e
+        java.lang.NullPointerException: Attempt to invoke virtual method 'boolean jadx.core.c.d.a.a(jadx.core.c.a.b)' on a null object reference
+        	at jadx.core.c.g.a.e.a(BlockSplitter.java:246)
+        	at jadx.core.c.g.a.e.a(BlockSplitter.java:229)
+        	at jadx.core.c.g.a.e.d(BlockSplitter.java:119)
+        	at jadx.core.c.g.a.e.a(BlockSplitter.java:49)
+        	at jadx.core.c.g.g.a(DepthTraversal.java:29)
+        	at jadx.core.c.g.g.a(DepthTraversal.java:16)
+        	at jadx.core.b.a(ProcessClass.java:32)
+        	at jadx.a.d.a(JadxDecompiler.java:300)
+        	at jadx.a.e.b(JavaClass.java:63)
+        */
     public RawData loadFile(String filename)
     {
         InputStream is = null;
@@ -257,22 +715,18 @@ public abstract class NvEventQueueActivity extends FragmentActivity implements S
         return ret;
     }
 
-    /**
-     * Helper function to load a texture file into a {@link NvEventQueueActivity.RawTexture} object.
-     * It'll first try loading the texture from "/data/" and if the file doesn't
-     * exist there, it'll try loading it from the assets directory inside the
-     * .APK file. This is to allow the files inside the apk to be overridden
-     * or not be part of the .APK at all during the development phase of the
-     * application, decreasing the size needed to be transmitted to the device
-     * between changes to the code.
-     * 
-     * The texture data will be flipped and bit-twiddled to fit being loaded directly
-     * into OpenGL ES via the glTexImage2D call.
-     * 
-     * @param filename The file to load.
-     * @return The RawTexture object representing the texture's fully loaded data,
-     * or null if loading failed. 
-     */
+    /*  JADX ERROR: NullPointerException in pass: e
+        java.lang.NullPointerException: Attempt to invoke virtual method 'boolean jadx.core.c.d.a.a(jadx.core.c.a.b)' on a null object reference
+        	at jadx.core.c.g.a.e.a(BlockSplitter.java:246)
+        	at jadx.core.c.g.a.e.a(BlockSplitter.java:229)
+        	at jadx.core.c.g.a.e.d(BlockSplitter.java:119)
+        	at jadx.core.c.g.a.e.a(BlockSplitter.java:49)
+        	at jadx.core.c.g.g.a(DepthTraversal.java:29)
+        	at jadx.core.c.g.g.a(DepthTraversal.java:16)
+        	at jadx.core.b.a(ProcessClass.java:32)
+        	at jadx.a.d.a(JadxDecompiler.java:300)
+        	at jadx.a.e.b(JavaClass.java:63)
+        */
     public RawTexture loadTexture(String filename)
     {
         RawTexture ret = new RawTexture();
@@ -333,855 +787,390 @@ public abstract class NvEventQueueActivity extends FragmentActivity implements S
         }
         return ret;
     }
-    
-    /**
-     * Function called when app requests accelerometer events.
-     * Applications need/should NOT overide this function - it will provide
-     * accelerometer events into the event queue that is accessible
-     * via the calls in nv_event.h
-     * 
-     * @param values0: values[0] passed to onSensorChanged(). For accelerometer: Acceleration minus Gx on the x-axis.
-     * @param values1: values[1] passed to onSensorChanged(). For accelerometer: Acceleration minus Gy on the y-axis.
-     * @param values2: values[2] passed to onSensorChanged(). For accelerometer: Acceleration minus Gz on the z-axis.
-     * @return True if the event was handled.
-     */
-    public native boolean accelerometerEvent(float values0, float values1, float values2);
-    
-    /**
-     * The following indented function implementations are defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-		public native void cleanup();
-		public native boolean init(boolean z);
-		public native void setWindowSize(int w, int h);
-		public native void quitAndWait();
-		public native void postCleanup();
 
-        public native void imeClosed();
+    public native void lowMemoryEvent();
 
-        public native void lowMemoryEvent(); // TODO: implement this
-        public native boolean processTouchpadAsPointer(ViewParent viewParent, boolean z);
-        public native void notifyChange(String str, int i);
-        public native void changeConnection(boolean z);
+    public void mSleep(long j) {
+        try {
+            Thread.sleep(j);
+        } catch (InterruptedException unused) {
+        }
+    }
 
-		public native void pauseEvent();
-		public native void resumeEvent();
-		public native boolean touchEvent(int action, int x, int y, MotionEvent event);
-		public native boolean multiTouchEvent(int action, int count, 
-			int x0, int y0, int x1, int y1, MotionEvent event);
-		public native boolean keyEvent(int action, int keycode, int unicodeChar, int metaState, KeyEvent event);
+    public boolean makeCurrent() {
+        PrintStream printStream;
+        String str;
+        EGLContext eGLContext = this.eglContext;
+        if (eGLContext == null) {
+            printStream = System.out;
+            str = "eglContext is NULL";
+        } else {
+            EGLSurface eGLSurface = this.eglSurface;
+            if (eGLSurface == null) {
+                printStream = System.out;
+                str = "eglSurface is NULL";
+            } else {
+                if (!this.egl.eglMakeCurrent(this.eglDisplay, eGLSurface, eGLSurface, eGLContext)) {
+                    EGL10 egl10 = this.egl;
+                    EGLDisplay eGLDisplay = this.eglDisplay;
+                    EGLSurface eGLSurface2 = this.eglSurface;
+                    if (!egl10.eglMakeCurrent(eGLDisplay, eGLSurface2, eGLSurface2, this.eglContext)) {
+                        printStream = System.out;
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("eglMakeCurrent err: ");
+                        stringBuilder.append(this.egl.eglGetError());
+                        str = stringBuilder.toString();
+                    }
+                }
+                GetGLExtensions();
+                return true;
+            }
+        }
+        printStream.println(str);
+        return false;
+    }
+
+    public native boolean multiTouchEvent(int i, int i2, int i3, int i4, int i5, int i6, MotionEvent motionEvent);
 
     public native boolean multiTouchEvent4(int i, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, MotionEvent motionEvent);
 
-	/**
-	 * END indented block, see in comment at top of block
-	 */
+    public void onAccuracyChanged(Sensor sensor, int i) {
+    }
 
-    /**
-     * Declaration for function defined in nv_time/nv_time.cpp
-     * It initializes and returns time through Nvidia's egl extension for time.
-     * It is useful while debugging the demo using PerfHUD.
-     * 
-     * @see: nv_time/nv_time.cpp for implementation details.
-     */
-    public native void nvAcquireTimeExtension();
-    public native long nvGetSystemTime();
+    public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+    }
 
-    @SuppressLint("SuspiciousIndentation")
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle bundle) {
         System.out.println("**** onCreate");
-        super.onCreate(savedInstanceState);
-
-		if(supportPauseResume)
-		{
-		    System.out.println("Calling init(false)");
-            init(false);
+        super.onCreate(bundle);
+        this.handler = new Handler();
+        if (this.wantsAccelerometer && this.mSensorManager == null) {
+            this.mSensorManager = (SensorManager) getSystemService("sensor");
         }
-        handler = new Handler();
-//        if(wantsAccelerometer && (mSensorManager == null)) {
-//            mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//        }
-
-        mClipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-
+        this.mClipboardManager = (ClipboardManager) getSystemService("clipboard");
         NvUtil.getInstance().setActivity(this);
         NvAPKFileHelper.getInstance().setContext(this);
-
-        display = ((WindowManager)this.getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-
-        systemInit();
-
+        new NvAPKFile().is = null;
+        try {
+            AssetManager assets = getAssets();
+            this.assetMgr = assets;
+            jniNvAPKInit(assets);
+        } catch (UnsatisfiedLinkError unused) {
+        }
+        this.display = ((WindowManager) getSystemService("window")).getDefaultDisplay();
+        getWindow().addFlags(1024);
+        setRequestedOrientation(6);
+        initGame();
         hideSystemUI();
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int i) {
+                if ((i & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    hideSystemUI();
+                } else {
+                    // TODO: The system bars are NOT visible. Make any desired
+                    // adjustments to your UI, such as hiding the action bar or
+                    // other navigational controls.
+                }
 
-        //((TextView)findViewById(R.id.main_version_text)).setText(BuildConfig.VERSION_NAME);
-
+            }
+        });
+        processCutout();
     }
 
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+    public void onDestroy() {
+        System.out.println("**** onDestroy");
+        HeightProvider heightProvider = this.mHeightProvider;
+        if (heightProvider != null) {
+            heightProvider.dismiss();
+        }
+        quitAndWait();
+        finish();
+        super.onDestroy();
+        systemCleanup();
     }
 
-    public void onWindowFocusChanged(boolean hasFocus) {
-
-        super.onWindowFocusChanged(hasFocus);
-
-        hideSystemUI();
+    public void onHeightChanged(int i, int i2) {
+        InputManager inputManager = this.mInputManager;
+        if (inputManager != null) {
+            inputManager.onHeightChanged(i2);
+        }
     }
 
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-    @Override
-    public void onResume() {
-        Log.d("NvEvent", "NvEvent onResume");
-//        if (this.mSensorManager != null) {
-//            this.mSensorManager.registerListener(this, this.mSensorManager.getDefaultSensor(1), this.mSensorDelay);
-//        }
-
-        super.onResume();
-        this.paused = false;
-
+    public boolean onKeyDown(int i, KeyEvent keyEvent) {
+        if (i != 24) {
+            if (i != 25) {
+                boolean z = false;
+                if (!(i == 89 || i == 85)) {
+                    if (i != 90) {
+                        if (!(i == 82 || i == EGL_OPENGL_ES2_BIT)) {
+                            z = super.onKeyDown(i, keyEvent);
+                        }
+                        if (!z) {
+                            z = keyEvent(keyEvent.getAction(), i, keyEvent.getUnicodeChar(), keyEvent.getMetaState(), keyEvent);
+                        }
+                    }
+                }
+                return z;
+            }
+        }
+        return super.onKeyDown(i, keyEvent);
     }
 
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-    @Override
-    public void onRestart() {
-        Log.d("NvEvent", "NvEvent onRestart");
-
-        super.onRestart();
+    public boolean onKeyUp(int i, KeyEvent keyEvent) {
+        if (i == 115 && VERSION.SDK_INT >= 11) {
+            keyEvent(keyEvent.isCapsLockOn() ? 3 : EGL_OPENGL_ES2_BIT, 115, 0, 0, keyEvent);
+        }
+        if (!(i == 89 || i == 85)) {
+            if (i != 90) {
+                boolean onKeyUp = super.onKeyUp(i, keyEvent);
+                if (onKeyUp) {
+                    return onKeyUp;
+                }
+                return keyEvent(keyEvent.getAction(), i, keyEvent.getUnicodeChar(), keyEvent.getMetaState(), keyEvent);
+            }
+        }
+        return false;
     }
-    
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-    public void onPause() {
-        Log.d("NvEvent", "**** onPause");
+
+    protected void onPause() {
+        System.out.println("**** onPause");
         super.onPause();
         this.paused = true;
         if (this.ResumeEventDone) {
-            Log.d("NvEvent", "java is invoking pauseEvent(), this will block until\nthe client calls NVEventPauseProcessed");
+            System.out.println("java is invoking pauseEvent(), this will block until\nthe client calls NVEventPauseProcessed");
             pauseEvent();
-            Log.d("NvEvent", "pauseEvent() returned");
+            System.out.println("pauseEvent() returned");
         }
     }
-    
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-	@Override
-    public void onStop() {
-        Log.d("NvEvent", "NvEvent onStop");
-//        if (this.mSensorManager != null) {
-//            this.mSensorManager.unregisterListener(this);
-//        }
 
+    protected void onRestart() {
+        System.out.println("**** onRestart");
+        super.onRestart();
+    }
+
+    protected void onResume() {
+        System.out.println("**** onResume");
+        super.onResume();
+        SensorManager sensorManager = this.mSensorManager;
+        if (sensorManager != null) {
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(1), this.mSensorDelay);
+        }
+        this.paused = false;
+        HeightProvider heightProvider = this.mHeightProvider;
+        if (heightProvider != null) {
+            heightProvider.init(this.mRootFrame);
+        }
+        if (this.viewIsActive && this.ResumeEventDone) {
+            resumeEvent();
+            SurfaceHolder surfaceHolder = this.cachedSurfaceHolder;
+            if (surfaceHolder != null) {
+                surfaceHolder.setKeepScreenOn(true);
+            }
+        }
+    }
+
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor.getType() == 1) {
+            float f;
+            int rotation = this.display.getRotation();
+            float f2 = 0.0f;
+            float[] fArr;
+            if (rotation == 0) {
+                fArr = sensorEvent.values;
+                f2 = -fArr[0];
+                f = fArr[1];
+            } else if (rotation == 1) {
+                fArr = sensorEvent.values;
+                f2 = fArr[1];
+                f = fArr[0];
+            } else if (rotation == 2) {
+                fArr = sensorEvent.values;
+                f2 = fArr[0];
+                f = fArr[1];
+            } else if (rotation != 3) {
+                f = 0.0f;
+            } else {
+                fArr = sensorEvent.values;
+                f2 = -fArr[1];
+                f = fArr[0];
+            }
+            accelerometerEvent(f2, f, sensorEvent.values[2]);
+        }
+    }
+
+    protected void onStop() {
+        System.out.println("**** onStop");
+        SensorManager sensorManager = this.mSensorManager;
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
         super.onStop();
     }
 
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application should *probably* not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-	 *
-	 * NOTE: An application may need to override this if the app has an
-	 *       in-process instance of the Service class and the native side wants to
-	 *       keep running. The app would want to execute the content of the
-	 *       if(supportPauseResume) clause when it is time to exit.
-     */
-    @Override
-    public void onDestroy() {
-        Log.d("NvEvent", "NvEvent onDestroy");
-//        if (this.supportPauseResume) {
-//            quitAndWait();
-//            finish();
-//        }
-        finishAndRemoveTask();
-        super.onDestroy();
-        systemCleanup();
-        //systemCleanup();
-    }
-
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-
-    public void mSleep(long milis) {
-        try {
-            Thread.sleep(milis);
-        } catch (InterruptedException e) {
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        MotionEvent motionEvent2 = motionEvent;
+        int i = 0;
+        if (view != this.mRootFrame) {
+            return false;
         }
-    }
-
-    public void DoResumeEvent() {
-        if (!this.waitingForResume) {
-            new Thread(new Runnable() {
-                public void run() {
-                    NvEventQueueActivity.this.waitingForResume = true;
-                    while (NvEventQueueActivity.this.cachedSurfaceHolder == null) {
-                        NvEventQueueActivity.this.mSleep(1000);
-                    }
-                    NvEventQueueActivity.this.waitingForResume = false;
-                    NvEventQueueActivity.this.resumeEvent();
-                    NvEventQueueActivity.this.ResumeEventDone = true;
-                }
-            }).start();
+        if (!this.wantsMultitouch) {
+            return touchEvent(motionEvent.getAction(), (int) motionEvent.getX(), (int) motionEvent.getY(), motionEvent2);
         }
-    }
-
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// Auto-generated method stub
-	}
-
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-	public void onSensorChanged(SensorEvent event) {
-		// Auto-generated method stub
-//		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-//        {
-//            float roll = 0.0f;
-//            float pitch = 0.0f;
-//            switch (this.display.getRotation()) {
-//                case 0:
-//                    roll = -event.values[0];
-//                    pitch = event.values[1];
-//                    break;
-//                case 1:
-//                    roll = event.values[1];
-//                    pitch = event.values[0];
-//                    break;
-//                case 2:
-//                    roll = event.values[0];
-//                    pitch = event.values[1];
-//                    break;
-//                case 3:
-//                    roll = -event.values[1];
-//                    pitch = event.values[0];
-//                    break;
-//            }
-//            accelerometerEvent(roll, pitch, event.values[2]);
-//        }
-	}
-    
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean ret = super.onTouchEvent(event);
-
-        if (!ret) {
-            if (this.wantsMultitouch) {
-                int count = 0;
-                int x1 = 0;
-                int y1 = 0;
-                int x2 = 0;
-                int y2 = 0;
-                int x3 = 0;
-                int y3 = 0;
-                int x4 = 0;
-                int y4 = 0;
-                int numEvents = event.getPointerCount();
-                for (int i = 0; i < numEvents; i++) {
-                    if (count == 0) {
-                        x1 = (int) event.getX(i);
-                        y1 = (int) event.getY(i);
-                        count++;
-                    } else if (count == 1) {
-                        x2 = (int) event.getX(i);
-                        y2 = (int) event.getY(i);
-                        count++;
-                    }
+        int pointerCount = motionEvent.getPointerCount();
+        int i2 = 0;
+        int i3 = 0;
+        int i4 = 0;
+        int i5 = 0;
+        int i6 = 0;
+        int i7 = 0;
+        int i8 = 0;
+        int i9 = 0;
+        int i10 = 0;
+        while (i < pointerCount) {
+            if (i2 == 0) {
+                i3 = (int) motionEvent2.getX(i);
+                i4 = (int) motionEvent2.getY(i);
+            } else if (i2 == 1) {
+                i5 = (int) motionEvent2.getX(i);
+                i6 = (int) motionEvent2.getY(i);
+            } else if (this.Use2Touches || i2 != 2) {
+                if (!this.Use2Touches && i2 == 3) {
+                    i9 = (int) motionEvent2.getX(i);
+                    i10 = (int) motionEvent2.getY(i);
                 }
-                ret = multiTouchEvent(event.getAction(), count, x1, y1, x2, y2, event);
+                i++;
             } else {
-                ret = touchEvent(event.getAction(), (int) event.getX(), (int) event.getY(), event);
+                i7 = (int) motionEvent2.getX(i);
+                i8 = (int) motionEvent2.getY(i);
             }
+            i2++;
+            i++;
         }
-
-        return ret;
+        boolean z = this.Use2Touches;
+        i = motionEvent.getAction();
+        return z ? multiTouchEvent(i, i2, i3, i4, i5, i6, motionEvent) : multiTouchEvent4(i, i2, i3, i4, i5, i6, i7, i8, i9, i10, motionEvent);
     }
 
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        return super.onTouchEvent(motionEvent);
+    }
+
+    public void onWindowFocusChanged(boolean z) {
+        if (this.ResumeEventDone && this.viewIsActive && !this.paused) {
+            if (this.GameIsFocused && !z) {
+                InputManager inputManager = this.mInputManager;
+                if (inputManager == null || !inputManager.IsShowing()) {
+                    pauseEvent();
+                }
+            } else if (!this.GameIsFocused && z) {
+                resumeEvent();
+            }
+            this.GameIsFocused = z;
+        }
+        super.onWindowFocusChanged(z);
+        if (z) {
+            hideSystemUI();
+        }
+    }
+
+    public native void pauseEvent();
+
+    public native void quitAndWait();
+
+    public native void resumeEvent();
+
+    public void setFixedSize(int i, int i2) {
+        this.fixedWidth = i;
+        this.fixedHeight = i2;
+    }
+
+    public void setUseFullscreen(int i) {
+        this.mUseFullscreen = i;
+    }
+
+    public native void setWindowSize(int i, int i2);
+
+    public void showInputLayout()
     {
-        boolean ret = false;
-
-        if (keyCode == 24 || keyCode == 25) {
-            return super.onKeyDown(keyCode, event);
-        }
-        if (keyCode == 89 || keyCode == 85 || keyCode == 90) {
-            return false;
-        }
-        if (!(keyCode == 82 || keyCode == 4)) {
-            ret = super.onKeyDown(keyCode, event);
-        }
-        if (!ret) {
-            ret = keyEvent(event.getAction(), keyCode, event.getUnicodeChar(), event.getMetaState(), event);
-        }
-        return ret;
-    }
- 
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event)
-    {
-        if (keyCode == 115 && Build.VERSION.SDK_INT >= 11)
-        {
-            boolean capsLockOn = event.isCapsLockOn();
-            keyEvent(capsLockOn ? 3 : 4, 115, 0, 0, event);
-        }
-        if (keyCode == 89 || keyCode == 85 || keyCode == 90)
-        {
-            return false;
-        }
-        boolean onKeyUp = super.onKeyUp(keyCode, event);
-        if (onKeyUp)
-        {
-            return onKeyUp;
-        }
-        return keyEvent(event.getAction(), keyCode, event.getUnicodeChar(), event.getMetaState(), event);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mInputManager.ShowInputLayout();
+            }
+        });
     }
 
-    public boolean InitEGLAndGLES2(int EGLVersion) {
-        System.out.println("InitEGLAndGLES2");
-        if (this.cachedSurfaceHolder == null) {
-            System.out.println("InitEGLAndGLES2 failed, cachedSurfaceHolder is null");
-            return false;
-        }
-        boolean eglInitialized = true;
-        if (this.eglContext == null) {
-            eglInitialized = false;
-            if (EGLVersion >= 3) {
-                try {
-                    eglInitialized = initEGL(3, 24);
-                } catch (Exception e) {
-                }
-                System.out.println("initEGL 3 " + eglInitialized);
-            }
-            if (!eglInitialized) {
-                this.configAttrs = null;
-                try {
-                    eglInitialized = initEGL(2, 16);
-                } catch (Exception e2) {
-                }
-                System.out.println("initEGL 2 " + eglInitialized);
-                if (!eglInitialized) {
-                    eglInitialized = initEGL(2, 16);
-                    System.out.println("initEGL 2 " + eglInitialized);
-                }
-            }
-        }
-        if (eglInitialized) {
-            System.out.println("Should we create a surface?");
-            if (!this.viewIsActive) {
-                System.out.println("Yes! Calling create surface");
-                createEGLSurface(this.cachedSurfaceHolder);
-                System.out.println("Done creating surface");
-            }
-            this.viewIsActive = true;
-            this.SwapBufferSkip = 1;
+    public boolean swapBuffers() {
+        int i = this.SwapBufferSkip;
+        if (i > 0) {
+            this.SwapBufferSkip = i - 1;
+            System.out.println("swapBuffer wait");
             return true;
         }
-        System.out.println("initEGLAndGLES2 failed, core EGL init failure");
+        PrintStream printStream;
+        String str;
+        EGLSurface eGLSurface = this.eglSurface;
+        if (eGLSurface == null) {
+            printStream = System.out;
+            str = "eglSurface is NULL";
+        } else if (this.egl.eglSwapBuffers(this.eglDisplay, eGLSurface)) {
+            return true;
+        } else {
+            printStream = System.out;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("eglSwapBufferrr: ");
+            stringBuilder.append(this.egl.eglGetError());
+            str = stringBuilder.toString();
+        }
+        printStream.println(str);
         return false;
     }
-		
-    /**
-     * Implementation function: defined in libnvevent.a
-     * The application does not and should not overide this; nv_event handles this internally
-     * And remaps as needed into the native calls exposed by nv_event.h
-     */
 
-    public boolean systemInit()
-    {
-        final NvEventQueueActivity act = this;
+    protected void systemCleanup() {
+        if (this.ranInit) {
+            cleanup();
+        }
+        cleanupEGL();
+    }
 
-        Log.d("NvEvent", "ln systemInit");
+    protected boolean systemInit() {
+        System.out.println("ln systemInit");
+        System.out.println("Calling init(false)");
+        this.bInitDone = init(false);
+        System.out.println("Called");
         setContentView(R.layout.main_render_screen);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.main_sv);
         this.mSurfaceView = surfaceView;
-        this.mRootFrame = findViewById(R.id.main_fl_root);
+        this.mRootFrame = (FrameLayout) findViewById(R.id.main_fl_root);
         SurfaceHolder holder = surfaceView.getHolder();
         holder.setType(2);
         holder.setKeepScreenOn(true);
         surfaceView.setFocusable(true);
         surfaceView.setFocusableInTouchMode(true);
-
-        getWindow().setSustainedPerformanceMode(true);
-
+        this.mRootFrame.setOnTouchListener(this);
+        this.mInputManager = new InputManager(this);
+        this.mHeightProvider = new HeightProvider(this).init(this.mRootFrame).setHeightListener(this);
         DoResumeEvent();
-        holder.addCallback(new SurfaceHolder.Callback() {
-            public void surfaceCreated(SurfaceHolder holder) {
-                boolean firstRun = NvEventQueueActivity.this.cachedSurfaceHolder == null;
-                NvEventQueueActivity.this.cachedSurfaceHolder = holder;
-                if (!firstRun && NvEventQueueActivity.this.ResumeEventDone) {
-                    NvEventQueueActivity.this.resumeEvent();
-                }
-                boolean unused = NvEventQueueActivity.this.ranInit = true;
-                if (NvEventQueueActivity.this.supportPauseResume || !NvEventQueueActivity.this.init(false)) {
-                }
-                System.out.println("surfaceCreated: w:" + NvEventQueueActivity.this.surfaceWidth + ", h:" + NvEventQueueActivity.this.surfaceHeight);
-                NvEventQueueActivity.this.setWindowSize(NvEventQueueActivity.this.surfaceWidth, NvEventQueueActivity.this.surfaceHeight);
-
-                if (firstRun) {
-                   // NvEventQueueActivity.this.GamepadReportSurfaceCreated(holder);
-                }
-            }
-
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                System.out.println("Surface changed: " + width + ", " + height);
-                NvEventQueueActivity.this.surfaceWidth = width;
-                NvEventQueueActivity.this.surfaceHeight = height;
-                NvEventQueueActivity.this.setWindowSize(NvEventQueueActivity.this.surfaceWidth, NvEventQueueActivity.this.surfaceHeight);
-                NvEventQueueActivity.this.hideSystemUI();
-            }
-
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                NvEventQueueActivity.this.pauseEvent();
-                NvEventQueueActivity.this.destroyEGLSurface();
-                NvEventQueueActivity.this.viewIsActive = false;
-            }
-        });
+        holder.addCallback(new c(this));
         return true;
     }
 
+    public native boolean touchEvent(int i, int i2, int i3, MotionEvent motionEvent);
 
-    /** The number of bits requested for the red component */
-    protected int redSize     = 5;
-    /** The number of bits requested for the green component */
-    protected int greenSize   = 6;
-    /** The number of bits requested for the blue component */
-    protected int blueSize    = 5;
-    /** The number of bits requested for the alpha component */
-    protected int alphaSize   = 0;
-    /** The number of bits requested for the stencil component */
-    protected int stencilSize = 0;
-    /** The number of bits requested for the depth component */
-    protected int depthSize   = 16;
-
-    /** Attributes used when selecting the EGLConfig */
-    protected int[] configAttrs = null;
-    /** Attributes used when creating the context */
-    protected int[] contextAttrs = null;
-
-    /**
-     * Called to initialize EGL. This function should not be called by the inheriting
-     * activity, but can be overridden if needed.
-     * 
-     * @return True if successful
-     */
-    public boolean initEGL(int esVersion, int depthBits) {
-        int i;
-        int eglErr;
-        if (esVersion > 2 && Build.VERSION.SDK_INT < 21) {
-            return false;
-        }
-        if (this.configAttrs == null) {
-            this.configAttrs = new int[]{12344};
-        }
-        int[] oldConf = this.configAttrs;
-        this.configAttrs = new int[((oldConf.length + 3) - 1)];
-        int i2 = 0;
-        while (i2 < oldConf.length - 1) {
-            this.configAttrs[i2] = oldConf[i2];
-            i2++;
-        }
-        int i3 = i2 + 1;
-        this.configAttrs[i2] = EGL_RENDERABLE_TYPE;
-        if (esVersion == 3) {
-            i = i3 + 1;
-            this.configAttrs[i3] = EGL_OPENGL_ES3_BIT;
-        } else {
-            i = i3 + 1;
-            this.configAttrs[i3] = 4;
-        }
-        int i4 = i + 1;
-        this.configAttrs[i] = 12344;
-        this.contextAttrs = new int[]{EGL_CONTEXT_CLIENT_VERSION, esVersion, 12344};
-        if (this.configAttrs == null) {
-            this.configAttrs = new int[]{12344};
-        }
-        int[] oldConfES2 = this.configAttrs;
-        this.configAttrs = new int[((oldConfES2.length + 13) - 1)];
-        int i5 = 0;
-        while (i5 < oldConfES2.length - 1) {
-            this.configAttrs[i5] = oldConfES2[i5];
-            i5++;
-        }
-        int i6 = i5 + 1;
-        this.configAttrs[i5] = 12324;
-        int i7 = i6 + 1;
-        this.configAttrs[i6] = this.redSize;
-        int i8 = i7 + 1;
-        this.configAttrs[i7] = 12323;
-        int i9 = i8 + 1;
-        this.configAttrs[i8] = this.greenSize;
-        int i10 = i9 + 1;
-        this.configAttrs[i9] = 12322;
-        int i11 = i10 + 1;
-        this.configAttrs[i10] = this.blueSize;
-        int i12 = i11 + 1;
-        this.configAttrs[i11] = 12321;
-        int i13 = i12 + 1;
-        this.configAttrs[i12] = this.alphaSize;
-        int i14 = i13 + 1;
-        this.configAttrs[i13] = 12326;
-        int i15 = i14 + 1;
-        this.configAttrs[i14] = this.stencilSize;
-        int i16 = i15 + 1;
-        this.configAttrs[i15] = 12325;
-        int i17 = i16 + 1;
-        this.configAttrs[i16] = depthBits;
-        int i18 = i17 + 1;
-        this.configAttrs[i17] = 12344;
-        this.egl = (EGL10) EGLContext.getEGL();
-        this.egl.eglGetError();
-        this.eglDisplay = this.egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
-        System.out.println("eglDisplay: " + this.eglDisplay + ", err: " + this.egl.eglGetError());
-        boolean ret = this.egl.eglInitialize(this.eglDisplay, new int[2]);
-        System.out.println("EglInitialize returned: " + ret);
-        if (!ret || (eglErr = this.egl.eglGetError()) != 12288) {
-            return false;
-        }
-        System.out.println("eglInitialize err: " + eglErr);
-        EGLConfig[] config = new EGLConfig[20];
-        int[] num_configs = new int[1];
-        this.egl.eglChooseConfig(this.eglDisplay, this.configAttrs, config, config.length, num_configs);
-        System.out.println("eglChooseConfig err: " + this.egl.eglGetError());
-        System.out.println("num_configs " + num_configs[0]);
-        int score = 16777216;
-        int[] val = new int[1];
-        for (int i19 = 0; i19 < num_configs[0]; i19++) {
-            boolean cont = true;
-            int j = 0;
-            while (true) {
-                if (j >= ((oldConfES2.length - 1) >> 1)) {
-                    break;
-                }
-                this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], this.configAttrs[j * 2], val);
-                if ((val[0] & this.configAttrs[(j * 2) + 1]) != this.configAttrs[(j * 2) + 1]) {
-                    cont = false;
-                    break;
-                }
-                j++;
-            }
-            if (cont) {
-                this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], 12324, val);
-                int r = val[0];
-                this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], 12323, val);
-                int g = val[0];
-                this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], 12322, val);
-                int b = val[0];
-                this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], 12321, val);
-                int a = val[0];
-                this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], 12325, val);
-                int d = val[0];
-                this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], 12326, val);
-                int currScore = ((((Math.abs(r - this.redSize) + Math.abs(g - this.greenSize)) + Math.abs(b - this.blueSize)) + Math.abs(a - this.alphaSize)) << 16) + (Math.abs(d - depthBits) << 8) + Math.abs(val[0] - this.stencilSize);
-                if (currScore < score) {
-                    for (int j2 = 0; j2 < ((this.configAttrs.length - 1) >> 1); j2++) {
-                        this.egl.eglGetConfigAttrib(this.eglDisplay, config[i19], this.configAttrs[j2 * 2], val);
-                    }
-                    score = currScore;
-                    this.eglConfig = config[i19];
-                }
-            }
-        }
-        if (this.eglConfig == null) {
-            this.configAttrs = null;
-            return false;
-        }
-        this.eglContext = this.egl.eglCreateContext(this.eglDisplay, this.eglConfig, EGL10.EGL_NO_CONTEXT, this.contextAttrs);
-        System.out.println("eglCreateContext: " + this.egl.eglGetError());
-        this.gl = (GL11) this.eglContext.getGL();
-        return true;
-    }
-
-    /**
-     * Called to create the EGLSurface to be used for rendering. This function should not be called by the inheriting
-     * activity, but can be overridden if needed.
-     * 
-     * @param surface The SurfaceHolder that holds the surface that we are going to render to.
-     * @return True if successful
-     */
-    public boolean createEGLSurface(SurfaceHolder surfaceHolder) {
-        this.eglSurface = this.egl.eglCreateWindowSurface(this.eglDisplay, this.eglConfig, surfaceHolder, (int[]) null);
-        Log.d("dfs","eglCreateWindowSurface err: " + this.egl.eglGetError());
-        int[] iArr = new int[1];
-        this.egl.eglQuerySurface(this.eglDisplay, this.eglSurface, 12375, iArr);
-        this.surfaceWidth = iArr[0];
-        this.egl.eglQuerySurface(this.eglDisplay, this.eglSurface, 12374, iArr);
-        this.surfaceHeight = iArr[0];
-        Log.d("dfs","checking glVendor == null?");
-        if (this.glVendor == null) {
-            Log.d("dfs","Making current and back");
-            makeCurrent();
-            unMakeCurrent();
-        }
-        Log.d("dfs","Done create EGL surface");
-        return true;
-    }
-
-    /**
-     * Destroys the EGLSurface used for rendering. This function should not be called by the inheriting
-     * activity, but can be overridden if needed.
-     */
-    protected void destroyEGLSurface()
-    {
-        System.out.println("*** destroyEGLSurface");
-        if (eglDisplay != null && eglSurface != null)
-            egl.eglMakeCurrent(eglDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
-        if (eglSurface != null)
-            egl.eglDestroySurface(eglDisplay, eglSurface);
-        eglSurface = null;
-    }
-
-    /**
-     * Called to clean up egl. This function should not be called by the inheriting
-     * activity, but can be overridden if needed.
-     */
-    protected void cleanupEGL()
-    {
-		System.out.println("cleanupEGL");
-        destroyEGLSurface();
-        if (eglDisplay != null)
-            egl.eglMakeCurrent(eglDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
-        if (eglContext != null)
-            egl.eglDestroyContext(eglDisplay, eglContext);
-        if (eglDisplay != null)
-            egl.eglTerminate(eglDisplay);
-
-        eglDisplay = null;
-        eglContext = null;
-        eglSurface = null;
-
-		ranInit = false;
-		eglConfig = null;
-
-		cachedSurfaceHolder = null;
-		surfaceWidth = 0;
-		surfaceHeight = 0;
-    }
-
-    /**
-     * Implementation function: 
-     * The application does not and should not overide or call this directly
-     * Instead, the application should call NVEventEGLSwapBuffers(),
-     * which is declared in nv_event.h
-     */
-
-    public boolean swapBuffers()
-    {
-		//long stopTime;
-		//long startTime = nvGetSystemTime();
-
-        if (SwapBufferSkip > 0) {
-            SwapBufferSkip--;
-            System.out.println("swapBuffer wait");
+    public boolean unMakeCurrent() {
+        EGL10 egl10 = this.egl;
+        EGLDisplay eGLDisplay = this.eglDisplay;
+        EGLSurface eGLSurface = EGL10.EGL_NO_SURFACE;
+        if (egl10.eglMakeCurrent(eGLDisplay, eGLSurface, eGLSurface, EGL10.EGL_NO_CONTEXT)) {
             return true;
         }
-        if (eglSurface == null)
-        {
-	        System.out.println("eglSurface is NULL");
-	        return false;
-	    }
-        else if (!egl.eglSwapBuffers(eglDisplay, eglSurface))
-        {
-	        System.out.println("eglSwapBufferrr: " + egl.eglGetError());
-	        return false;
-	    }
-		//stopTime = nvGetSystemTime();
-		//String s = String.format("%d ms in eglSwapBuffers", (int)(stopTime - startTime));
-		//Log.v("EventAccelerometer", s);
-	    
-	    return true;
-    }    
-
-	public boolean getSupportPauseResume()
-	{
-		return supportPauseResume;
-	}
-    
-    public int getSurfaceWidth()
-    {
-    	return surfaceWidth;        
+        PrintStream printStream = System.out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("egl(Un)MakeCurrent err: ");
+        stringBuilder.append(this.egl.eglGetError());
+        printStream.println(stringBuilder.toString());
+        return false;
     }
-    
-    public int getSurfaceHeight()
-    {
-    	return surfaceHeight;           
-    }
-   
-    /**
-     * Implementation function: 
-     * The application does not and should not overide or call this directly
-     * Instead, the application should call NVEventEGLMakeCurrent(),
-     * which is declared in nv_event.h
-     */
-
-    public void GetGLExtensions()
-    {
-        if (!HasGLExtensions && gl != null && this.cachedSurfaceHolder != null)
-        {
-           // gl.glEnable(GL10.GL_CULL_FACE); // ? сглаживание
-            glVendor = gl.glGetString(GL10.GL_VENDOR);
-            glExtensions = gl.glGetString(GL10.GL_EXTENSIONS);
-            glRenderer = gl.glGetString(GL10.GL_RENDERER);
-            glVersion = gl.glGetString(GL10.GL_VERSION);
-            System.out.println("Vendor: " + glVendor);
-            System.out.println("Extensions " + glExtensions);
-            System.out.println("Renderer: " + glRenderer);
-            System.out.println("GIVersion: " + glVersion);
-            if (this.glVendor != null)
-            {
-                this.HasGLExtensions = true;
-            }
-        }
-    }
-
-    public boolean makeCurrent() {
-        EGLContext eGLContext = this.eglContext;
-        if (eGLContext == null) {
-            Log.d("NvEvent","eglContext is NULL");
-            return false;
-        }
-        EGLSurface eGLSurface = this.eglSurface;
-        if (eGLSurface == null) {
-            Log.d("NvEvent","eglSurface is NULL");
-            return false;
-        }
-        if (!this.egl.eglMakeCurrent(this.eglDisplay, eGLSurface, eGLSurface, eGLContext)) {
-            EGL10 egl10 = this.egl;
-            EGLDisplay eGLDisplay = this.eglDisplay;
-            EGLSurface eGLSurface2 = this.eglSurface;
-            if (!egl10.eglMakeCurrent(eGLDisplay, eGLSurface2, eGLSurface2, this.eglContext)) {
-                Log.d("NvEvent","eglMakeCurrent err: " + this.egl.eglGetError());
-                return false;
-            }
-        }
-        GetGLExtensions();
-        return true;
-    }
-
-	public int getOrientation()
-	{
-        return display.getOrientation();
-	}
-
-    /**
-     * Implementation function: 
-     * The application does not and should not overide or call this directly
-     * Instead, the application should call NVEventEGLUnmakeCurrent(),
-     * which is declared in nv_event.h
-     */
-    public boolean unMakeCurrent()
-    {
-        if (!egl.eglMakeCurrent(eglDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
-		{
-	        System.out.println("egl(Un)MakeCurrent err: " + egl.eglGetError());
-	        return false;
-	    }
-	    
-	    return true;
-    }
-
-    /**
-     * Called when the Activity is exiting and it is time to cleanup.
-     * Kept separate from the {@link #cleanup()} function so that subclasses
-     * in their simplest form do not need to call any of the parent class' functions. This to make
-     * it easier for pure C/C++ application so that these do not need to call java functions from C/C++
-     * code.
-     * 
-     * @see #cleanup()
-     */
-    protected void systemCleanup()
-    {
-        if (ranInit)
-            cleanup();
-        cleanupEGL();
-
-        //postCleanup();
-    }
-
-    public byte[] getClipboardText()
-    {
-        String retn = " ";
-
-        if(mClipboardManager.getPrimaryClip() != null)
-        {
-            ClipData.Item item = mClipboardManager.getPrimaryClip().getItemAt(0);
-            if(item != null)
-            {
-                CharSequence sequence = item.getText();
-                if(sequence != null)
-                {
-                    retn = sequence.toString();
-                }
-            }
-        }
-
-        byte[] toReturn = null;
-        try
-        {
-            toReturn = retn.getBytes("windows-1251");
-        }
-        catch(UnsupportedEncodingException e)
-        {
-
-        }
-        return toReturn;
-    }
-
-    public void setPauseState(boolean z2) {
-        if (mAndroidUI == null) {
-            mAndroidUI = (FrameLayout) findViewById(R.id.ui_layout);
-        }
-        runOnUiThread(() -> mAndroidUI.setVisibility(z2 ? View.GONE:View.VISIBLE));
-    }
-
-    public void CopyTextToBuffer(String string){
-       // String text = edtCopy.getText().toString();
-        ClipboardManager clipboardManager = (ClipboardManager) this.getSystemService(Context.CLIPBOARD_SERVICE);;
-        ClipData clipData;
-        clipData = ClipData.newPlainText("text", string);
-        clipboardManager.setPrimaryClip(clipData);
-
-       // Toast.makeText(this,"Скопированно в буфер обмена ",Toast.LENGTH_SHORT).show();
-    }
-
-
-
 }

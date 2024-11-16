@@ -67,8 +67,9 @@ public class ServerJoinHelper {
             saveSettingsToFile(settingsJson);
 
             // Proceed to start the game
-            //Intent intent = new Intent(context, GTASA.class);
-            //context.startActivity(intent);
+            Intent intent = new Intent(context, GTASA.class);
+            intent.putExtra("begi_otsyda", "fdfef8itfh94t6ywefgiewfwrdi");
+            context.startActivity(intent);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,33 +1,48 @@
 package com.wardrumstudios.utils;
 
-public class WarBilling extends WarBase {
-    public native void notifyChange(String str, int i);
-    public native void changeConnection(boolean z);
+import java.io.PrintStream;
 
-    public void AddSKU(String str)
-    {
-        System.out.println("**** AddSKU: " + str);
+public class WarBilling extends WarBase {
+    public void AddSKU(String str) {
+        PrintStream printStream = System.out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("**** AddSKU: ");
+        stringBuilder.append(str);
+        printStream.println(stringBuilder.toString());
     }
 
-    public boolean InitBilling()
-    {
+    public boolean InitBilling() {
         System.out.println("**** InitBilling()");
         return true;
     }
 
     public String LocalizedPrice(String str) {
-        System.out.println("**** LocalizedPrice: " + str);
+        PrintStream printStream = System.out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("**** LocalizedPrice: ");
+        stringBuilder.append(str);
+        printStream.println(stringBuilder.toString());
         return "";
     }
 
-    public boolean RequestPurchase(String str)
-    {
-        System.out.println("**** RequestPurchase: " + str);
+    public boolean RequestPurchase(String str) {
+        PrintStream printStream = System.out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("**** RequestPurchase: ");
+        stringBuilder.append(str);
+        printStream.println(stringBuilder.toString());
         return true;
     }
 
-    public void SetBillingKey(String str)
-    {
-        System.out.println("**** SetBillingKey: " + str);
+    public void SetBillingKey(String str) {
+        PrintStream printStream = System.out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("**** SetBillingKey: ");
+        stringBuilder.append(str);
+        printStream.println(stringBuilder.toString());
     }
+
+    public native void changeConnection(boolean z);
+
+    public native void notifyChange(String str, int i);
 }

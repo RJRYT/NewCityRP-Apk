@@ -1,99 +1,80 @@
 package com.nvidia.devtech;
 
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.widget.LinearLayout;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.PopupWindow;
-import android.widget.Toast;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-public class HeightProvider extends PopupWindow implements ViewTreeObserver.OnGlobalLayoutListener {
+public class HeightProvider extends PopupWindow implements OnGlobalLayoutListener {
+    private int heightMaxHorizontal;
+    private int heightMaxVertical;
+    private HeightListener listener;
     private Activity mActivity;
     private View rootView;
-    private HeightListener listener;
-    private int heightMaxHorizontal; // Record the maximum height of the pop content area
-    private int heightMaxVertical; // Record the maximum height of the pop content area
 
-    public HeightProvider(final Activity activity) {
+    public interface HeightListener {
+        void onHeightChanged(int i, int i2);
+    }
+
+    class a implements Runnable {
+        final /* synthetic */ View b;
+
+        a(View view) {
+            this.b = view;
+        }
+
+        public void run() {
+            HeightProvider.this.showAtLocation(this.b, 0, 0, 0);
+        }
+    }
+
+    public HeightProvider(Activity activity) {
         super(activity);
         this.mActivity = activity;
-
-        // Basic configuration
-        rootView = new View(activity);
-        setContentView(rootView);
-
-        // Monitor global Layout changes
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+        View view = new View(activity);
+        this.rootView = view;
+        setContentView(view);
+        this.rootView.getViewTreeObserver().addOnGlobalLayoutListener(this);
         setBackgroundDrawable(new ColorDrawable(0));
-
-        // Set width to 0 and height to full screen
         setWidth(0);
-        setHeight(LinearLayout.LayoutParams.MATCH_PARENT);
-
-        // Set keyboard pop-up mode
-        setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+        setHeight(-1);
+        setSoftInputMode(16);
+        setInputMethodMode(1);
     }
 
     public HeightProvider init(View view) {
         if (!isShowing()) {
-            // Delay loading popupwindow, if not, error will be reported
-            final View finalView = view;
-            view.post(new Runnable() {
-                @Override
-                public void run() {
-                    showAtLocation(finalView, Gravity.NO_GRAVITY, 0, 0);
-                }
-            });
+            view.post(new a(view));
         }
         return this;
     }
 
-
-
-    public HeightProvider setHeightListener(HeightListener listener) {
-        this.listener = listener;
-        return this;
-    }
-
-    @Override
     public void onGlobalLayout() {
         Rect rect = new Rect();
-        rootView.getWindowVisibleDisplayFrame(rect);
-        int keyboardHeight = 0;
-        if(rect.bottom > rect.right)
-        {
-            if (rect.bottom > heightMaxVertical) {
-                heightMaxVertical = rect.bottom;
+        this.rootView.getWindowVisibleDisplayFrame(rect);
+        int i = rect.bottom;
+        if (i > rect.right) {
+            if (i > this.heightMaxVertical) {
+                this.heightMaxVertical = i;
             }
-            // The difference between the two is the height of the keyboard
-            keyboardHeight = heightMaxVertical - rect.bottom;
-        }
-        else
-        {
-            if (rect.bottom > heightMaxHorizontal) {
-                heightMaxHorizontal = rect.bottom;
+            i = this.heightMaxVertical;
+        } else {
+            if (i > this.heightMaxHorizontal) {
+                this.heightMaxHorizontal = i;
             }
-            // The difference between the two is the height of the keyboard
-            keyboardHeight = heightMaxHorizontal - rect.bottom;
+            i = this.heightMaxHorizontal;
         }
-
-        if (listener != null) {
-            listener.onHeightChanged(mActivity.getResources().getConfiguration().orientation, keyboardHeight);
+        i -= rect.bottom;
+        HeightListener heightListener = this.listener;
+        if (heightListener != null) {
+            heightListener.onHeightChanged(this.mActivity.getResources().getConfiguration().orientation, i);
         }
     }
 
-    public interface HeightListener {
-        void onHeightChanged(int orientation, int height);
+    public HeightProvider setHeightListener(HeightListener heightListener) {
+        this.listener = heightListener;
+        return this;
     }
 }
