@@ -13,7 +13,7 @@ public class GTASA extends WarMedia {
     private boolean once = false;
 
     /* JADX WARNING: Removed duplicated region for block: B:4:? A:{SYNTHETIC, ExcHandler: java.lang.ExceptionInInitializerError (unused java.lang.ExceptionInInitializerError), Splitter: B:1:0x0007} */
-    /* Code decompiled incorrectly, please refer to instructions dump. */
+    
     static {
         System.out.println("**** Loading SO's");
         try {
