@@ -1,4 +1,4 @@
-# Custom SA-MP APK for Server New City Roleplay
+# Custom SA-MP APK for Server New City Roleplay 
 
 This is the source code for a custom Android APK that connects to a SA-MP (San Andreas Multiplayer) server for the New City Roleplay game.
 
